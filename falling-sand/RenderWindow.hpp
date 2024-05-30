@@ -9,8 +9,6 @@ class RenderWindow
 public:
 	RenderWindow(const char* p_title, int p_w, int p_h);
 
-	int getRefreshRate();
-
 	void cleanUp();
 	void clear();
 	void render(Entity& p_entity, int& p_cellSize);
