@@ -2,7 +2,8 @@
 #include <SDL.h>
 
 
-class Entity {
+class Entity 
+{
 public:
 	Entity(float p_x, float p_y, Uint8 p_r, Uint8 p_g, Uint8 p_b);
 

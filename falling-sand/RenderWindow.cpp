@@ -18,23 +18,27 @@ RenderWindow::RenderWindow(const char* p_title, int p_w, int p_h)
 } 
 
 
-void RenderWindow::cleanUp() {
+void RenderWindow::cleanUp() 
+{
 	SDL_DestroyWindow(window);
 }
 
-void RenderWindow::clear() {
+void RenderWindow::clear() 
+{
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 }
 
-void RenderWindow::render(Entity& p_entity) {
+void RenderWindow::render(Entity& p_entity, int& p_cellSize) 
+{
 
-	SDL_Rect rect = { p_entity.getX(), p_entity.getY(), 100, 100};
+	SDL_Rect rect = { p_entity.getX(), p_entity.getY(), p_cellSize, p_cellSize};
 
     SDL_SetRenderDrawColor(renderer, p_entity.getR(), p_entity.getG(), p_entity.getB(), SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &rect);
 }
 
-void RenderWindow::display() {
+void RenderWindow::display() 
+{
 	SDL_RenderPresent(renderer);
 }
