@@ -26,7 +26,6 @@ int main(int argc, char* args[])
 
     std::vector<std::vector<Entity>> grid(gridWidth, std::vector<Entity>(gridHeight, Entity(0)));
 
-
     bool gameRunning = true;
     SDL_Event event;
     
@@ -51,9 +50,10 @@ int main(int argc, char* args[])
 
         while (accumulator >= timeStep)
         {
-//            std::cout << grid[1][1].getId() << std::endl;
-  //          int R = grid[1][1].getR();
-    //        std::cout << R << std::endl;
+            //            std::cout << grid[1][1].getId() << std::endl;
+              //          int R = grid[1][1].getR();
+                //        std::cout << R << std::endl;
+
             grid[1][1].setId(1);
             accumulator -= timeStep;
         }
@@ -63,7 +63,7 @@ int main(int argc, char* args[])
         for (int x = 0; x < gridWidth; x++) {
             for (int y = 0; y < gridHeight; y++) {
                 const int gridX = x * cellSize;
-                const int gridY = x * cellSize;
+                const int gridY = y * cellSize;
 
                 window.render(grid[x][y], gridX, gridY, cellSize);
             }

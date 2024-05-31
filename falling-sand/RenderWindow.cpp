@@ -33,9 +33,9 @@ void RenderWindow::render(Entity& p_entity, const int p_x, const int p_y, const 
 
 	SDL_Rect rect = { p_x, p_y, p_cellSize, p_cellSize};
 
-//	int R = p_entity.getR();
-	// if (R == 200) 
-//		std::cout << R << std::endl;
+	int R = p_entity.getR();
+	if (p_x == 5 && p_y == 5) 
+	std::cout << R << std::endl;
 
     SDL_SetRenderDrawColor(renderer, p_entity.getR(), p_entity.getG(), p_entity.getB(), SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &rect);
