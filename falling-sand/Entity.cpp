@@ -1,41 +1,50 @@
 #include <SDL.h>
 #include "Entity.hpp"
 
-Entity::Entity(float p_x, float p_y, Uint8 p_r, Uint8 p_g, Uint8 p_b) 
-	:x(p_x), y(p_y), r(p_r), g(p_g), b(p_b) {
+Entity::Entity(int p_id) 
+	:id(p_id) {
 }
 
-float Entity::getX() 
-{
-	return x;
+void Entity::setId(int p_id) {
+	id = p_id;
 }
 
-float Entity::getY() 
-{
-	return y;
+bool Entity::isEmpty() {
+    return (id == 0);
+}
+
+int Entity::getId() {
+	return id;
 }
 
 Uint8 Entity::getR() 
 {
-	return r;
+	if (id > 0) {
+		return 200;
+	}
+	else {
+		return 0;
+	}
 }
 
 Uint8 Entity::getG() 
 {
-	return g;
+
+	if (id > 0) {
+		return 200;
+	}
+	else {
+		return 0;
+	}
 }
 
 Uint8 Entity::getB() 
 {
-	return b;
+	if (id > 0) {
+		return 200;
+	}
+	else {
+		return 0;
+	}
 }
 
-void Entity::setY(float p_y) 
-{
-	y = p_y;
-}
-
-void Entity::setX(float p_x) 
-{
-	x = p_x;
-}
