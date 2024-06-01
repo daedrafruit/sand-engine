@@ -3,8 +3,7 @@
 #include <SDl.h>
 #include "Entity.hpp"
 
-class RenderWindow 
-{
+class RenderWindow {
 
 public:
 	RenderWindow(const char* p_title, const int p_w, const int p_h);
