@@ -21,14 +21,13 @@ int main(int argc, char* args[]) {
 
     const int gridHeight = windowHeight / cellSize;
     const int gridWidth = windowWidth / cellSize;
-
     std::vector<std::vector<Entity>> grid(gridWidth, std::vector<Entity>(gridHeight, Entity(0)));
     std::vector<std::vector<Entity>> bufferGrid(gridWidth, std::vector<Entity>(gridHeight, Entity(0)));
 
     bool gameRunning = true;
     SDL_Event event;
     
-    const float timeStep = 0.01f;
+    const float timeStep = 0.05f;
     const float maxTimeStep = 0.25f;
     float accumulator = 0.0f;
     float prevTime = utils::hireTimeInSeconds();
@@ -41,14 +40,23 @@ int main(int argc, char* args[]) {
         int mouseX, mouseY;
         Uint32 mouseState = SDL_GetMouseState(&mouseX, &mouseY);
 
-        if (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-                    grid[mouseX/cellSize][mouseY/cellSize].setId(1);
-                    grid[mouseX/cellSize + 1][mouseY/cellSize].setId(1);
-                    grid[mouseX/cellSize - 1][mouseY/cellSize].setId(1);
-                    grid[mouseX/cellSize][mouseY/cellSize + 1].setId(1);
-                    grid[mouseX/cellSize][mouseY/cellSize - 1].setId(1);
-        }
+        if (mouseX < windowWidth - 1 && mouseX > 1 && mouseY < windowHeight - 1 && mouseY > 1) {
+			if (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+						grid[mouseX/cellSize][mouseY/cellSize].setId(1);
+						grid[mouseX/cellSize + 1][mouseY/cellSize].setId(1);
+						grid[mouseX/cellSize - 1][mouseY/cellSize].setId(1);
+						grid[mouseX/cellSize][mouseY/cellSize + 1].setId(1);
+						grid[mouseX/cellSize][mouseY/cellSize - 1].setId(1);
+			}
 
+			if (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
+						grid[mouseX/cellSize][mouseY/cellSize].setId(0);
+						grid[mouseX/cellSize + 1][mouseY/cellSize].setId(0);
+						grid[mouseX/cellSize - 1][mouseY/cellSize].setId(0);
+						grid[mouseX/cellSize][mouseY/cellSize + 1].setId(0);
+						grid[mouseX/cellSize][mouseY/cellSize - 1].setId(0);
+			}
+        }
 
         float newTime = utils::hireTimeInSeconds();
         float deltaTime = newTime - prevTime;
@@ -59,10 +67,9 @@ int main(int argc, char* args[]) {
 
         while (accumulator >= timeStep) {
             
+            utils::copyEntityGrid(grid, bufferGrid);
 
-        utils::copy2DVector(grid, bufferGrid);
-
-		for (int x = 0; x < gridWidth; ++x) {
+			for (int x = 0; x < gridWidth; ++x) {
 				for (int y = 0; y < gridHeight - 1; ++y) {
 					if (!grid[x][y].isEmpty()) {
 						if (grid[x][y+1].isEmpty()) {
@@ -75,10 +82,10 @@ int main(int argc, char* args[]) {
 							bufferGrid[x][y].setId(0);
 							bufferGrid[x+1][y+1].setId(1);
 						}
-					}
+                    }
 				}
 			}
-            utils::copy2DVector(bufferGrid, grid);
+            utils::copyEntityGrid(bufferGrid, grid);
             accumulator -= timeStep;
         }
 
