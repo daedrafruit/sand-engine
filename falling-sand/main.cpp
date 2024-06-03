@@ -23,6 +23,7 @@ int main(int argc, char* args[]) {
     const int gridWidth = windowWidth / cellSize;
 
     std::vector<std::vector<Entity>> grid(gridWidth, std::vector<Entity>(gridHeight, Entity(0)));
+    std::vector<std::vector<Entity>> bufferGrid(gridWidth, std::vector<Entity>(gridHeight, Entity(0)));
 
     bool gameRunning = true;
     SDL_Event event;
@@ -42,6 +43,10 @@ int main(int argc, char* args[]) {
 
         if (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) {
                     grid[mouseX/cellSize][mouseY/cellSize].setId(1);
+                    grid[mouseX/cellSize + 1][mouseY/cellSize].setId(1);
+                    grid[mouseX/cellSize - 1][mouseY/cellSize].setId(1);
+                    grid[mouseX/cellSize][mouseY/cellSize + 1].setId(1);
+                    grid[mouseX/cellSize][mouseY/cellSize - 1].setId(1);
         }
 
 
@@ -51,18 +56,29 @@ int main(int argc, char* args[]) {
 
         accumulator += std::min(deltaTime, maxTimeStep);
 
-        while (accumulator >= timeStep) {
-            for (int x = 0; x < gridWidth; x++) {
-                for (int y = 0; y < gridHeight - 1; y++) {
-                    const int gridX = x * cellSize;
-                    const int gridY = y * cellSize;
-                    if (!grid[x][y].isEmpty() && grid[x][y+1].isEmpty()) {
-                        grid[x][y].setId(0);
-                        grid[x][y + 1].setId(1);
 
-                    }
-            }
-        }
+        while (accumulator >= timeStep) {
+            
+
+        utils::copy2DVector(grid, bufferGrid);
+
+		for (int x = 0; x < gridWidth; ++x) {
+				for (int y = 0; y < gridHeight - 1; ++y) {
+					if (!grid[x][y].isEmpty()) {
+						if (grid[x][y+1].isEmpty()) {
+							bufferGrid[x][y].setId(0);
+							bufferGrid[x][y+1].setId(1);
+						} else if (x > 0 && grid[x-1][y+1].isEmpty()) {
+							bufferGrid[x][y].setId(0);
+							bufferGrid[x-1][y+1].setId(1);
+						} else if (x < gridWidth - 1 && grid[x+1][y+1].isEmpty()) {
+							bufferGrid[x][y].setId(0);
+							bufferGrid[x+1][y+1].setId(1);
+						}
+					}
+				}
+			}
+            utils::copy2DVector(bufferGrid, grid);
             accumulator -= timeStep;
         }
 
