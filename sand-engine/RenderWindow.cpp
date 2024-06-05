@@ -6,7 +6,7 @@
 #include "RenderWindow.hpp"
 
 RenderWindow::RenderWindow(const char* p_title, int p_w, int p_h)
-	:window(NULL), renderer(NULL) {
+	:window(NULL), renderer(NULL), width(p_w), height(p_h) {
 
 	window = SDL_CreateWindow(p_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, p_w, p_h, SDL_WINDOW_SHOWN);
 
@@ -37,3 +37,12 @@ void RenderWindow::render(Entity& p_entity, const int p_x, const int p_y, const 
 void RenderWindow::display() {
 	SDL_RenderPresent(renderer);
 }
+
+const int RenderWindow::getWidth() {
+	return width;
+}
+
+const int RenderWindow::getHeight() {
+	return height;
+}
+
