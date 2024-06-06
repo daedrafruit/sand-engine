@@ -34,32 +34,31 @@ int main(int argc, char* args[]) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT)
                 gameRunning = false;
-
-
-            world.mouseEvent(window);
-
-            float newTime = utils::hireTimeInSeconds();
-            float deltaTime = newTime - prevTime;
-            prevTime = newTime;
-
-            accumulator += std::min(deltaTime, maxTimeStep);
-
-
-            while (accumulator >= timeStep) {
-                world.updateWorld();
-                accumulator -= timeStep;
-            }
-
-            window.clear();
-
-            world.renderWorld(window);
-
-            window.display();
         }
 
-        window.cleanUp();
-        SDL_Quit();
+        world.mouseEvent(window);
 
-        return 0;
+        float newTime = utils::hireTimeInSeconds();
+        float deltaTime = newTime - prevTime;
+        prevTime = newTime;
+
+        accumulator += std::min(deltaTime, maxTimeStep);
+
+        while (accumulator >= timeStep) {
+            world.updateWorld();
+            accumulator -= timeStep;
+        }
+
+        window.clear();
+
+        world.renderWorld(window);
+
+        window.display();
     }
+
+    window.cleanUp();
+    SDL_Quit();
+
+    return 0;
 }
+
