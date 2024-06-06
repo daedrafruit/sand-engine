@@ -7,11 +7,11 @@ class RenderWindow
 {
 
 public:
-	RenderWindow(const char* p_title, int p_w, int p_h);
+	RenderWindow(const char* p_title, const int p_w, const int p_h);
 
 	void cleanUp();
 	void clear();
-	void render(Entity& p_entity, int& p_cellSize);
+	void render(Entity& p_entity, int p_x, int p_y, const float& p_cellSize);
 	void display();
 
 private:

@@ -15,22 +15,25 @@ int main(int argc, char* args[])
         return -1;
     }
 
-    int cellSize = 20;
-    int windowWidth = 1280;
-    int windowHeight = 720;
+    const float cellSize = 20;
+    const int windowWidth = 1280;
+    const int windowHeight = 720;
 
     RenderWindow window("Falling Sand", windowWidth, windowHeight);
 
-    std::vector<Entity> entities = {
-        Entity(100, 0, 250, 200, 70)
-    };
+    const int gridHeight = windowHeight / cellSize;
+    const int gridWidth = windowWidth / cellSize;
+
+    std::vector<std::vector<Entity>> grid(gridWidth, std::vector<Entity>(gridHeight, Entity(0)));
+
 
     bool gameRunning = true;
     SDL_Event event;
     
     const float timeStep = 0.01f;
+    const float maxTimeStep = 0.25f;
     float accumulator = 0.0f;
-    float currentTime = utils::hireTimeInSeconds();
+    float prevTime = utils::hireTimeInSeconds();
 
     while (gameRunning) 
     {
@@ -41,29 +44,29 @@ int main(int argc, char* args[])
         }
 
         float newTime = utils::hireTimeInSeconds();
-        float frameTime = newTime - currentTime;
-        currentTime = newTime;
+        float deltaTime = newTime - prevTime;
+        prevTime = newTime;
 
-        if (frameTime > 0.25f)
-            frameTime = 0.25f;
-
-        accumulator += frameTime;
+        accumulator += std::min(deltaTime, maxTimeStep);
 
         while (accumulator >= timeStep)
         {
-            for (Entity& e : entities) 
-            {
-
-                e.setY(e.getY() + cellSize);            
-            }
+//            std::cout << grid[1][1].getId() << std::endl;
+  //          int R = grid[1][1].getR();
+    //        std::cout << R << std::endl;
+            grid[1][1].setId(1);
             accumulator -= timeStep;
         }
 
         window.clear();
 
-        for (Entity& e : entities) 
-        {
-            window.render(e, cellSize);
+        for (int x = 0; x < gridWidth; x++) {
+            for (int y = 0; y < gridHeight; y++) {
+                const int gridX = x * cellSize;
+                const int gridY = x * cellSize;
+
+                window.render(grid[x][y], gridX, gridY, cellSize);
+            }
         }
 
         window.display();
