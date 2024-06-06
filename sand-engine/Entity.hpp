@@ -9,21 +9,24 @@ struct Color {
 
 class Entity {
 public:
-	Entity(int p_id);
-	void setId(int p_id);
+	Entity(int p_x, int p_y, int p_id);
+	
 	bool isEmpty();
-	bool getLastUpdated();
-	void setLastUpdated(bool p_lastUpdated);
 
+	int getX();
+	int getY();
 	int getId();
-
+	bool getLastUpdated();
     virtual Color getColor() const;
 
+	void setX(int p_x);
+	void setY(int p_y);
+	void setId(int p_id);
+	void setLastUpdated(bool p_lastUpdated);
+
+
 private:
-	int id;
+	int x, y, id;
 	bool lastUpdated;
 };
 
-class Sand : Entity {
-	
-};

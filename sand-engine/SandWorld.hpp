@@ -16,7 +16,7 @@ public:
 
 private:
 	const int gridHeight, gridWidth, cellSize;
-    std::vector<std::vector<Entity>> grid;
+    std::vector<Entity> entities;
 
 	bool currWorldUpdate;
 };

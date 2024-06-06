@@ -1,28 +1,28 @@
 #include <SDL.h>
 #include "Entity.hpp"
 
-Entity::Entity(int p_id) 
-	:id(p_id), lastUpdated(false) {
-}
-
-void Entity::setId(int p_id) {
-	id = p_id;
+Entity::Entity(int p_x, int p_y, int p_id) 
+	:x(p_x), y(p_y), id(p_id), lastUpdated(false) {
 }
 
 bool Entity::isEmpty() {
     return (id == 0);
 }
 
-bool Entity::getLastUpdated() {
-    return lastUpdated;
+int Entity::getX() {
+    return x;
 }
 
-void Entity::setLastUpdated(bool p_lastUpdated) {
-    lastUpdated = p_lastUpdated;
+int Entity::getY() {
+    return y;
 }
 
 int Entity::getId() {
 	return id;
+}
+
+bool Entity::getLastUpdated() {
+    return lastUpdated;
 }
 
 Color Entity::getColor() const {
@@ -32,4 +32,20 @@ Color Entity::getColor() const {
     } else {
         return {0, 0, 0};
     }
+}
+
+void Entity::setX(int p_x) {
+    x = p_x;
+}
+
+void Entity::setY(int p_y) {
+    y = p_y;
+}
+
+void Entity::setId(int p_id) {
+	id = p_id;
+}
+
+void Entity::setLastUpdated(bool p_lastUpdated) {
+    lastUpdated = p_lastUpdated;
 }

@@ -26,9 +26,9 @@ void RenderWindow::clear() {
 	SDL_RenderClear(renderer);
 }
 
-void RenderWindow::render(Entity& p_entity, const int p_x, const int p_y, const float& p_cellSize) {
+void RenderWindow::render(Entity& p_entity, const float& p_cellSize) {
 
-	SDL_Rect rect = { p_x, p_y, p_cellSize, p_cellSize};
+	SDL_Rect rect = { p_entity.getX(), p_entity.getY(), p_cellSize, p_cellSize};
 
 	Color color = p_entity.getColor();
 
