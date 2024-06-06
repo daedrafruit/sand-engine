@@ -40,11 +40,11 @@ void RenderWindow::display() {
 	SDL_RenderPresent(renderer);
 }
 
-const int RenderWindow::getWidth() {
+const int RenderWindow::getWidth() const {
 	return width;
 }
 
-const int RenderWindow::getHeight() {
+const int RenderWindow::getHeight() const {
 	return height;
 }
 

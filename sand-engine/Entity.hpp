@@ -10,12 +10,14 @@ struct Color {
 class Entity {
 public:
 	Entity(int p_id);
+
+
 	void setId(int p_id);
 	bool isEmpty();
-	bool getLastUpdated();
+	bool getLastUpdated() const;
 	void setLastUpdated(bool p_lastUpdated);
 
-	int getId();
+	int getId() const;
 
     virtual Color getColor() const;
 

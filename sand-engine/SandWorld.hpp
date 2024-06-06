@@ -8,11 +8,11 @@ class SandWorld {
 public:
 	SandWorld(const int p_windowHeight, const int p_windowWidth, const int cellSize);
 
-	void updateWorld();
-	void renderWorld(RenderWindow p_window);
-	void mouseEvent(RenderWindow p_window);
+	void drawBarrier();
 
-	void copyGrid(const std::vector<std::vector<Entity>>& source, std::vector<std::vector<Entity>>& destination);
+	void updateWorld();
+	void renderWorld(RenderWindow& p_window);
+	void mouseEvent(const RenderWindow& p_window);
 
 private:
 	const int gridHeight, gridWidth, cellSize;
