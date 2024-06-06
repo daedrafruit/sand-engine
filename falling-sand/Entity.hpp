@@ -1,9 +1,7 @@
 #pragma once
 #include <SDL.h>
 
-
-class Entity 
-{
+class Entity {
 public:
 	Entity(int p_id);
 	void setId(int p_id);
