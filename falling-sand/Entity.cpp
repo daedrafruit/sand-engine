@@ -5,15 +5,18 @@ Entity::Entity(int p_id)
 	:id(p_id) {
 }
 
-void Entity::setId(int p_id) {
+void Entity::setId(int p_id)
+{
 	id = p_id;
 }
 
-bool Entity::isEmpty() {
+bool Entity::isEmpty()
+{
     return (id == 0);
 }
 
-int Entity::getId() {
+int Entity::getId()
+{
 	return id;
 }
 
