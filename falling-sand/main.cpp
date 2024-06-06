@@ -50,10 +50,6 @@ int main(int argc, char* args[])
 
         while (accumulator >= timeStep)
         {
-            //            std::cout << grid[1][1].getId() << std::endl;
-              //          int R = grid[1][1].getR();
-                //        std::cout << R << std::endl;
-
             grid[1][1].setId(1);
             accumulator -= timeStep;
         }
