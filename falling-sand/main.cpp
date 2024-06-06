@@ -9,8 +9,10 @@
 
 int main(int argc, char* args[])
 {
-    if (SDL_Init(SDL_INIT_EVERYTHING) > 0) {
-        std::cout << "SDL_Init failed" << SDL_GetError() << std::endl;
+    if (SDL_Init(SDL_INIT_EVERYTHING) > 0)
+    {
+        std::cout << "SDL_Init failed: " << SDL_GetError() << std::endl;
+        return -1;
     }
 
     int cellSize = 20;
@@ -18,10 +20,10 @@ int main(int argc, char* args[])
     int windowHeight = 720;
 
     RenderWindow window("Falling Sand", windowWidth, windowHeight);
-    int windowRefreshRate = window.getRefreshRate();
 
-    std::vector <Entity> entities = {Entity(100, 0, 250, 200, 70)
-                                     };
+    std::vector<Entity> entities = {
+        Entity(100, 0, 250, 200, 70)
+    };
 
     bool gameRunning = true;
     SDL_Event event;
@@ -32,46 +34,39 @@ int main(int argc, char* args[])
 
     while (gameRunning) 
     {
-
-        int startTicks = SDL_GetTicks();
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT)
+                gameRunning = false;
+        }
 
         float newTime = utils::hireTimeInSeconds();
         float frameTime = newTime - currentTime;
-
         currentTime = newTime;
+
+        if (frameTime > 0.25f)
+            frameTime = 0.25f;
 
         accumulator += frameTime;
 
         while (accumulator >= timeStep)
         {
-
-            while (SDL_PollEvent(&event))
+            for (Entity& e : entities) 
             {
-                if (event.type == SDL_QUIT)
-                    gameRunning = false;
+
+                e.setY(e.getY() + cellSize);            
             }
             accumulator -= timeStep;
         }
-
-        const float alpha = accumulator / timeStep;
-        
 
         window.clear();
 
         for (Entity& e : entities) 
         {
-            
-            e.setY(e.getY() + cellSize);
             window.render(e, cellSize);
         }
 
         window.display();
-
-        int frameTicks = SDL_GetTicks() - startTicks;
-
-        if (frameTicks < 1000 / window.getRefreshRate())
-            SDL_Delay(1000 / window.getRefreshRate() - frameTicks);
-
     }
 
     window.cleanUp();
