@@ -13,8 +13,6 @@ public:
 	Uint8 getG();
     Uint8 getB();
 
-
-
 private:
 	int id;
 };

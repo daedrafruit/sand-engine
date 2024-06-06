@@ -24,6 +24,9 @@
     <ClCompile Include="Entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SandWorld.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RenderWindow.hpp">
@@ -33,6 +36,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SandWorld.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
