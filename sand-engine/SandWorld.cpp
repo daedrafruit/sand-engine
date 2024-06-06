@@ -1,5 +1,6 @@
 #include <vector>
 #include <SDL.h>
+#include <iostream>
 
 #include "RenderWindow.hpp"
 #include "SandWorld.hpp"
@@ -9,7 +10,7 @@
 SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const int p_cellSize)
 	:gridHeight(p_windowHeight / p_cellSize), gridWidth(p_windowWidth / p_cellSize), cellSize(p_cellSize),
 	 grid(gridWidth, std::vector<Entity>(gridHeight, Entity(0))),
-	 bufferGrid(gridWidth, std::vector<Entity>(gridHeight, Entity(0))) {
+	 currWorldUpdate(false) {
 
 }
 
@@ -25,25 +26,39 @@ void SandWorld::renderWorld(RenderWindow p_window) {
 }
 
 void SandWorld::updateWorld() {
-	copyGrid(grid, bufferGrid);
+
+	currWorldUpdate = (!currWorldUpdate);
 
 	for (int x = 0; x < gridWidth; ++x) {
 		for (int y = 0; y < gridHeight - 1; ++y) {
-			if (!grid[x][y].isEmpty()) {
-				if (grid[x][y+1].isEmpty()) {
-					bufferGrid[x][y].setId(0);
-					bufferGrid[x][y+1].setId(1);
-				} else if (x > 0 && grid[x-1][y+1].isEmpty()) {
-					bufferGrid[x][y].setId(0);
-					bufferGrid[x-1][y+1].setId(1);
-				} else if (x < gridWidth - 1 && grid[x+1][y+1].isEmpty()) {
-					bufferGrid[x][y].setId(0);
-					bufferGrid[x+1][y+1].setId(1);
-				}
+
+			if (grid[x][y].getLastUpdated() == currWorldUpdate) {
+				continue;	
+			}
+			
+			if (grid[x][y].isEmpty()) {
+				continue;
+			}
+
+			if (grid[x][y + 1].isEmpty()) {
+				grid[x][y].setId(0);
+				grid[x][y + 1].setId(1);
+				grid[x][y + 1].setLastUpdated(currWorldUpdate);
+			}
+
+			else if (x > 0 && grid[x - 1][y + 1].isEmpty()) {
+				grid[x][y].setId(0);
+				grid[x - 1][y + 1].setId(1);
+				grid[x - 1][y + 1].setLastUpdated(currWorldUpdate);
+			} 
+
+			else if (x < gridWidth - 1 && grid[x + 1][y + 1].isEmpty()) {
+				grid[x][y].setId(0);
+				grid[x + 1][y + 1].setId(1);
+				grid[x + 1][y + 1].setLastUpdated(currWorldUpdate);
 			}
 		}
 	}
-	copyGrid(bufferGrid, grid);
 }
 
 void SandWorld::mouseEvent(RenderWindow p_window) {

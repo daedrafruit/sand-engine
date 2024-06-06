@@ -30,7 +30,9 @@ void RenderWindow::render(Entity& p_entity, const int p_x, const int p_y, const 
 
 	SDL_Rect rect = { p_x, p_y, p_cellSize, p_cellSize};
 
-    SDL_SetRenderDrawColor(renderer, p_entity.getR(), p_entity.getG(), p_entity.getB(), SDL_ALPHA_OPAQUE);
+	Color color = p_entity.getColor();
+
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
     SDL_RenderFillRect(renderer, &rect);
 }
 
