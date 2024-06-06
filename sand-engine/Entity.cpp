@@ -1,8 +1,31 @@
 #include <SDL.h>
+#include <vector>
+#include <iostream>
+
 #include "Entity.hpp"
 
-Entity::Entity(int p_x, int p_y, int p_id) 
-	:x(p_x), y(p_y), id(p_id), lastUpdated(false) {
+Entity::Entity(int p_x, int p_y, int p_id, const int p_cellSize) 
+	:x(p_x), y(p_y), id(p_id), cellSize(p_cellSize), lastUpdated(false) {
+}
+
+void Entity::updateCell(std::vector<Entity>& p_entities) {
+
+    if (id < 1) {
+        return;
+    }
+    
+    for (Entity& e : p_entities) {
+
+        if (!(e.getX() == x)) {
+            continue;
+        }
+
+        if (e.getY() == y + cellSize) {
+            return;
+        }
+    }
+    y += cellSize;
+    
 }
 
 bool Entity::isEmpty() {
@@ -30,7 +53,7 @@ Color Entity::getColor() const {
         //yellow
         return {245, 200, 70};
     } else {
-        return {0, 0, 0};
+        return {200, 200, 200};
     }
 }
 

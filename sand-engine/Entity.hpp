@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL.h>
+#include <vector>
 
 struct Color {
     Uint8 r;
@@ -9,7 +10,9 @@ struct Color {
 
 class Entity {
 public:
-	Entity(int p_x, int p_y, int p_id);
+	Entity(int p_x, int p_y, int p_id, const int p_cellSize);
+
+	void updateCell(std::vector<Entity>& p_entities);
 	
 	bool isEmpty();
 
@@ -27,6 +30,7 @@ public:
 
 private:
 	int x, y, id;
+	const int cellSize;
 	bool lastUpdated;
 };
 
