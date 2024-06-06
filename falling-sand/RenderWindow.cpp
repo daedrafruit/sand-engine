@@ -17,6 +17,16 @@ RenderWindow::RenderWindow(const char* p_title, int p_w, int p_h)
     renderer = SDL_CreateRenderer(window, -1, 0);
 } 
 
+int RenderWindow::getRefreshRate() {
+	int displayIndex = SDL_GetWindowDisplayIndex(window);
+
+	SDL_DisplayMode mode;
+
+	SDL_GetDisplayMode(displayIndex, 0, &mode);
+	
+	return mode.refresh_rate;
+
+}
 
 void RenderWindow::cleanUp() 
 {

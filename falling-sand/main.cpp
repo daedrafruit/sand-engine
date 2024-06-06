@@ -18,6 +18,7 @@ int main(int argc, char* args[])
     int windowHeight = 720;
 
     RenderWindow window("Falling Sand", windowWidth, windowHeight);
+    int windowRefreshRate = window.getRefreshRate();
 
     std::vector <Entity> entities = {Entity(100, 0, 250, 200, 70)
                                      };
@@ -31,13 +32,29 @@ int main(int argc, char* args[])
 
     while (gameRunning) 
     {
-        while (SDL_PollEvent(&event)) 
+
+        int startTicks = SDL_GetTicks();
+
+        float newTime = utils::hireTimeInSeconds();
+        float frameTime = newTime - currentTime;
+
+        currentTime = newTime;
+
+        accumulator += frameTime;
+
+        while (accumulator >= timeStep)
         {
-            if (event.type == SDL_QUIT)
+
+            while (SDL_PollEvent(&event))
             {
-                gameRunning = false;
+                if (event.type == SDL_QUIT)
+                    gameRunning = false;
             }
+            accumulator -= timeStep;
         }
+
+        const float alpha = accumulator / timeStep;
+        
 
         window.clear();
 
@@ -48,9 +65,12 @@ int main(int argc, char* args[])
             window.render(e, cellSize);
         }
 
-        std::cout << utils::hireTimeInSeconds() << std::endl;
-
         window.display();
+
+        int frameTicks = SDL_GetTicks() - startTicks;
+
+        if (frameTicks < 1000 / window.getRefreshRate())
+            SDL_Delay(1000 / window.getRefreshRate() - frameTicks);
 
     }
 
