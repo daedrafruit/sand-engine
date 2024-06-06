@@ -19,7 +19,7 @@ int Entity::getId() {
 
 Uint8 Entity::getR()  {
 	if (id > 0) {
-		return 200;
+		return 245;
 	}
 	else {
 		return 0;
@@ -38,7 +38,7 @@ Uint8 Entity::getG() {
 
 Uint8 Entity::getB() {
 	if (id > 0) {
-		return 200;
+		return 70;
 	}
 	else {
 		return 0;
