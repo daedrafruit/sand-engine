@@ -1,8 +1,10 @@
 
 #include <iostream>
 #include <SDL.h>
+#include <vector>
 
 #include "RenderWindow.hpp"
+#include "Entity.hpp"
 
 int main(int argc, char* args[])
 {
@@ -10,10 +12,12 @@ int main(int argc, char* args[])
         std::cout << "SDL_Init failed" << SDL_GetError() << std::endl;
     }
 
+    std::vector <Entity> entities = {Entity(100, 100, 250, 200, 70),
+                                     Entity(100, 200, 0, 0, 255)};
+
     RenderWindow window("Falling Sand", 1280, 720);
 
     bool gameRunning = true;
-
     SDL_Event event;
 
     while (gameRunning) {
@@ -23,16 +27,15 @@ int main(int argc, char* args[])
                 gameRunning = false;
             }
         }
-
+        
         window.clear();
 
-        window.drawPixel(100, 100, 255, 0, 0); // Red pixel at (100, 100)
-        window.drawPixel(200, 200, 0, 255, 0); // Green pixel at (200, 200)
-        window.drawPixel(300, 300, 0, 0, 255); // Blue pixel at (300, 300)
+        for (Entity& e : entities) {
+            window.render(e);
+        }
 
         window.display();
 
-        // Draw pixels
     }
 
     window.cleanUp();

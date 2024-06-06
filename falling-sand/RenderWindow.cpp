@@ -2,6 +2,7 @@
 #include <iostream>
 #include <SDl.h>
 
+#include "entity.hpp"
 #include "RenderWindow.hpp"
 
 RenderWindow::RenderWindow(const char* p_title, int p_w, int p_h)
@@ -22,14 +23,16 @@ void RenderWindow::cleanUp() {
 }
 
 void RenderWindow::clear() {
+	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(renderer);
 }
 
-void RenderWindow::drawPixel(int p_x, int p_y, Uint8 p_r, Uint8 p_g, Uint8 p_b) {
-    SDL_SetRenderDrawColor(renderer, p_r, p_g, p_b, SDL_ALPHA_OPAQUE);
-    SDL_RenderDrawPoint(renderer, p_x, p_y);
-    SDL_RenderPresent(renderer);
+void RenderWindow::render(Entity& p_entity) {
 
+	SDL_Rect rect = { p_entity.getX(), p_entity.getY(), 100, 100};
+
+    SDL_SetRenderDrawColor(renderer, p_entity.getR(), p_entity.getG(), p_entity.getB(), SDL_ALPHA_OPAQUE);
+    SDL_RenderFillRect(renderer, &rect);
 }
 
 void RenderWindow::display() {
