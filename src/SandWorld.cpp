@@ -1,6 +1,5 @@
 #include <vector>
 #include <SDL.h>
-#include <iostream>
 
 #include "RenderWindow.hpp"
 #include "SandWorld.hpp"

@@ -1,11 +1,9 @@
 
 #include <iostream>
 #include <SDL.h>
-#include <vector>
 
 #include "utils.hpp"
 #include "RenderWindow.hpp"
-#include "Entity.hpp"
 #include "SandWorld.hpp"
 
 int main(int argc, char* args[]) {
@@ -14,7 +12,7 @@ int main(int argc, char* args[]) {
         return -1;
     }
 
-    const float cellSize = 5;
+    const int cellSize = 5;
     const int windowWidth = 1280;
     const int windowHeight = 720;
 
