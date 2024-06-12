@@ -20,6 +20,8 @@ void SandWorld::drawBarrier() {
 		grid[x][0].setId(1);
 		grid[x][gridHeight - 1].setId(1);
 	}
+
+
 	//right & left
 	for (int y = 0; y < gridHeight; y++) {
 		grid[0][y].setId(1);
@@ -42,48 +44,30 @@ void SandWorld::renderWorld(RenderWindow& p_window) {
 void SandWorld::updateWorld() {
 
 	currWorldUpdate = (!currWorldUpdate);
-
 	for (int x = 0; x < gridWidth; ++x) {
 		for (int y = 0; y < gridHeight; ++y) {
 
 			bool hasBeenUpdated = grid[x][y].getLastUpdated() == currWorldUpdate;
 
-			if (y == gridHeight - 1 && grid[x][y].getId() == 2) {
-				grid[x][y].setId(0);
-			}
-
 			if (hasBeenUpdated) {
 				continue;	
 			}
-			
-			if (grid[x][y].isEmpty() || grid[x][y].getId() == 1) {
-				continue;
+
+			bool outOfBounds = (y == gridHeight - 1 || y == 0 || x == 0 || x == gridWidth - 1);
+
+			if (outOfBounds && !(grid[x][y].getId() == 1)) {
+				grid[x][y].setId(0);
 			}
 
+			grid[x][y].update(grid, grid[x][y], x, y);
 
-			if (grid[x][y + 1].isEmpty()) {
-				grid[x][y].setId(0);
-				grid[x][y + 1].setId(2);
-				grid[x][y + 1].setLastUpdated(currWorldUpdate);
-			}
 
-			else if (x > 0 && grid[x - 1][y + 1].isEmpty()) {
-				grid[x][y].setId(0);
-				grid[x - 1][y + 1].setId(2);
-				grid[x - 1][y + 1].setLastUpdated(currWorldUpdate);
-			} 
-
-			else if (x < gridWidth - 1 && grid[x + 1][y + 1].isEmpty()) {
-				grid[x][y].setId(0);
-				grid[x + 1][y + 1].setId(2);
-				grid[x + 1][y + 1].setLastUpdated(currWorldUpdate);
-			}
 		}
 	}
 }
 
 void SandWorld::mouseEvent(const RenderWindow& p_window) {
-    int radius = 3;
+    int radius = 4;
 
     Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
     int mouseX, mouseY;

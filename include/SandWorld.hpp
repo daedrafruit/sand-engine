@@ -1,8 +1,8 @@
 #pragma once
 #include <SDL.h>
+#include <vector>
 
 #include "RenderWindow.hpp"
-#include "Entity.hpp"
 
 class SandWorld {
 public:
