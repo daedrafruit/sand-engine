@@ -48,7 +48,7 @@ void SandWorld::updateWorld() {
 
 			bool hasBeenUpdated = grid[x][y].getLastUpdated() == currWorldUpdate;
 
-			if (y == gridHeight - 1 && grid[x][y].getId() == 2) {
+			if (y == gridHeight - 1 && !(grid[x][y].getId() == 1)) {
 				grid[x][y].setId(0);
 			}
 
