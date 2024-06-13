@@ -15,7 +15,7 @@ public:
 	void setId(int p_id);
 	bool isEmpty();
 	bool getLastUpdated() const;
-	void setLastUpdated();
+	void setLastUpdated(bool p_lastUpdated);
 
 	int getId() const;
 

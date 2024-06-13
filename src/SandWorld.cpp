@@ -21,7 +21,6 @@ void SandWorld::drawBarrier() {
 		grid[x][gridHeight - 1].setId(1);
 	}
 
-
 	//right & left
 	for (int y = 0; y < gridHeight; y++) {
 		grid[0][y].setId(1);
@@ -42,7 +41,7 @@ void SandWorld::renderWorld(RenderWindow& p_window) {
 }
 
 void SandWorld::mouseEvent(const RenderWindow& p_window) {
-	int radius = 5;
+	int radius = 3;
 
 	Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
 	int mouseX, mouseY;
@@ -89,18 +88,10 @@ void SandWorld::updateWorld() {
 				continue;	
 			}
 
-			grid[x][y].setLastUpdated();
 
 			if (y == gridHeight - 1 && grid[x][y].getId() == 2) {
 				grid[x][y].setId(0);
 			}
-
-			
-
-			if (grid[x][y].isEmpty() || grid[x][y].getId() == 1) {
-				continue;
-			}
-
 
 			switch (grid[x][y].getId()) {
 				case 0:
@@ -110,39 +101,40 @@ void SandWorld::updateWorld() {
 						continue;
 						break;
 				case 2:
-						updateSand(x, y);
+						updateSand(x, y, currWorldUpdate);
 						break;
 			}
 		}
 	}
 }
 
-void SandWorld::updateSand(int x, int y) {
+void SandWorld::updateSand(int x, int y, bool p_currWorldUpdate) {
+    Entity& curr = grid[x][y];
+    Entity& below = grid[x][y+1];
+    Entity& downLeft = grid[x-1][y+1];
+    Entity& downRight = grid[x+1][y+1];
 
-	Entity& curr = grid[x][y];
-	Entity& below = grid[x][y+1];
-	Entity& downLeft = grid[x-1][y+1];
-	Entity& downRight = grid[x+1][y+1];
+    if (below.isEmpty()) {
+        curr.setId(0);
+        below.setId(2);
+        below.setLastUpdated(p_currWorldUpdate);
+    } else {
+        bool chooseLeft = (SDL_GetTicks() % 2 == 0);
 
-
-	if (below.isEmpty()) {
-		curr.setId(0);
-		below.setId(2);
-		below.setLastUpdated();
-	}
-
-
-	else if (x > 0 && downLeft.isEmpty()) {
-		curr.setId(0);
-		downLeft.setId(2);
-		downLeft.setLastUpdated();
-	}
-
-	else if (x < gridWidth - 1 && downRight.isEmpty()) {
-		curr.setId(0);
-		downRight.setId(2);
-		downRight.setLastUpdated();
-	}
+        if (x > 0 && downLeft.isEmpty() && chooseLeft) {
+            curr.setId(0);
+            downLeft.setId(2);
+            downLeft.setLastUpdated(p_currWorldUpdate);
+        } else if (x < gridWidth - 1 && downRight.isEmpty()) {
+            curr.setId(0);
+            downRight.setId(2);
+            downRight.setLastUpdated(p_currWorldUpdate);
+        } else if (x > 0 && downLeft.isEmpty()) {
+            curr.setId(0);
+            downLeft.setId(2);
+            downLeft.setLastUpdated(p_currWorldUpdate);
+        }
+    }
 }
 
 

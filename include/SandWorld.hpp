@@ -14,7 +14,7 @@ public:
 	void renderWorld(RenderWindow& p_window);
 	void mouseEvent(const RenderWindow& p_window);
 
-	void updateSand(int x, int y);
+	void updateSand(int x, int y, bool p_currWorldUpdate);
 
 private:
 	const int gridHeight, gridWidth, cellSize;

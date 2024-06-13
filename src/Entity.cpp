@@ -17,8 +17,8 @@ bool Entity::getLastUpdated() const {
   return lastUpdated;
 }
 
-void Entity::setLastUpdated() {
-  lastUpdated = !lastUpdated;
+void Entity::setLastUpdated(bool p_lastUpdated) {
+    lastUpdated = p_lastUpdated;
 }
 
 int Entity::getId() const {
