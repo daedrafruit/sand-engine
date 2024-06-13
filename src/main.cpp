@@ -23,7 +23,7 @@ int main(int argc, char* args[]) {
     bool gameRunning = true;
     SDL_Event event;
     
-    const float timeStep = 0.01f;
+    const float timeStep = 0.01;
     const float maxTimeStep = 0.25f;
     float accumulator = 0.0f;
     float prevTime = utils::hireTimeInSeconds();

@@ -6,8 +6,8 @@
 #include "Entity.hpp"
 
 
-SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const int p_cellSize)
-	:gridHeight(p_windowHeight / p_cellSize), gridWidth(p_windowWidth / p_cellSize), cellSize(p_cellSize),
+SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const int gridSize)
+	:gridHeight(p_windowHeight / gridSize), gridWidth(p_windowWidth / gridSize), cellSize(gridSize),
 	 grid(gridWidth, std::vector<Entity>(gridHeight, Entity(0))),
 	 currWorldUpdate(false) {
 
@@ -41,9 +41,45 @@ void SandWorld::renderWorld(RenderWindow& p_window) {
 	}
 }
 
+void SandWorld::mouseEvent(const RenderWindow& p_window) {
+	int radius = 5;
+
+	Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
+	int mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+
+	bool withinBounds = mouseX >= (radius * cellSize) && mouseX < p_window.getWidth() - (radius * cellSize) &&
+						mouseY >= (radius * cellSize) && mouseY < p_window.getHeight() - (radius * cellSize);
+
+	if (!withinBounds) {
+		return;
+	}
+
+	//draw circle in radius
+	for (int dx = -radius; dx <= radius; ++dx) {
+		for (int dy = -radius; dy <= radius; ++dy) {
+			Entity& cell = grid[(mouseX / cellSize) + dx][(mouseY / cellSize) + dy];
+
+			bool withinRadius = dx * dx + dy * dy <= radius * radius;
+			bool leftClick = (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT));
+			bool rightClick = (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT));
+			bool cellIsEmpty = cell.isEmpty();
+
+			if (withinRadius) {
+				if (leftClick && cellIsEmpty) {
+					cell.setId(2);
+				} else if (rightClick) {
+					cell.setId(0);
+				}
+			}
+		}
+	}
+}
+
 void SandWorld::updateWorld() {
 
 	currWorldUpdate = (!currWorldUpdate);
+
 	for (int x = 0; x < gridWidth; ++x) {
 		for (int y = 0; y < gridHeight; ++y) {
 
@@ -53,51 +89,60 @@ void SandWorld::updateWorld() {
 				continue;	
 			}
 
-			bool outOfBounds = (y == gridHeight - 1 || y == 0 || x == 0 || x == gridWidth - 1);
+			grid[x][y].setLastUpdated();
 
-			if (outOfBounds && !(grid[x][y].getId() == 1)) {
+			if (y == gridHeight - 1 && grid[x][y].getId() == 2) {
 				grid[x][y].setId(0);
 			}
 
-			grid[x][y].update(grid, grid[x][y], x, y);
+			
+
+			if (grid[x][y].isEmpty() || grid[x][y].getId() == 1) {
+				continue;
+			}
 
 
+			switch (grid[x][y].getId()) {
+				case 0:
+						continue;
+						break;
+				case 1:
+						continue;
+						break;
+				case 2:
+						updateSand(x, y);
+						break;
+			}
 		}
 	}
 }
 
-void SandWorld::mouseEvent(const RenderWindow& p_window) {
-    int radius = 4;
+void SandWorld::updateSand(int x, int y) {
 
-    Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
-    int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
+	Entity& curr = grid[x][y];
+	Entity& below = grid[x][y+1];
+	Entity& downLeft = grid[x-1][y+1];
+	Entity& downRight = grid[x+1][y+1];
 
-	bool withinBounds = mouseX >= (radius * cellSize) && mouseX < p_window.getWidth() - (radius * cellSize) &&
-						mouseY >= (radius * cellSize) && mouseY < p_window.getHeight() - (radius * cellSize);
 
-	if (!withinBounds) {
-		return;
+	if (below.isEmpty()) {
+		curr.setId(0);
+		below.setId(2);
+		below.setLastUpdated();
 	}
 
-    //draw circle in radius
-    for (int dx = -radius; dx <= radius; ++dx) {
-        for (int dy = -radius; dy <= radius; ++dy) {
-            Entity& cell = grid[(mouseX / cellSize) + dx][(mouseY / cellSize) + dy];
 
-            bool withinRadius = dx * dx + dy * dy <= radius * radius;
-            bool leftClick = (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT));
-            bool rightClick = (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT));
-            bool cellIsEmpty = cell.isEmpty();
+	else if (x > 0 && downLeft.isEmpty()) {
+		curr.setId(0);
+		downLeft.setId(2);
+		downLeft.setLastUpdated();
+	}
 
-            if (withinRadius) {
-                if (leftClick && cellIsEmpty) {
-                    cell.setId(2);
-                } else if (rightClick) {
-                    cell.setId(0);
-                }
-            }
-        }
-    }
+	else if (x < gridWidth - 1 && downRight.isEmpty()) {
+		curr.setId(0);
+		downRight.setId(2);
+		downRight.setLastUpdated();
+	}
 }
+
 

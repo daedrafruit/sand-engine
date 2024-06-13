@@ -14,6 +14,8 @@ public:
 	void renderWorld(RenderWindow& p_window);
 	void mouseEvent(const RenderWindow& p_window);
 
+	void updateSand(int x, int y);
+
 private:
 	const int gridHeight, gridWidth, cellSize;
     std::vector<std::vector<Entity>> grid;
