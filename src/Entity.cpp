@@ -33,6 +33,9 @@ Color Entity::getColor() const {
 		case 2:
 			// yellow
 			return {245, 200, 70};
+		case 3:
+			// yellow
+			return {0, 0, 255};
 		default:
 			return {0, 0, 0};
 	}

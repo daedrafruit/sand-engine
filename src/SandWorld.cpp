@@ -1,9 +1,12 @@
+#include <algorithm>
+#include <random>
 #include <vector>
 #include <SDL.h>
 
 #include "RenderWindow.hpp"
 #include "SandWorld.hpp"
 #include "Entity.hpp"
+#include "SDL_timer.h"
 
 
 SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const int gridSize)
@@ -68,7 +71,7 @@ void SandWorld::mouseEvent(const RenderWindow& p_window) {
 				if (leftClick && cellIsEmpty) {
 					cell.setId(2);
 				} else if (rightClick) {
-					cell.setId(0);
+					cell.setId(3);
 				}
 			}
 		}
@@ -80,17 +83,17 @@ void SandWorld::updateWorld() {
 	currWorldUpdate = (!currWorldUpdate);
 
 	for (int x = 0; x < gridWidth; ++x) {
-		for (int y = 0; y < gridHeight; ++y) {
+		for (int y = gridHeight; y > 0; --y) {
 
-			bool hasBeenUpdated = grid[x][y].getLastUpdated() == currWorldUpdate;
-
-			if (hasBeenUpdated) {
+			if (grid[x][y].getLastUpdated() == currWorldUpdate) {
 				continue;	
 			}
 
+			grid[x][y].setLastUpdated(currWorldUpdate);
 
-			if (y == gridHeight - 1 && grid[x][y].getId() == 2) {
+			if (y == gridHeight - 1 && grid[x][y].getId() > 1) {
 				grid[x][y].setId(0);
+				continue;
 			}
 
 			switch (grid[x][y].getId()) {
@@ -101,40 +104,67 @@ void SandWorld::updateWorld() {
 						continue;
 						break;
 				case 2:
-						updateSand(x, y, currWorldUpdate);
+						updateSand(x, y);
+						break;
+				case 3:
+						updateWater(x, y);
 						break;
 			}
 		}
 	}
 }
 
-void SandWorld::updateSand(int x, int y, bool p_currWorldUpdate) {
-    Entity& curr = grid[x][y];
-    Entity& below = grid[x][y+1];
-    Entity& downLeft = grid[x-1][y+1];
-    Entity& downRight = grid[x+1][y+1];
+void SandWorld::swapCells(Entity& cell1, Entity& cell2) {
+	Entity temp = cell1;
 
-    if (below.isEmpty()) {
-        curr.setId(0);
-        below.setId(2);
-        below.setLastUpdated(p_currWorldUpdate);
-    } else {
-        bool chooseLeft = (SDL_GetTicks() % 2 == 0);
+	cell1 = cell2;
+	cell2 = temp;
 
-        if (x > 0 && downLeft.isEmpty() && chooseLeft) {
-            curr.setId(0);
-            downLeft.setId(2);
-            downLeft.setLastUpdated(p_currWorldUpdate);
-        } else if (x < gridWidth - 1 && downRight.isEmpty()) {
-            curr.setId(0);
-            downRight.setId(2);
-            downRight.setLastUpdated(p_currWorldUpdate);
-        } else if (x > 0 && downLeft.isEmpty()) {
-            curr.setId(0);
-            downLeft.setId(2);
-            downLeft.setLastUpdated(p_currWorldUpdate);
-        }
-    }
+	//cell1.setLastUpdated(currWorldUpdate);
+	//cell2.setLastUpdated(currWorldUpdate);
 }
 
+void SandWorld::updateSand(int x, int y) {
+	Entity& curr = grid[x][y];
+
+	Entity& below = grid[x][y+1];
+	Entity& downLeft = grid[x-1][y+1];
+	Entity& downRight = grid[x+1][y+1];
+
+	int numChecks = 3;
+
+	Entity* checkCells[3] = {&below, &downLeft, &downRight};
+
+	std::shuffle(checkCells + 1, checkCells + numChecks, std::default_random_engine(SDL_GetTicks()));
+
+	for (int i = 0; i < numChecks; i++) {
+		if (checkCells[i]->isEmpty() || checkCells[i]->getId() == 3) {
+			swapCells(curr, *checkCells[i]);
+			break;
+		}
+	}
+}
+
+void SandWorld::updateWater(int p_x, int p_y) {
+	Entity& curr = grid[p_x][p_y];
+
+	Entity& below = grid[p_x][p_y+1];
+	Entity& left = grid[p_x-1][p_y];
+	Entity& right = grid[p_x+1][p_y];
+	Entity& downLeft = grid[p_x-1][p_y+1];
+	Entity& downRight = grid[p_x+1][p_y+1];
+
+	int numChecks = 5;
+
+	Entity* checkCells[5] = {&below, &downLeft, &downRight, &left, &right};
+
+	std::shuffle(checkCells + 1, checkCells + numChecks, std::default_random_engine(SDL_GetTicks()));
+
+	for (int i = 0; i < numChecks; i++) {
+		if (checkCells[i]->isEmpty() || checkCells[i]->getId() == 2) {
+			swapCells(curr, *checkCells[i]);
+			break;
+		}
+	}
+}
 
