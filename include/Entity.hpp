@@ -19,7 +19,9 @@ public:
 
 	int getId() const;
 
-    virtual Color getColor() const;
+  virtual Color getColor() const;
+
+	
 
 private:
 	int id;

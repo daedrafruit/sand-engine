@@ -1,8 +1,8 @@
 #pragma once
 #include <SDL.h>
+#include <vector>
 
 #include "RenderWindow.hpp"
-#include "Entity.hpp"
 
 class SandWorld {
 public:
@@ -13,6 +13,11 @@ public:
 	void updateWorld();
 	void renderWorld(RenderWindow& p_window);
 	void mouseEvent(const RenderWindow& p_window);
+
+	void swapCells(Entity& cell1, Entity& cell2);
+
+	void updateSand(int x, int y);
+	void updateWater(int x, int y);
 
 private:
 	const int gridHeight, gridWidth, cellSize;
