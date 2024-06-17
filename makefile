@@ -5,18 +5,11 @@ BUILDDIR := build
 SRCS := $(wildcard $(SRCDIR)/*.cpp)
 OBJS := $(patsubst $(SRCDIR)/%.cpp,$(BUILDDIR)/%.o,$(SRCS))
 
-CXXFLAGS := -I$(INCDIR) -IC:\ProgramData\mingw64\SDL2\include\SDL2
-LDFLAGS := -LC:\ProgramData\mingw64\SDL2\lib -lmingw32 -lSDL2main -lSDL2 
-
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
-
-$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
-	g++ -c $< -o $@ $(CXXFLAGS)
+build/%.o: src/%.cpp
+	g++ -c $< -o $@ -g -Iinclude -IC:\ProgramData\mingw64\SDL2\include\SDL2
 
 run: $(OBJS)
-	g++ $(OBJS) -o $@ $(LDFLAGS)
+	g++ $(OBJS) -o $@ -g -LC:\ProgramData\mingw64\SDL2\lib -lmingw32 -lSDL2main -lSDL2 
 
 clean:
 	del /Q build\*.o run.exe
-

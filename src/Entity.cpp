@@ -2,22 +2,23 @@
 #include "Entity.hpp"
 
 Entity::Entity(int p_id) 
-	:id(p_id), lastUpdated(false) {
+	:id(p_id), lastUpdated(0) {
 }
 
-void Entity::setId(int p_id) {
+void Entity::setId(int p_id, int p_currWorldUpdate) {
 	id = p_id;
+	lastUpdated = p_currWorldUpdate;
 }
 
 bool Entity::isEmpty() {
   return (id == 0);
 }
 
-bool Entity::getLastUpdated() const {
+int Entity::getLastUpdated() const {
   return lastUpdated;
 }
 
-void Entity::setLastUpdated(bool p_lastUpdated) {
+void Entity::setLastUpdated(int p_lastUpdated) {
     lastUpdated = p_lastUpdated;
 }
 

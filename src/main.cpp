@@ -43,8 +43,8 @@ int main(int argc, char* args[]) {
         accumulator += std::min(deltaTime, maxTimeStep);
 
         while (accumulator >= timeStep) {
-            world.updateWorld();
-            accumulator -= timeStep;
+					world.updateWorld();
+					accumulator -= timeStep;
         }
 
         window.clear();

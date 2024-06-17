@@ -12,10 +12,10 @@ public:
 	Entity(int p_id);
 
 
-	void setId(int p_id);
+	void setId(int p_id, int p_currWorldUpdate);
 	bool isEmpty();
-	bool getLastUpdated() const;
-	void setLastUpdated(bool p_lastUpdated);
+	int getLastUpdated() const;
+	void setLastUpdated(int p_currWorldUpdate);
 
 	int getId() const;
 
@@ -25,7 +25,7 @@ public:
 
 private:
 	int id;
-	bool lastUpdated;
+	int lastUpdated;
 };
 
 class Sand : Entity {
