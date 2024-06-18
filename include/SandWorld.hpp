@@ -19,18 +19,16 @@ public:
 	void renderWorld(RenderWindow& p_window);
 	void mouseEvent(const RenderWindow& p_window);
 
+	void commitSwaps();
+
 	void updateSand(int x, int y);
 	void updateWater(int x, int y);
 
-	void updateCells(std::vector<SwapOperation> p_checkCells);
-
-	void commitSwaps();
-
 private:
 	const int gridHeight, gridWidth, cellSize;
-    std::vector<std::vector<Entity>> grid;
-
 	int currWorldUpdate;
+
+	std::vector<std::vector<Entity>> grid;
 	std::vector<SwapOperation> swaps;
 };
 
