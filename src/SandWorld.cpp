@@ -16,11 +16,6 @@ SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const in
 	drawBarrier();
 }
 
-int SandWorld::getCellSize() const { return cellSize; }
-int SandWorld::getGridWidth() const { return gridWidth; }
-int SandWorld::getGridHeight() const { return gridHeight; }
-std::vector<std::vector<Entity>> SandWorld::getGrid() const { return grid; }
-
 void SandWorld::drawBarrier() {
 	//top & bottom
 	for (int x = 0; x < gridWidth; x++) {

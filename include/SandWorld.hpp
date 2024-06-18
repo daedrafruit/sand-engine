@@ -20,11 +20,6 @@ public:
 
 	void drawBarrier();
 
-	int getCellSize() const;
-	int getGridWidth() const;
-	int getGridHeight() const;
-	std::vector<std::vector<Entity>> getGrid() const;
-
 	void handleEvent(Event p_event, int p_x, int p_y);
 
 	void drawCircle(int p_x, int p_y, int radius, int p_id);
@@ -35,6 +30,11 @@ public:
 
 	void updateSand(int x, int y);
 	void updateWater(int x, int y);
+
+	inline int getCellSize() const { return cellSize; }
+	inline int getGridWidth() const { return gridWidth; }
+	inline int getGridHeight() const { return gridHeight; }
+	inline const std::vector<std::vector<Entity>>& getGrid() const { return grid; }
 
 private:
 	const int gridHeight, gridWidth, cellSize;
