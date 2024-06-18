@@ -1,6 +1,4 @@
 #include <algorithm>
-#include <ios>
-#include <random>
 #include <vector>
 #include <SDL.h>
 
@@ -114,10 +112,17 @@ void SandWorld::commitSwaps() {
 	for (const SwapOperation& swap : swaps) {
 		Entity& cell1 = grid[swap.x1][swap.y1];
 		Entity& cell2 = grid[swap.x2][swap.y2];
+		bool cellPrevUpdated = cell1.getLastUpdated() == currWorldUpdate || cell2.getLastUpdated() == currWorldUpdate;
+
+		if (cellPrevUpdated) {
+			continue;
+		}
+
+		cell1.setLastUpdated(currWorldUpdate);
+		cell2.setLastUpdated(currWorldUpdate);
 
 		std::swap(cell1, cell2);
 	}
-
 	swaps.clear();
 }
 
@@ -134,11 +139,7 @@ void SandWorld::updateSand(int x, int y) {
 		Entity& cell1 = grid[swap.x1][swap.y1];
 		Entity& cell2 = grid[swap.x2][swap.y2];
 
-		bool cellsHaveBeenUpdated = (cell2.getLastUpdated() == currWorldUpdate && cell1.getLastUpdated() == currWorldUpdate);
-
 		if (cell2.isEmpty() || cell2.getId() == 3) {
-			cell1.setLastUpdated(currWorldUpdate);
-			cell2.setLastUpdated(currWorldUpdate);
 			swaps.push_back(swap); 
 			break;
 		}
@@ -159,12 +160,7 @@ void SandWorld::updateWater(int x, int y) {
 		Entity& cell1 = grid[swap.x1][swap.y1];
 		Entity& cell2 = grid[swap.x2][swap.y2];
 
-		bool cellsHaveBeenUpdated = (cell2.getLastUpdated() == currWorldUpdate && cell1.getLastUpdated() == currWorldUpdate);
-		if (cellsHaveBeenUpdated) continue;
-
 		if (cell2.isEmpty()) {
-			cell1.setLastUpdated(currWorldUpdate);
-			cell2.setLastUpdated(currWorldUpdate);
 			swaps.push_back(swap); 
 			break;
 		}
