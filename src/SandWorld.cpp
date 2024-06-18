@@ -2,7 +2,6 @@
 #include <vector>
 #include <SDL.h>
 
-#include "RenderWindow.hpp"
 #include "SandWorld.hpp"
 #include "Entity.hpp"
 #include "SDL_timer.h"
@@ -16,6 +15,11 @@ SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const in
 
 	drawBarrier();
 }
+
+int SandWorld::getCellSize() const { return cellSize; }
+int SandWorld::getGridWidth() const { return gridWidth; }
+int SandWorld::getGridHeight() const { return gridHeight; }
+std::vector<std::vector<Entity>> SandWorld::getGrid() const { return grid; }
 
 void SandWorld::drawBarrier() {
 	//top & bottom
@@ -31,50 +35,42 @@ void SandWorld::drawBarrier() {
 	}
 }
 
-void SandWorld::renderWorld(RenderWindow& p_window) {
-	for (int x = 0; x < gridWidth; x++) {
-		for (int y = 0; y < gridHeight; y++) {
-			const int gridX = x * cellSize;
-			const int gridY = y * cellSize;
+void SandWorld::handleEvent(Event p_event, int p_x, int p_y) {
+	const int x = p_x / cellSize;
+	const int y = p_y / cellSize;
 
-			p_window.render(grid[x][y], gridX, gridY, cellSize);
-		}
-	}
+	switch (p_event) {
+		case Event::leftMouse:
+			drawCircle(x, y, 3, 2);
+			break;
+		case Event::rightMouse:
+			drawCircle(x, y, 3, 3);
+			break;
+	}	
+
 }
 
-void SandWorld::mouseEvent(const RenderWindow& p_window) {
-	int radius = 3;
+void SandWorld::drawCircle(int p_x, int p_y, int radius, int p_id) {
 
-	Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
-	int mouseX, mouseY;
-	SDL_GetMouseState(&mouseX, &mouseY);
-
-	bool withinBounds = mouseX >= (radius * cellSize) && mouseX < p_window.getWidth() - (radius * cellSize) &&
-						mouseY >= (radius * cellSize) && mouseY < p_window.getHeight() - (radius * cellSize);
+	bool withinBounds = p_x >= radius && p_x < gridWidth - radius && p_y >= radius && p_y < gridHeight - radius;
 
 	if (!withinBounds) {
 		return;
 	}
 
-	//draw circle in radius
+	grid[p_x][p_y].setId(p_id, currWorldUpdate);
+
 	for (int dx = -radius; dx <= radius; ++dx) {
 		for (int dy = -radius; dy <= radius; ++dy) {
-			Entity& cell = grid[(mouseX / cellSize) + dx][(mouseY / cellSize) + dy];
+			Entity& cell = grid[p_x + dx][p_y + dy];
 
 			bool withinRadius = dx * dx + dy * dy <= radius * radius;
-			bool leftClick = (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT));
-			bool rightClick = (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT));
 
-			if (withinRadius) {
-				if (leftClick) {
-					cell.setId(2, currWorldUpdate);
-				} else if (rightClick) {
-					cell.setId(3, currWorldUpdate);
-				}
-			}
+			if (withinRadius) cell.setId(p_id, currWorldUpdate);
 		}
 	}
 }
+
 
 void SandWorld::updateWorld() {
 
@@ -83,7 +79,7 @@ void SandWorld::updateWorld() {
 	for (int x = 0; x < gridWidth; ++x) {
 		for (int y = gridHeight - 1; y >= 0; --y) {
 
-			if (y == gridHeight - 1 && grid[x][y].getId() > 1) {
+			if ((x == 0 || x == gridWidth || y == 0 || y == gridHeight - 1) && grid[x][y].getId() > 1) {
 				grid[x][y].setId(0, currWorldUpdate);
 				continue;
 			}

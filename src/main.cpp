@@ -2,6 +2,7 @@
 #include <iostream>
 #include <SDL.h>
 
+#include "UserInterface.hpp"
 #include "utils.hpp"
 #include "RenderWindow.hpp"
 #include "SandWorld.hpp"
@@ -12,7 +13,7 @@ int main(int argc, char* args[]) {
         return -1;
     }
 
-    const int cellSize = 5;
+    const int cellSize = 4;
     const int windowWidth = 1280;
     const int windowHeight = 720;
 
@@ -20,10 +21,12 @@ int main(int argc, char* args[]) {
 
     SandWorld world(windowHeight, windowWidth, cellSize);
 
+		UserInterface userInterface = UserInterface(world);
+
     bool gameRunning = true;
     SDL_Event event;
     
-    const float timeStep = 0.02f;
+    const float timeStep = 0.01f;
     const float maxTimeStep = 0.25f;
     float accumulator = 0.0f;
     float prevTime = utils::hireTimeInSeconds();
@@ -34,7 +37,7 @@ int main(int argc, char* args[]) {
                 gameRunning = false;
         }
 
-        world.mouseEvent(window);
+        userInterface.mouseEvent();
 
         float newTime = utils::hireTimeInSeconds();
         float deltaTime = newTime - prevTime;
@@ -49,7 +52,7 @@ int main(int argc, char* args[]) {
 
         window.clear();
 
-        world.renderWorld(window);
+        window.renderWorld(world);
 
         window.display();
     }

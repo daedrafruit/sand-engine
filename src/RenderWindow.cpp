@@ -2,7 +2,8 @@
 #include <iostream>
 #include <SDl.h>
 
-#include "entity.hpp"
+#include "SandWorld.hpp"
+#include "Entity.hpp"
 #include "RenderWindow.hpp"
 
 RenderWindow::RenderWindow(const char* p_title, int p_w, int p_h)
@@ -17,6 +18,14 @@ RenderWindow::RenderWindow(const char* p_title, int p_w, int p_h)
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 } 
 
+const int RenderWindow::getWidth() const {
+	return width;
+}
+
+const int RenderWindow::getHeight() const {
+	return height;
+}
+
 void RenderWindow::cleanUp() {
 	SDL_DestroyWindow(window);
 }
@@ -26,7 +35,7 @@ void RenderWindow::clear() {
 	SDL_RenderClear(renderer);
 }
 
-void RenderWindow::render(Entity& p_entity, const int p_x, const int p_y, const int& p_cellSize) {
+void RenderWindow::render(const Entity& p_entity, const int p_x, const int p_y, const int& p_cellSize) {
 
 	SDL_Rect rect = { p_x, p_y, p_cellSize, p_cellSize};
 
@@ -40,11 +49,19 @@ void RenderWindow::display() {
 	SDL_RenderPresent(renderer);
 }
 
-const int RenderWindow::getWidth() const {
-	return width;
-}
+void RenderWindow::renderWorld(const SandWorld& p_world) {
+	const int gridWidth = p_world.getGridWidth();
+	const int gridHeight = p_world.getGridHeight();
+	const int cellSize = p_world.getCellSize();
+	const std::vector<std::vector<Entity>>& grid = p_world.getGrid(); 
+	
+	for (int x = 0; x < gridWidth; x++) {
+		for (int y = 0; y < gridHeight; y++) {
+			const int gridX = x * cellSize;
+			const int gridY = y * cellSize;
+			const Entity& cell = grid[x][y];
 
-const int RenderWindow::getHeight() const {
-	return height;
+			render(cell, gridX, gridY, cellSize);
+		}
+	}
 }
-
