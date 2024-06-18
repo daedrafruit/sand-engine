@@ -8,6 +8,7 @@
 #include "SandWorld.hpp"
 #include "Entity.hpp"
 #include "SDL_timer.h"
+#include "utils.hpp"
 
 
 SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const int gridSize)
@@ -84,20 +85,10 @@ void SandWorld::updateWorld() {
 	for (int x = 0; x < gridWidth; ++x) {
 		for (int y = gridHeight - 1; y >= 0; --y) {
 
-			if (grid[x][y].getLastUpdated() == currWorldUpdate) {
-				continue;	
-			}
-
 			if (y == gridHeight - 1 && grid[x][y].getId() > 1) {
 				grid[x][y].setId(0, currWorldUpdate);
 				continue;
 			}
-
-			const SwapOperation below = {x, y, x, y+1};
-			const SwapOperation downLeft = {x, y, x-1, y+1};
-			const SwapOperation downRight = {x, y, x+1, y+1};
-			const SwapOperation left = {x, y, x-1, y};
-			const SwapOperation right = {x, y, x+1, y};
 
 			switch (grid[x][y].getId()) {
 				case 0:
@@ -119,15 +110,12 @@ void SandWorld::updateWorld() {
 }
 
 void SandWorld::commitSwaps() {
-	std::shuffle(swaps.begin(), swaps.end(), std::default_random_engine(SDL_GetTicks()));
+	std::shuffle(swaps.begin(), swaps.end(), utils::getRandomEngine());
 	for (const SwapOperation& swap : swaps) {
-			Entity& cell1 = grid[swap.x1][swap.y1];
-			Entity& cell2 = grid[swap.x2][swap.y2];
+		Entity& cell1 = grid[swap.x1][swap.y1];
+		Entity& cell2 = grid[swap.x2][swap.y2];
 
-			cell1.setLastUpdated(currWorldUpdate);
-			cell2.setLastUpdated(currWorldUpdate);
-
-			std::swap(cell1, cell2);
+		std::swap(cell1, cell2);
 	}
 
 	swaps.clear();
@@ -140,11 +128,18 @@ void SandWorld::updateSand(int x, int y) {
 	const SwapOperation downRight = {x, y, x+1, y+1};
 
 	SwapOperation checkCells[3] = {below, downLeft, downRight};
-	std::shuffle(checkCells + 1, checkCells + 5, std::default_random_engine(SDL_GetTicks()));
+	std::shuffle(checkCells + 1, checkCells + 3, utils::getRandomEngine());
 
 	for (const SwapOperation& swap : checkCells) {
-		if (grid[swap.x2][swap.y2].isEmpty() || grid[swap.x2][swap.y2].getId() == 3) {
-			swaps.push_back(swap);
+		Entity& cell1 = grid[swap.x1][swap.y1];
+		Entity& cell2 = grid[swap.x2][swap.y2];
+
+		bool cellsHaveBeenUpdated = (cell2.getLastUpdated() == currWorldUpdate && cell1.getLastUpdated() == currWorldUpdate);
+
+		if (cell2.isEmpty() || cell2.getId() == 3) {
+			cell1.setLastUpdated(currWorldUpdate);
+			cell2.setLastUpdated(currWorldUpdate);
+			swaps.push_back(swap); 
 			break;
 		}
 	}
@@ -159,11 +154,18 @@ void SandWorld::updateWater(int x, int y) {
 	const SwapOperation right = {x, y, x+1, y};
 
 	SwapOperation checkCells[5] = {below, downLeft, downRight, left, right};
-	std::shuffle(checkCells + 1, checkCells + 5, std::default_random_engine(SDL_GetTicks()));
-
+	std::shuffle(checkCells + 1, checkCells + 5, utils::getRandomEngine());
 	for (const SwapOperation& swap : checkCells) {
-		if (grid[swap.x2][swap.y2].isEmpty()) {
-			swaps.push_back(swap);
+		Entity& cell1 = grid[swap.x1][swap.y1];
+		Entity& cell2 = grid[swap.x2][swap.y2];
+
+		bool cellsHaveBeenUpdated = (cell2.getLastUpdated() == currWorldUpdate && cell1.getLastUpdated() == currWorldUpdate);
+		if (cellsHaveBeenUpdated) continue;
+
+		if (cell2.isEmpty()) {
+			cell1.setLastUpdated(currWorldUpdate);
+			cell2.setLastUpdated(currWorldUpdate);
+			swaps.push_back(swap); 
 			break;
 		}
 	}
