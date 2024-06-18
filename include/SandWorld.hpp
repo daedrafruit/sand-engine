@@ -19,8 +19,10 @@ public:
 	void renderWorld(RenderWindow& p_window);
 	void mouseEvent(const RenderWindow& p_window);
 
-
 	void updateSand(int x, int y);
+	void updateWater(int x, int y);
+
+	void updateCells(std::vector<SwapOperation> p_checkCells);
 
 	void commitSwaps();
 

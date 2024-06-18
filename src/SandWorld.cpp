@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <ios>
 #include <random>
 #include <vector>
 #include <SDL.h>
@@ -15,8 +16,6 @@ SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const in
 	 currWorldUpdate(SDL_GetTicks()) {
 
 	drawBarrier();
-	grid[10][10].setId(2, currWorldUpdate);
-	grid[10][11].setId(2, currWorldUpdate);
 }
 
 void SandWorld::drawBarrier() {
@@ -68,7 +67,7 @@ void SandWorld::mouseEvent(const RenderWindow& p_window) {
 			bool rightClick = (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT));
 
 			if (withinRadius) {
-				if (leftClick && cell.isEmpty()) {
+				if (leftClick) {
 					cell.setId(2, currWorldUpdate);
 				} else if (rightClick) {
 					cell.setId(3, currWorldUpdate);
@@ -94,19 +93,25 @@ void SandWorld::updateWorld() {
 				continue;
 			}
 
+			const SwapOperation below = {x, y, x, y+1};
+			const SwapOperation downLeft = {x, y, x-1, y+1};
+			const SwapOperation downRight = {x, y, x+1, y+1};
+			const SwapOperation left = {x, y, x-1, y};
+			const SwapOperation right = {x, y, x+1, y};
+
 			switch (grid[x][y].getId()) {
 				case 0:
-						continue;
-						break;
+					continue;
+					break;
 				case 1:
-						continue;
-						break;
+					continue;
+					break;
 				case 2:
-						updateSand(x, y);
-						break;
+					updateSand(x, y);
+					break;
 				case 3:
-						continue;
-						break;
+					updateWater(x, y);
+					break;
 			}
 		}
 	}
@@ -128,20 +133,36 @@ void SandWorld::commitSwaps() {
 	swaps.clear();
 }
 
-void SandWorld::updateSand(int x, int y) { 
+void SandWorld::updateSand(int x, int y) {
 
-	SwapOperation below = {x, y, x, y+1};
-	SwapOperation downLeft = {x, y, x-1,y+1};
-	SwapOperation downRight = {x, y, x+1, y+1};
-
-	int numChecks = 3;
+	const SwapOperation below = {x, y, x, y+1};
+	const SwapOperation downLeft = {x, y, x-1, y+1};
+	const SwapOperation downRight = {x, y, x+1, y+1};
 
 	SwapOperation checkCells[3] = {below, downLeft, downRight};
+	std::shuffle(checkCells + 1, checkCells + 5, std::default_random_engine(SDL_GetTicks()));
 
-	std::shuffle(checkCells + 1, checkCells + numChecks, std::default_random_engine(SDL_GetTicks()));
-
-	for (SwapOperation swap : checkCells) {
+	for (const SwapOperation& swap : checkCells) {
 		if (grid[swap.x2][swap.y2].isEmpty() || grid[swap.x2][swap.y2].getId() == 3) {
+			swaps.push_back(swap);
+			break;
+		}
+	}
+}
+
+void SandWorld::updateWater(int x, int y) {
+
+	const SwapOperation below = {x, y, x, y+1};
+	const SwapOperation downLeft = {x, y, x-1, y+1};
+	const SwapOperation downRight = {x, y, x+1, y+1};
+	const SwapOperation left = {x, y, x-1, y};
+	const SwapOperation right = {x, y, x+1, y};
+
+	SwapOperation checkCells[5] = {below, downLeft, downRight, left, right};
+	std::shuffle(checkCells + 1, checkCells + 5, std::default_random_engine(SDL_GetTicks()));
+
+	for (const SwapOperation& swap : checkCells) {
+		if (grid[swap.x2][swap.y2].isEmpty()) {
 			swaps.push_back(swap);
 			break;
 		}
