@@ -8,7 +8,7 @@ struct Color {
 };
 
 enum class CellId {
-	Empty,
+	Air,
 	Stone,
 	Sand,
 	Water

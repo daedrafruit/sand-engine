@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <iterator>
 #include <vector>
 #include <SDL.h>
 
@@ -11,7 +10,7 @@
 
 SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const int gridSize)
 	:gridHeight(p_windowHeight / gridSize), gridWidth(p_windowWidth / gridSize), cellSize(gridSize),
-	 grid(gridWidth, std::vector<Entity>(gridHeight, Entity(CellId::Empty))),
+	 grid(gridWidth, std::vector<Entity>(gridHeight, Entity(CellId::Air))),
 	 currWorldUpdate(SDL_GetTicks()) {
 
 	drawBarrier();
@@ -78,12 +77,12 @@ void SandWorld::updateWorld() {
 			bool cellIsAtPerimeter = (x == 0 || x == gridWidth || y == 0 || y == gridHeight - 1) && grid[x][y].getId() > CellId::Stone;
 
 			if (cellIsAtPerimeter) {
-				grid[x][y].setId(CellId::Empty, currWorldUpdate);
+				grid[x][y].setId(CellId::Air, currWorldUpdate);
 				continue;
 			}
 
 			switch (grid[x][y].getId()) {
-				case CellId::Empty:
+				case CellId::Air:
 					continue;
 					break;
 				case CellId::Stone:
