@@ -7,27 +7,28 @@ struct Color {
     Uint8 b;
 };
 
+enum class CellId {
+	Empty,
+	Stone,
+	Sand,
+	Water
+};
+
 class Entity {
 public:
-	Entity(int p_id);
+	Entity(CellId p_id);
 
-
-	void setId(int p_id, int p_currWorldUpdate);
+	void setId(CellId p_id, int p_currWorldUpdate);
 	bool isEmpty();
 	int getLastUpdated() const;
 	void setLastUpdated(int p_currWorldUpdate);
 
-	int getId() const;
+	CellId getId() const;
 
   virtual Color getColor() const;
 
-	
-
 private:
-	int id;
+	CellId id;
 	int lastUpdated;
 };
 
-class Sand : Entity {
-	
-};
