@@ -11,7 +11,7 @@ void Entity::setId(CellId p_id, int p_currWorldUpdate) {
 }
 
 bool Entity::isEmpty() {
-  return (id == CellId::Empty);
+  return (id == CellId::Air);
 }
 
 int Entity::getLastUpdated() const {

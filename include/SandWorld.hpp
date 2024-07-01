@@ -5,8 +5,14 @@
 #include "Entity.hpp"
 
 struct SwapOperation {
-    int x1, y1;
-    int x2, y2;
+	int x1, y1;
+	int x2, y2;
+};
+
+struct GridPartition {
+	int xi, yi;
+	int xf, yf;
+	bool isActive;
 };
 
 enum class Event {
