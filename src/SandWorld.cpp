@@ -8,9 +8,16 @@
 #include "utils.hpp"
 
 
-SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const int gridSize)
-	:gridHeight(p_windowHeight / gridSize), gridWidth(p_windowWidth / gridSize), cellSize(gridSize),
+SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const int gridSize, const int p_partitionSideLength)
+
+	:gridHeight(p_windowHeight / gridSize), gridWidth(p_windowWidth / gridSize), cellSize(gridSize), 
+
+	partitionSideLength(p_partitionSideLength), partitionWidth(gridWidth / partitionSideLength), partitionHeight(gridHeight / partitionSideLength),
+
+	 gridPartitions(partitionWidth, std::vector<bool>(partitionHeight)),
+
 	 grid(gridWidth, std::vector<Entity>(gridHeight, Entity(CellId::Air))),
+
 	 currWorldUpdate(SDL_GetTicks()) {
 
 	drawBarrier();
@@ -21,14 +28,23 @@ void SandWorld::drawBarrier() {
 	for (int x = 0; x < gridWidth; x++) {
 		grid[x][0].setId(CellId::Stone, currWorldUpdate);
 		grid[x][gridHeight - 1].setId(CellId::Stone, currWorldUpdate);
+
+		gridPartitions[x / partitionWidth][0] = true;
+		gridPartitions[x / partitionWidth][(gridHeight - 1) / partitionWidth] = true;
 	}
 
 	//right & left
 	for (int y = 0; y < gridHeight; y++) {
 		grid[0][y].setId(CellId::Stone, currWorldUpdate);
 		grid[gridWidth - 1][y].setId(CellId::Stone, currWorldUpdate);
+
+		gridPartitions[0][y / partitionHeight] = true;
+		gridPartitions[(gridWidth - 1) / partitionHeight][y / partitionHeight] = true;
 	}
 }
+
+
+
 
 void SandWorld::handleEvent(Event p_event, int p_x, int p_y) {
 	const int x = p_x / cellSize;
@@ -62,18 +78,28 @@ void SandWorld::drawCircle(int p_x, int p_y, int radius, CellId p_id) {
 			// Quadratic formula
 			bool withinRadius = dx * dx + dy * dy <= radius * radius;
 
-			if (withinRadius) cell.setId(p_id, currWorldUpdate);
+			if (withinRadius) {
+				cell.setId(p_id, currWorldUpdate);
+				gridPartitions[(p_x + dx) / partitionWidth][(p_y + dy) / partitionHeight] = true;
+			}
 		}
 	}
 }
 
 
-void SandWorld::updateWorld() {
+
+void SandWorld::updatePartition(int p_x, int p_y) {
+
+	int xi = p_x * partitionWidth;
+	int yi = p_y * partitionHeight;
+
+	int xf = (xi + partitionWidth);
+	int yf = (yi + partitionHeight);
 
 	currWorldUpdate = (SDL_GetTicks());
 
-	for (int x = 0; x < gridWidth; ++x) {
-		for (int y = gridHeight - 1; y >= 0; --y) {
+	for (int x = xi; x < xf; ++x) {
+		for (int y = yi; y < yf; ++y) {
 			bool cellIsAtPerimeter = (x == 0 || x == gridWidth || y == 0 || y == gridHeight - 1) && grid[x][y].getId() > CellId::Stone;
 
 			if (cellIsAtPerimeter) {
@@ -95,6 +121,16 @@ void SandWorld::updateWorld() {
 					updateWater(x, y);
 					break;
 			}
+		}
+	}
+}
+
+void SandWorld::updateWorld() {
+	for (int x = 0; x < partitionSideLength; ++x) {
+		for (int y = 0; y < partitionSideLength; ++y) {
+			if (!gridPartitions[x][y]) continue;
+			gridPartitions[x][y] = false;
+			updatePartition(x, y);
 		}
 	}
 	commitSwaps();
@@ -119,6 +155,15 @@ void SandWorld::commitSwaps() {
 	swaps.clear();
 }
 
+void SandWorld::enablePartitionsAround(int x, int y) {
+		for (int dx = -1; dx <= 1; ++dx) {
+			for (int dy = -1; dy <= 1; ++dy) {
+				if ((x / partitionWidth + dx < 0) || (y / partitionHeight + dy < 0)) continue;
+				gridPartitions[x / partitionWidth + dx][y / partitionHeight + dy] = true;
+			}
+		}
+}
+
 void SandWorld::updateSand(int x, int y) {
 
 	const SwapOperation below = {x, y, x, y+1};
@@ -132,7 +177,12 @@ void SandWorld::updateSand(int x, int y) {
 		Entity& cell1 = grid[swap.x1][swap.y1];
 		Entity& cell2 = grid[swap.x2][swap.y2];
 
+
 		if (cell2.isEmpty() || cell2.getId() == CellId::Water) {
+
+			enablePartitionsAround(swap.x1, swap.y1);
+			enablePartitionsAround(swap.x2, swap.y2);
+
 			swaps.push_back(swap); 
 			break;
 		}

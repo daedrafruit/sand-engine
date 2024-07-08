@@ -16,10 +16,11 @@ int main(int argc, char* args[]) {
     const int cellSize = 4;
     const int windowWidth = 1280;
     const int windowHeight = 720;
+		const int partitionSideLength = 4;
 
     RenderWindow window("Falling Sand", windowWidth, windowHeight);
 
-    SandWorld world(windowHeight, windowWidth, cellSize);
+    SandWorld world(windowHeight, windowWidth, cellSize, partitionSideLength);
 
 		UserInterface userInterface = UserInterface(world);
 
@@ -50,7 +51,7 @@ int main(int argc, char* args[]) {
 					accumulator -= timeStep;
         }
 
-        window.clear();
+        //window.clear();
 
         window.renderWorld(world);
 

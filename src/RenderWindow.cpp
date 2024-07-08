@@ -50,13 +50,33 @@ void RenderWindow::display() {
 }
 
 void RenderWindow::renderWorld(const SandWorld& p_world) {
-	const int gridWidth = p_world.getGridWidth();
-	const int gridHeight = p_world.getGridHeight();
+
+	const int partitionSideLength = p_world.getPartitionSideLength();
+	const std::vector<std::vector<bool>>& gridPartitions = p_world.getGridPartitions(); 
+
+	for (int x = 0; x < partitionSideLength; ++x) {
+		for (int y = 0; y < partitionSideLength; ++y) {
+			if (gridPartitions[x][y]) renderPartition(x, y, p_world);
+		}
+	}
+}
+
+void RenderWindow::renderPartition(int p_x, int p_y, const SandWorld& p_world) {
+
+	const int partitionWidth = p_world.getPartitionWidth();
+	const int partitionHeight = p_world.getPartitionHeight();
+
+	int xi = p_x * partitionWidth;
+	int yi = p_y * partitionHeight;
+
+	int xf = (xi + partitionWidth);
+	int yf = (yi + partitionHeight);
+
 	const int cellSize = p_world.getCellSize();
 	const std::vector<std::vector<Entity>>& grid = p_world.getGrid(); 
-	
-	for (int x = 0; x < gridWidth; x++) {
-		for (int y = 0; y < gridHeight; y++) {
+
+	for (int x = xi; x < xf; ++x) {
+		for (int y = yi; y < yf; ++y) {
 			const int gridX = x * cellSize;
 			const int gridY = y * cellSize;
 			const Entity& cell = grid[x][y];
@@ -65,3 +85,5 @@ void RenderWindow::renderWorld(const SandWorld& p_world) {
 		}
 	}
 }
+
+

@@ -19,6 +19,7 @@ public:
 	void display();
 
 	void renderWorld(const SandWorld& p_world);
+	void renderPartition(int p_x, int p_y, const SandWorld& p_world);
 
 private:
 	SDL_Window* window;
