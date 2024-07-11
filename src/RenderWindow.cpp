@@ -2,6 +2,7 @@
 #include <iostream>
 #include <SDl.h>
 
+#include "SDL_pixels.h"
 #include "SandWorld.hpp"
 #include "Entity.hpp"
 #include "RenderWindow.hpp"
@@ -56,7 +57,9 @@ void RenderWindow::renderWorld(const SandWorld& p_world) {
 
 	for (int x = 0; x < partitionSideLength; ++x) {
 		for (int y = 0; y < partitionSideLength; ++y) {
-			if (gridPartitions[x][y]) renderPartition(x, y, p_world);
+			if (gridPartitions[x][y]) {
+				renderPartition(x, y, p_world);
+			}
 		}
 	}
 }

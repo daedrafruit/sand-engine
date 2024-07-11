@@ -13,7 +13,7 @@ int main(int argc, char* args[]) {
         return -1;
     }
 
-    const int cellSize = 4;
+    const int cellSize = 2;
     const int windowWidth = 1280;
     const int windowHeight = 720;
 		const int partitionSideLength = 4;

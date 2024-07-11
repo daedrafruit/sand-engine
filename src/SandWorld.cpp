@@ -7,6 +7,9 @@
 #include "SDL_timer.h"
 #include "utils.hpp"
 
+// *********************************************************************
+// Initialization
+// *********************************************************************
 
 SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const int gridSize, const int p_partitionSideLength)
 
@@ -43,8 +46,9 @@ void SandWorld::drawBarrier() {
 	}
 }
 
-
-
+// *********************************************************************
+// Event Handling
+// *********************************************************************
 
 void SandWorld::handleEvent(Event p_event, int p_x, int p_y) {
 	const int x = p_x / cellSize;
@@ -86,7 +90,20 @@ void SandWorld::drawCircle(int p_x, int p_y, int radius, CellId p_id) {
 	}
 }
 
+// *********************************************************************
+// Updating World
+// *********************************************************************
 
+void SandWorld::updateWorld() {
+	for (int x = 0; x < partitionSideLength; ++x) {
+		for (int y = 0; y < partitionSideLength; ++y) {
+			if (!gridPartitions[x][y]) continue;
+			gridPartitions[x][y] = false;
+			updatePartition(x, y);
+		}
+	}
+	commitSwaps();
+}
 
 void SandWorld::updatePartition(int p_x, int p_y) {
 
@@ -100,9 +117,9 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 
 	for (int x = xi; x < xf; ++x) {
 		for (int y = yi; y < yf; ++y) {
-			bool cellIsAtPerimeter = (x == 0 || x == gridWidth || y == 0 || y == gridHeight - 1) && grid[x][y].getId() > CellId::Stone;
 
-			if (cellIsAtPerimeter) {
+			//delete cell when it reaches the boundry
+			if ((x == 0 || x == gridWidth || y == 0 || y == gridHeight - 1) && grid[x][y].getId() > CellId::Stone) {
 				grid[x][y].setId(CellId::Air, currWorldUpdate);
 				continue;
 			}
@@ -125,17 +142,6 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 	}
 }
 
-void SandWorld::updateWorld() {
-	for (int x = 0; x < partitionSideLength; ++x) {
-		for (int y = 0; y < partitionSideLength; ++y) {
-			if (!gridPartitions[x][y]) continue;
-			gridPartitions[x][y] = false;
-			updatePartition(x, y);
-		}
-	}
-	commitSwaps();
-}
-
 void SandWorld::commitSwaps() {
 	std::shuffle(swaps.begin(), swaps.end(), utils::getRandomEngine());
 	for (const SwapOperation& swap : swaps) {
@@ -154,6 +160,10 @@ void SandWorld::commitSwaps() {
 	}
 	swaps.clear();
 }
+
+// *********************************************************************
+// Updating Cells
+// *********************************************************************
 
 void SandWorld::enablePartitionsAround(int x, int y) {
 		for (int dx = -1; dx <= 1; ++dx) {
