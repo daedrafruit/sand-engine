@@ -14,19 +14,37 @@
 SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const int gridSize, const int p_partitionSideLength)
 
 	:gridHeight(p_windowHeight / gridSize), gridWidth(p_windowWidth / gridSize), cellSize(gridSize), 
-
 	partitionSideLength(p_partitionSideLength), partitionWidth(gridWidth / partitionSideLength), partitionHeight(gridHeight / partitionSideLength),
+ 	gridPartitions(partitionWidth, std::vector<bool>(partitionHeight)),
+	grid(createGrid(gridHeight, gridWidth)),
+	currWorldUpdate(SDL_GetTicks()) {
 
-	 gridPartitions(partitionWidth, std::vector<bool>(partitionHeight)),
-
-	 grid(gridWidth, std::vector<Entity>(gridHeight, Entity(CellId::Air))),
-
-	 currWorldUpdate(SDL_GetTicks()) {
-
-	drawBarrier();
+	 initializeGrid();
 }
 
-void SandWorld::drawBarrier() {
+Entity** SandWorld::createGrid(int rows, int cols) {
+	Entity** grid = new Entity*[cols];
+	for (int i = 0; i < cols; ++i) {
+		grid[i] = new Entity[rows];
+	}
+	return grid;
+}
+
+void SandWorld::deleteGrid() {
+	for (int i = 0; i < gridHeight; ++i) {
+		delete[] grid[i];
+	}
+	delete[] grid;
+}
+
+void SandWorld::initializeGrid() {
+	for (int i = 0; i < gridWidth; ++i) {
+		for (int j = 0; j < gridHeight; ++j) {
+			grid[i][j].setId(CellId::Air, 0);
+		}
+	}
+
+	//add stone to perimeter
 	//top & bottom
 	for (int x = 0; x < gridWidth; x++) {
 		grid[x][0].setId(CellId::Stone, currWorldUpdate);

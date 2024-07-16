@@ -21,6 +21,10 @@ public:
 		:id(p_id), lastUpdated(0) {
 	}
 
+	Entity() 
+		:id(CellId::Air), lastUpdated(0) {
+	}
+
 	void setId(CellId p_id, int p_currWorldUpdate) {
 		id = p_id;
 		lastUpdated = p_currWorldUpdate;
@@ -53,6 +57,7 @@ public:
 				return {0, 0, 0};
 		}
 	}
+
 
 private:
 	CellId id;

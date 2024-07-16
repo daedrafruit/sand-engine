@@ -33,31 +33,32 @@ int main(int argc, char* args[]) {
     float prevTime = utils::hireTimeInSeconds();
 
     while (gameRunning) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT)
-                gameRunning = false;
-        }
+			while (SDL_PollEvent(&event)) {
+				if (event.type == SDL_QUIT)
+					gameRunning = false;
+			}
 
-        userInterface.mouseEvent();
+			userInterface.mouseEvent();
 
-        float newTime = utils::hireTimeInSeconds();
-        float deltaTime = newTime - prevTime;
-        prevTime = newTime;
+			float newTime = utils::hireTimeInSeconds();
+			float deltaTime = newTime - prevTime;
+			prevTime = newTime;
 
-        accumulator += std::min(deltaTime, maxTimeStep);
+			accumulator += std::min(deltaTime, maxTimeStep);
 
-        while (accumulator >= timeStep) {
-					world.updateWorld();
-					accumulator -= timeStep;
-        }
+			while (accumulator >= timeStep) {
+				world.updateWorld();
+				accumulator -= timeStep;
+			}
 
-        //window.clear();
+			//window.clear();
 
-        window.renderWorld(world);
+			window.renderWorld(world);
 
-        window.display();
+			window.display();
     }
 
+		world.deleteGrid();
     window.cleanUp();
     SDL_Quit();
 

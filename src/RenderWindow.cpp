@@ -76,13 +76,12 @@ void RenderWindow::renderPartition(int p_x, int p_y, const SandWorld& p_world) {
 	int yf = (yi + partitionHeight);
 
 	const int cellSize = p_world.getCellSize();
-	const std::vector<std::vector<Entity>>& grid = p_world.getGrid(); 
 
 	for (int x = xi; x < xf; ++x) {
 		for (int y = yi; y < yf; ++y) {
 			const int gridX = x * cellSize;
 			const int gridY = y * cellSize;
-			const Entity& cell = grid[x][y];
+			const Entity& cell = p_world.getCellAt(x, y);
 
 			render(cell, gridX, gridY, cellSize);
 		}

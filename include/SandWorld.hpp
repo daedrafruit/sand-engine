@@ -18,8 +18,6 @@ class SandWorld {
 public:
 	SandWorld(const int p_windowHeight, const int p_windowWidth, const int cellSize, const int p_partitionSideLength);
 
-	// Draws layer of 'stone' (id=1) along the perimeter of the world
-	void drawBarrier();
 
 	// Responsible for input and other events
 	void handleEvent(Event p_event, int p_x, int p_y);
@@ -44,19 +42,25 @@ public:
 	inline int getCellSize() const { return cellSize; }
 	inline int getGridWidth() const { return gridWidth; }
 	inline int getGridHeight() const { return gridHeight; }
-	inline const std::vector<std::vector<Entity>>& getGrid() const { return grid; }
+
+	inline const Entity& getCellAt(int x, int y) const { return grid[x][y]; }
 
 	inline int getPartitionSideLength() const { return partitionSideLength; }
 	inline int getPartitionWidth() const { return partitionWidth; }
 	inline int getPartitionHeight() const { return partitionHeight; }
 	inline const std::vector<std::vector<bool>>& getGridPartitions() const { return gridPartitions; }
 
+	void deleteGrid();
+
 private:
 	const int gridHeight, gridWidth, cellSize;
 	int currWorldUpdate;
 	const int partitionSideLength, partitionWidth, partitionHeight;
 
-	std::vector<std::vector<Entity>> grid;
+	Entity** grid;
+	Entity** createGrid(int rows, int cols);
+	void initializeGrid();
+
 	std::vector<SwapOperation> swaps;
 
 	std::vector<std::vector<bool>> gridPartitions;
