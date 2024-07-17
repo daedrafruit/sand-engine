@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Entity.hpp"
+#include "utils.hpp"
 
 struct SwapOperation {
 	int x1, y1;
@@ -18,6 +19,10 @@ class SandWorld {
 public:
 	SandWorld(const int p_windowHeight, const int p_windowWidth, const int cellSize, const int p_partitionSideLength);
 
+	~SandWorld() {
+		utils::deleteDynamicArray(grid, gridHeight);
+		utils::deleteDynamicArray(gridPartitions, partitionHeight);
+	}
 
 	// Responsible for input and other events
 	void handleEvent(Event p_event, int p_x, int p_y);
@@ -48,9 +53,7 @@ public:
 	inline int getPartitionSideLength() const { return partitionSideLength; }
 	inline int getPartitionWidth() const { return partitionWidth; }
 	inline int getPartitionHeight() const { return partitionHeight; }
-	inline const std::vector<std::vector<bool>>& getGridPartitions() const { return gridPartitions; }
-
-	void deleteGrid();
+	inline const bool& partitionActive(int x, int y) const { return gridPartitions[x][y]; }
 
 private:
 	const int gridHeight, gridWidth, cellSize;
@@ -58,12 +61,12 @@ private:
 	const int partitionSideLength, partitionWidth, partitionHeight;
 
 	Entity** grid;
-	Entity** createGrid(int rows, int cols);
 	void initializeGrid();
+	
+	bool** gridPartitions;
 
 	std::vector<SwapOperation> swaps;
 
-	std::vector<std::vector<bool>> gridPartitions;
 };
 
 

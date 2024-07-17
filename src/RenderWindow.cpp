@@ -53,11 +53,10 @@ void RenderWindow::display() {
 void RenderWindow::renderWorld(const SandWorld& p_world) {
 
 	const int partitionSideLength = p_world.getPartitionSideLength();
-	const std::vector<std::vector<bool>>& gridPartitions = p_world.getGridPartitions(); 
 
 	for (int x = 0; x < partitionSideLength; ++x) {
 		for (int y = 0; y < partitionSideLength; ++y) {
-			if (gridPartitions[x][y]) {
+			if (p_world.partitionActive(x, y)) {
 				renderPartition(x, y, p_world);
 			}
 		}

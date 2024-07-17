@@ -58,7 +58,6 @@ int main(int argc, char* args[]) {
 			window.display();
     }
 
-		world.deleteGrid();
     window.cleanUp();
     SDL_Quit();
 

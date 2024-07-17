@@ -15,52 +15,25 @@ SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const in
 
 	:gridHeight(p_windowHeight / gridSize), gridWidth(p_windowWidth / gridSize), cellSize(gridSize), 
 	partitionSideLength(p_partitionSideLength), partitionWidth(gridWidth / partitionSideLength), partitionHeight(gridHeight / partitionSideLength),
- 	gridPartitions(partitionWidth, std::vector<bool>(partitionHeight)),
-	grid(createGrid(gridHeight, gridWidth)),
+ 	gridPartitions(utils::createDynamicArray<bool>(partitionHeight, partitionWidth)),
+	grid(utils::createDynamicArray<Entity>(gridHeight, gridWidth)),
 	currWorldUpdate(SDL_GetTicks()) {
 
+	 utils::initializeDynamicArray(gridPartitions, partitionHeight, partitionWidth); 
 	 initializeGrid();
-}
-
-Entity** SandWorld::createGrid(int rows, int cols) {
-	Entity** grid = new Entity*[cols];
-	for (int i = 0; i < cols; ++i) {
-		grid[i] = new Entity[rows];
-	}
-	return grid;
-}
-
-void SandWorld::deleteGrid() {
-	for (int i = 0; i < gridHeight; ++i) {
-		delete[] grid[i];
-	}
-	delete[] grid;
 }
 
 void SandWorld::initializeGrid() {
 	for (int i = 0; i < gridWidth; ++i) {
 		for (int j = 0; j < gridHeight; ++j) {
 			grid[i][j].setId(CellId::Air, 0);
+
+			//add barrier
+			if (i == 0 || i == gridWidth - 1 || j == 0 || j == gridHeight - 1) {
+				grid[i][j].setId(CellId::Stone, currWorldUpdate);
+				gridPartitions[i / partitionWidth][j / partitionHeight] = true;
+			}
 		}
-	}
-
-	//add stone to perimeter
-	//top & bottom
-	for (int x = 0; x < gridWidth; x++) {
-		grid[x][0].setId(CellId::Stone, currWorldUpdate);
-		grid[x][gridHeight - 1].setId(CellId::Stone, currWorldUpdate);
-
-		gridPartitions[x / partitionWidth][0] = true;
-		gridPartitions[x / partitionWidth][(gridHeight - 1) / partitionWidth] = true;
-	}
-
-	//right & left
-	for (int y = 0; y < gridHeight; y++) {
-		grid[0][y].setId(CellId::Stone, currWorldUpdate);
-		grid[gridWidth - 1][y].setId(CellId::Stone, currWorldUpdate);
-
-		gridPartitions[0][y / partitionHeight] = true;
-		gridPartitions[(gridWidth - 1) / partitionHeight][y / partitionHeight] = true;
 	}
 }
 
