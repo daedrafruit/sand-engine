@@ -5,6 +5,7 @@
 
 #include "SandWorld.hpp"
 #include "Entity.hpp"
+#include "SDL_keycode.h"
 #include "SDL_timer.h"
 #include "utils.hpp"
 
@@ -29,6 +30,7 @@ SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const in
 
 		utils::initializeDynamicArray(gridPartitions, partitionSideLength, partitionSideLength); 
 		initializeGrid();
+		drawGaltonBoard();
 }
 
 void SandWorld::initializeGrid() {
@@ -49,16 +51,22 @@ void SandWorld::initializeGrid() {
 // Event Handling
 // *********************************************************************
 
-void SandWorld::handleEvent(Event p_event, int p_x, int p_y) {
+void SandWorld::handleEvent(SDL_Event p_event, int p_x, int p_y) {
 	const int x = p_x / cellSize;
 	const int y = p_y / cellSize;
 
-	switch (p_event) {
-		case Event::leftMouse:
+	switch (p_event.key.keysym.sym) {
+		case SDLK_0:
+			drawCircle(x, y, 3, CellId::Air);
+			break;
+		case SDLK_1:
+			drawCircle(x, y, 3, CellId::Stone);
+			break;
+		case SDLK_2:
 			drawCircle(x, y, 3, CellId::Sand);
 			break;
-		case Event::rightMouse:
-			drawCircle(x, y, 3, CellId::Stone);
+		case SDLK_3:
+			drawCircle(x, y, 3, CellId::Water);
 			break;
 	}	
 
@@ -212,10 +220,59 @@ void SandWorld::updateWater(int x, int y) {
 		Entity& cell2 = grid[swap.x2][swap.y2];
 
 		if (cell2.isEmpty()) {
+
+			enablePartitionsAround(swap.x1, swap.y1);
+			enablePartitionsAround(swap.x2, swap.y2);
+
 			swaps.push_back(swap); 
 			break;
 		}
 	}
 }
 
+void SandWorld::drawGaltonBoard() {
 
+	int radius = 2;
+	int margin = gridHeight / 6; 
+	int pegSpacing = radius * 3;
+	int rows = (gridHeight - 2 * margin) / pegSpacing;
+
+	//get number of rows based on grid size
+	while ((rows * pegSpacing) + 2 * margin > gridHeight || (rows * pegSpacing / 2) + 2 * margin > gridWidth) {
+		--rows;
+	}
+
+	int startX = gridWidth / 2;
+	int startY = margin;
+
+	//draw dropper
+	int topY = margin / 2;
+	for (int x = 0; x < gridWidth; ++x) {
+		if (x != startX) {
+			grid[x][topY].setId(CellId::Stone, currWorldUpdate);
+		}
+	}
+
+	//draw pegs
+	for (int row = 0; row < rows; ++row) {
+		for (int col = 0; col <= row; ++col) {
+			int pegX = startX + col * pegSpacing - row * (pegSpacing / 2);
+			int pegY = startY + row * pegSpacing;
+			if (pegX >= margin && pegX < gridWidth - margin && pegY >= margin && pegY < gridHeight - margin) {
+				drawCircle(pegX, pegY, radius, CellId::Stone);
+				enablePartitionsAround(pegX, pegY);
+			}
+		}
+	}
+
+	//draw collectors
+	int collectorY = gridHeight;
+	for (int col = 0; col <= rows; ++col) {
+		int collectorX = startX - (rows * pegSpacing / 2) + col * pegSpacing;
+		if (collectorX >= margin && collectorX < gridWidth - margin) {
+			for (int y = collectorY; y >= gridHeight - margin; --y) {
+				grid[collectorX][y].setId(CellId::Stone, currWorldUpdate);
+			}
+		}
+	}
+}

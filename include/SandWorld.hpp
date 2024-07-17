@@ -24,8 +24,10 @@ public:
 		utils::deleteDynamicArray(gridPartitions, partitionHeight);
 	}
 
+	void drawGaltonBoard();
+
 	// Responsible for input and other events
-	void handleEvent(Event p_event, int p_x, int p_y);
+	void handleEvent(SDL_Event p_event, int p_x, int p_y);
 
 	// Draws a filled circle of some id around the passed in coordinates
 	void drawCircle(int p_x, int p_y, int radius, CellId p_id);

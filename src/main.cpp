@@ -2,7 +2,8 @@
 #include <iostream>
 #include <SDL.h>
 
-#include "UserInterface.hpp"
+#include "SDL_events.h"
+#include "SDL_mouse.h"
 #include "utils.hpp"
 #include "RenderWindow.hpp"
 #include "SandWorld.hpp"
@@ -15,14 +16,12 @@ int main(int argc, char* args[]) {
 
     const int windowWidth = 1280;
     const int windowHeight = 720;
-    const int cellSize = 2;
-		const int partitionSideLength = 8;
+    const int cellSize = 1;
+		const int partitionSideLength = 1;
 
     RenderWindow window("Falling Sand", windowWidth, windowHeight);
 
     SandWorld world(windowHeight, windowWidth, cellSize, partitionSideLength);
-
-		UserInterface userInterface = UserInterface(world);
 
     bool gameRunning = true;
     SDL_Event event;
@@ -34,11 +33,17 @@ int main(int argc, char* args[]) {
 
     while (gameRunning) {
 			while (SDL_PollEvent(&event)) {
-				if (event.type == SDL_QUIT)
-					gameRunning = false;
-			}
 
-			userInterface.mouseEvent();
+				if (event.type == SDL_QUIT) 
+					gameRunning = false;
+
+				if (event.type == SDL_KEYDOWN) {
+					int x;
+					int y;
+					SDL_GetMouseState(&x, &y);
+					world.handleEvent(event, x, y);
+				}
+			}
 
 			float newTime = utils::hireTimeInSeconds();
 			float deltaTime = newTime - prevTime;
