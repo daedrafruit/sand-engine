@@ -1,5 +1,4 @@
 #include <SDL.h>
-#include <ios>
 
 #include "UserInterface.hpp"
 #include "SandWorld.hpp"

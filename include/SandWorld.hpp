@@ -17,7 +17,7 @@ enum class Event {
 
 class SandWorld {
 public:
-	SandWorld(const int p_windowHeight, const int p_windowWidth, const int cellSize, const int p_partitionSideLength);
+	SandWorld(const int p_windowHeight, const int p_windowWidth, const int p_cellSize, const int p_partitionSideLength);
 
 	~SandWorld() {
 		utils::deleteDynamicArray(grid, gridHeight);
@@ -35,13 +35,17 @@ public:
 	// Calls the respective 'updateCell' function for each cell in the world
 	void updateWorld();
 
-	/* When an 'updateCell' function is called, the updates do not happen immediately, 
-	 * they are added to a list of updates, this functiont randomizes, and applies those updates */
+	// When an 'updateCell' function is called, the updates do not happen immediately, 
+	// they are added to a list of updates. This functiont randomizes, and applies those updates
 	void commitSwaps();
 
+	// Sets all adjacent partitions to true
   void enablePartitionsAround(int x, int y);
 
+	// Updates sand cell, also respoinsible for enabling respective partitions
 	void updateSand(int x, int y);
+
+	// Updates water cell, also respoinsible for enabling respective partitions
 	void updateWater(int x, int y);
 
 	inline int getCellSize() const { return cellSize; }

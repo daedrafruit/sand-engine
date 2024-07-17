@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <vector>
 #include <SDL.h>
+#include <stdexcept>
 
 #include "SandWorld.hpp"
 #include "Entity.hpp"
@@ -11,16 +12,23 @@
 // Initialization
 // *********************************************************************
 
-SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const int gridSize, const int p_partitionSideLength)
+SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const int p_cellSize, const int p_partitionSideLength)
 
-	:gridHeight(p_windowHeight / gridSize), gridWidth(p_windowWidth / gridSize), cellSize(gridSize), 
+	:gridHeight(p_windowHeight / p_cellSize), gridWidth(p_windowWidth / p_cellSize), cellSize(p_cellSize), 
 	partitionSideLength(p_partitionSideLength), partitionWidth(gridWidth / partitionSideLength), partitionHeight(gridHeight / partitionSideLength),
  	gridPartitions(utils::createDynamicArray<bool>(partitionHeight, partitionWidth)),
 	grid(utils::createDynamicArray<Entity>(gridHeight, gridWidth)),
 	currWorldUpdate(SDL_GetTicks()) {
 
-	 utils::initializeDynamicArray(gridPartitions, partitionHeight, partitionWidth); 
-	 initializeGrid();
+    if (p_windowWidth % p_cellSize != 0 || p_windowHeight % p_cellSize != 0) {
+      throw std::invalid_argument("Window dimensions are not divisible by cell size.");
+    }
+    if (gridHeight % p_partitionSideLength != 0 || gridWidth % p_partitionSideLength != 0) {
+      throw std::invalid_argument("Grid dimensions are not divisible by partition side length.");
+    }
+
+		utils::initializeDynamicArray(gridPartitions, partitionSideLength, partitionSideLength); 
+		initializeGrid();
 }
 
 void SandWorld::initializeGrid() {
@@ -157,12 +165,12 @@ void SandWorld::commitSwaps() {
 // *********************************************************************
 
 void SandWorld::enablePartitionsAround(int x, int y) {
-		for (int dx = -1; dx <= 1; ++dx) {
-			for (int dy = -1; dy <= 1; ++dy) {
-				if ((x / partitionWidth + dx < 0) || (y / partitionHeight + dy < 0)) continue;
-				gridPartitions[x / partitionWidth + dx][y / partitionHeight + dy] = true;
-			}
+	for (int dx = -1; dx <= 1; ++dx) {
+		for (int dy = -1; dy <= 1; ++dy) {
+			if ((x / partitionWidth + dx < 0) || (y / partitionHeight + dy < 0)) continue;
+			gridPartitions[x / partitionWidth + dx][y / partitionHeight + dy] = true;
 		}
+	}
 }
 
 void SandWorld::updateSand(int x, int y) {
@@ -177,7 +185,6 @@ void SandWorld::updateSand(int x, int y) {
 	for (const SwapOperation& swap : checkCells) {
 		Entity& cell1 = grid[swap.x1][swap.y1];
 		Entity& cell2 = grid[swap.x2][swap.y2];
-
 
 		if (cell2.isEmpty() || cell2.getId() == CellId::Water) {
 
