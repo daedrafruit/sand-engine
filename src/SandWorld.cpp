@@ -5,7 +5,6 @@
 
 #include "SandWorld.hpp"
 #include "Entity.hpp"
-#include "SDL_keycode.h"
 #include "SDL_scancode.h"
 #include "SDL_timer.h"
 #include "utils.hpp"
@@ -72,6 +71,12 @@ void SandWorld::handleEvent(const Uint8* currKeyStates, int p_x, int p_y) {
 		
 		if (currKeyStates[SDL_SCANCODE_3])
 			drawCircle(x, y, 3, CellId::Water);
+
+		if (currKeyStates[SDL_SCANCODE_4])
+			drawCircle(x, y, 3, CellId::Fire);
+
+		if (currKeyStates[SDL_SCANCODE_5])
+			drawCircle(x, y, 3, CellId::Smoke);
 
 		if (currKeyStates[SDL_SCANCODE_G])
 			drawGaltonBoard();
@@ -146,12 +151,18 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 					break;
 				case CellId::Stone:
 					continue;
-			break;
+					break;
 				case CellId::Sand:
 					updateSand(x, y);
 					break;
 				case CellId::Water:
 					updateWater(x, y);
+					break;
+				case CellId::Fire:
+					updateFire(x, y);
+					break;
+				case CellId::Smoke:
+					updateSmoke(x, y);
 					break;
 			}
 		}
@@ -242,6 +253,62 @@ void SandWorld::updateWater(int x, int y) {
 
 			swaps.push_back(swap); 
 			break;
+		}
+	}
+}
+
+void SandWorld::updateFire(int x, int y) {
+
+	const SwapOperation above = {x, y, x, y-1};
+	const SwapOperation upLeft = {x, y, x-1, y-1};
+	const SwapOperation upRight = {x, y, x+1, y-1};
+	const SwapOperation left = {x, y, x-1, y};
+	const SwapOperation right = {x, y, x+1, y};
+
+	SwapOperation checkCells[5] = {above, upLeft, upRight, left, right};
+	std::shuffle(checkCells + 1, checkCells + 5, utils::getRandomEngine());
+	for (const SwapOperation& swap : checkCells) {
+		Entity& cell1 = grid[swap.x1][swap.y1];
+		Entity& cell2 = grid[swap.x2][swap.y2];
+
+		if (cell2.isEmpty()) {
+
+			enablePartitionsAround(swap.x1, swap.y1);
+			enablePartitionsAround(swap.x2, swap.y2);
+
+			swaps.push_back(swap); 
+			break;
+		}
+	}
+}
+
+void SandWorld::updateSmoke(int x, int y) {
+
+	//if ((currWorldUpdate - grid[x][y].getSpawnTime()) >= 10000)
+	//	grid[x][y].setId(CellId::Air, currWorldUpdate);
+
+	const SwapOperation above = {x, y, x, y-1};
+	const SwapOperation upLeft = {x, y, x-1, y-1};
+	const SwapOperation upRight = {x, y, x+1, y-1};
+	const SwapOperation left = {x, y, x-1, y};
+	const SwapOperation right = {x, y, x+1, y};
+
+	SwapOperation checkCells[5] = {above, upLeft, upRight, left, right};
+	std::shuffle(checkCells, checkCells + 5, utils::getRandomEngine());
+	for (const SwapOperation& swap : checkCells) {
+		Entity& cell1 = grid[swap.x1][swap.y1];
+		Entity& cell2 = grid[swap.x2][swap.y2];
+
+		cell1.setRegister('a', currWorldUpdate);
+
+		enablePartitionsAround(swap.x1, swap.y1);
+		enablePartitionsAround(swap.x2, swap.y2);
+
+		if (cell2.isEmpty()) {
+			swaps.push_back(swap); 
+			break;
+		} else if ((currWorldUpdate - cell1.getRegister('a') >= 5000)) {
+			cell1.setId(CellId::Air, currWorldUpdate);
 		}
 	}
 }

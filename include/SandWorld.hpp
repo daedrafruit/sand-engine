@@ -50,6 +50,10 @@ public:
 	// Updates water cell, also respoinsible for enabling respective partitions
 	void updateWater(int x, int y);
 
+	void updateFire(int x, int y);
+
+	void updateSmoke(int x, int y);
+
 	inline int getCellSize() const { return cellSize; }
 	inline int getGridWidth() const { return gridWidth; }
 	inline int getGridHeight() const { return gridHeight; }
