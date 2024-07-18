@@ -42,8 +42,8 @@ void RenderWindow::render(const Entity& p_entity, const int p_x, const int p_y, 
 
 	Color color = p_entity.getColor();
 
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
-    SDL_RenderFillRect(renderer, &rect);
+	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
+	SDL_RenderFillRect(renderer, &rect);
 }
 
 void RenderWindow::display() {
@@ -53,11 +53,24 @@ void RenderWindow::display() {
 void RenderWindow::renderWorld(const SandWorld& p_world) {
 
 	const int partitionSideLength = p_world.getPartitionSideLength();
+	const int cellSize = p_world.getCellSize();
+	const int partitionWidth = p_world.getPartitionWidth();
+	const int partitionHeight = p_world.getPartitionHeight();
 
 	for (int x = 0; x < partitionSideLength; ++x) {
 		for (int y = 0; y < partitionSideLength; ++y) {
 			if (p_world.partitionActive(x, y)) {
+//				SDL_Rect rect = { x  * partitionWidth, y *  partitionHeight, cellSize, cellSize};
+
+//				SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
+//				SDL_RenderFillRect(renderer, &rect);
 				renderPartition(x, y, p_world);
+
+			} else {
+//				SDL_Rect rect = { x  *  partitionWidth, y *  partitionHeight, cellSize, cellSize};
+
+//				SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+//				SDL_RenderFillRect(renderer, &rect);
 			}
 		}
 	}

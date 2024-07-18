@@ -17,7 +17,7 @@ int main(int argc, char* args[]) {
     const int windowWidth = 1280;
     const int windowHeight = 720;
     const int cellSize = 1;
-		const int partitionSideLength = 1;
+		const int partitionSideLength = 20;
 
     RenderWindow window("Falling Sand", windowWidth, windowHeight);
 
@@ -32,19 +32,20 @@ int main(int argc, char* args[]) {
     float prevTime = utils::hireTimeInSeconds();
 
     while (gameRunning) {
-			while (SDL_PollEvent(&event)) {
 
+			while (SDL_PollEvent(&event)) {
 				if (event.type == SDL_QUIT) 
 					gameRunning = false;
-
-				if (event.type == SDL_KEYDOWN) {
-					int x;
-					int y;
-					SDL_GetMouseState(&x, &y);
-					world.handleEvent(event, x, y);
-				}
 			}
 
+			{		
+				const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+				int x;
+				int y;
+				SDL_GetMouseState(&x, &y);
+				world.handleEvent(currentKeyStates, x, y);
+			}
+		
 			float newTime = utils::hireTimeInSeconds();
 			float deltaTime = newTime - prevTime;
 			prevTime = newTime;

@@ -6,6 +6,7 @@
 #include "SandWorld.hpp"
 #include "Entity.hpp"
 #include "SDL_keycode.h"
+#include "SDL_scancode.h"
 #include "SDL_timer.h"
 #include "utils.hpp"
 
@@ -30,18 +31,23 @@ SandWorld::SandWorld(const int p_windowHeight, const int p_windowWidth, const in
 
 		utils::initializeDynamicArray(gridPartitions, partitionSideLength, partitionSideLength); 
 		initializeGrid();
-		drawGaltonBoard();
+		//drawGaltonBoard();
 }
 
 void SandWorld::initializeGrid() {
-	for (int i = 0; i < gridWidth; ++i) {
-		for (int j = 0; j < gridHeight; ++j) {
-			grid[i][j].setId(CellId::Air, 0);
+	for (int x = 0; x < gridWidth; ++x) {
+		for (int y = 0; y < gridHeight; ++y) {
+			grid[x][y].setId(CellId::Air, 0);
 
 			//add barrier
-			if (i == 0 || i == gridWidth - 1 || j == 0 || j == gridHeight - 1) {
-				grid[i][j].setId(CellId::Stone, currWorldUpdate);
-				gridPartitions[i / partitionWidth][j / partitionHeight] = true;
+			if (x == 0 || x == gridWidth - 1 || y == 0 || y == gridHeight - 1) {
+				grid[x][y].setId(CellId::Stone, currWorldUpdate);
+			}
+		}
+
+		for (int x = 0; x < partitionSideLength; ++x) {
+			for (int y = 0; y < partitionSideLength; ++y) {
+				gridPartitions[x][y] = true;
 			}
 		}
 	}
@@ -51,24 +57,27 @@ void SandWorld::initializeGrid() {
 // Event Handling
 // *********************************************************************
 
-void SandWorld::handleEvent(SDL_Event p_event, int p_x, int p_y) {
+void SandWorld::handleEvent(const Uint8* currKeyStates, int p_x, int p_y) {
 	const int x = p_x / cellSize;
 	const int y = p_y / cellSize;
 
-	switch (p_event.key.keysym.sym) {
-		case SDLK_0:
+		if (currKeyStates[SDL_SCANCODE_0])
 			drawCircle(x, y, 3, CellId::Air);
-			break;
-		case SDLK_1:
+		
+		if (currKeyStates[SDL_SCANCODE_1])
 			drawCircle(x, y, 3, CellId::Stone);
-			break;
-		case SDLK_2:
+		
+		if (currKeyStates[SDL_SCANCODE_2])
 			drawCircle(x, y, 3, CellId::Sand);
-			break;
-		case SDLK_3:
+		
+		if (currKeyStates[SDL_SCANCODE_3])
 			drawCircle(x, y, 3, CellId::Water);
-			break;
-	}	
+
+		if (currKeyStates[SDL_SCANCODE_G])
+			drawGaltonBoard();
+		
+		if (currKeyStates[SDL_SCANCODE_ESCAPE])
+			initializeGrid();
 
 }
 
@@ -90,8 +99,8 @@ void SandWorld::drawCircle(int p_x, int p_y, int radius, CellId p_id) {
 			bool withinRadius = dx * dx + dy * dy <= radius * radius;
 
 			if (withinRadius) {
+				enablePartitionsAround(p_x + dx, p_y + dy);
 				cell.setId(p_id, currWorldUpdate);
-				gridPartitions[(p_x + dx) / partitionWidth][(p_y + dy) / partitionHeight] = true;
 			}
 		}
 	}
@@ -173,10 +182,17 @@ void SandWorld::commitSwaps() {
 // *********************************************************************
 
 void SandWorld::enablePartitionsAround(int x, int y) {
+	bool standardArray[10][10];
 	for (int dx = -1; dx <= 1; ++dx) {
 		for (int dy = -1; dy <= 1; ++dy) {
-			if ((x / partitionWidth + dx < 0) || (y / partitionHeight + dy < 0)) continue;
+			if((x / partitionWidth + dx < 0) || (y / partitionHeight + dy < 0)) continue;
+			if ((x / partitionWidth + dx > gridWidth) || (y / partitionHeight + dy > gridHeight)) continue;
 			gridPartitions[x / partitionWidth + dx][y / partitionHeight + dy] = true;
+		}
+	}
+	for (int i = 0; i < 10; ++i) {
+		for (int j = 0; j < 10; ++j) {
+			standardArray[i][j] = gridPartitions[i][j];
 		}
 	}
 }
@@ -230,6 +246,10 @@ void SandWorld::updateWater(int x, int y) {
 	}
 }
 
+// *********************************************************************
+// Fun
+// *********************************************************************
+
 void SandWorld::drawGaltonBoard() {
 
 	int radius = 2;
@@ -260,7 +280,6 @@ void SandWorld::drawGaltonBoard() {
 			int pegY = startY + row * pegSpacing;
 			if (pegX >= margin && pegX < gridWidth - margin && pegY >= margin && pegY < gridHeight - margin) {
 				drawCircle(pegX, pegY, radius, CellId::Stone);
-				enablePartitionsAround(pegX, pegY);
 			}
 		}
 	}
@@ -273,6 +292,13 @@ void SandWorld::drawGaltonBoard() {
 			for (int y = collectorY; y >= gridHeight - margin; --y) {
 				grid[collectorX][y].setId(CellId::Stone, currWorldUpdate);
 			}
+		}
+	}
+
+	//enable all partitions
+	for (int x = 0; x < partitionSideLength; ++x) {
+		for (int y = 0; y < partitionSideLength; ++y) {
+			gridPartitions[x][y] = true;
 		}
 	}
 }
