@@ -201,11 +201,6 @@ void SandWorld::enablePartitionsAround(int x, int y) {
 			gridPartitions[x / partitionWidth + dx][y / partitionHeight + dy] = true;
 		}
 	}
-	for (int i = 0; i < 10; ++i) {
-		for (int j = 0; j < 10; ++j) {
-			standardArray[i][j] = gridPartitions[i][j];
-		}
-	}
 }
 
 void SandWorld::updateSand(int x, int y) {
@@ -299,16 +294,18 @@ void SandWorld::updateSmoke(int x, int y) {
 		Entity& cell1 = grid[swap.x1][swap.y1];
 		Entity& cell2 = grid[swap.x2][swap.y2];
 
-		cell1.setRegister('a', currWorldUpdate);
-
-		enablePartitionsAround(swap.x1, swap.y1);
-		enablePartitionsAround(swap.x2, swap.y2);
+		if ((cell1.getRegister('a') >= 200)) {
+			cell1.setId(CellId::Air, currWorldUpdate);
+			cell1.setRegister('a', 0);
+		} else {
+			cell1.setRegister('a', cell1.getRegister('a') + 1);
+		}
 
 		if (cell2.isEmpty()) {
+			enablePartitionsAround(swap.x1, swap.y1);
+			enablePartitionsAround(swap.x2, swap.y2);
 			swaps.push_back(swap); 
 			break;
-		} else if ((currWorldUpdate - cell1.getRegister('a') >= 5000)) {
-			cell1.setId(CellId::Air, currWorldUpdate);
 		}
 	}
 }
