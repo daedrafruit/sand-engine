@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL.h>
+#include <memory>
 #include <optional>
 
 struct SwapOperation {
@@ -45,7 +46,7 @@ public:
 
     virtual Color getColor() const;
 
-    virtual std::optional<SwapOperation> update(const Entity* const* const grid, int x, int y);
+    virtual std::unique_ptr<SwapOperation> update(const Entity* const* const grid, int x, int y);
 
 		virtual ~Entity() = default;
 
@@ -57,9 +58,8 @@ private:
 
 class Sand : public Entity {
 public:
-	std::optional<SwapOperation> update(const Entity *const *const grid, int x, int y) override;
+	std::unique_ptr<SwapOperation> update(const Entity *const *const grid, int x, int y) override;
 };
 
-class Air : public Entity {};
 
 

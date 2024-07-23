@@ -1,5 +1,9 @@
+#include <memory>
+#include <algorithm>
+
 #include "Entity.hpp"
 #include "Utils.hpp"
+
 
 Entity::Entity(CellId p_id) 
     : id(p_id), lastUpdated(0) {
@@ -63,15 +67,15 @@ Color Entity::getColor() const {
     }
 }
 
-std::optional<SwapOperation> update(const Entity *const *const grid, int x, int y) {
-		return std::nullopt;
+std::unique_ptr<SwapOperation> Entity::update(const Entity *const *const grid, int x, int y) {
+		return nullptr;
 }
 
 // *********************************************************************
 // Sand
 // *********************************************************************
 
-std::optional<SwapOperation> Sand::update(const Entity *const *const grid, int x, int y) {
+std::unique_ptr<SwapOperation> Sand::update(const Entity *const *const grid, int x, int y) {
 
 	const SwapOperation below = {x, y, x, y+1};
 	const SwapOperation downLeft = {x, y, x-1, y+1};
@@ -86,9 +90,9 @@ std::optional<SwapOperation> Sand::update(const Entity *const *const grid, int x
 
 		if (cell2.getId() == CellId::Air || cell2.getId() == CellId::Water) {
 
-			return swap;
+			return std::make_unique<SwapOperation>(swap);
 		}
 	}
-	return std::nullopt;
+	return nullptr;
 }
 

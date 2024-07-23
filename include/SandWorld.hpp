@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL.h>
+#include <memory>
 #include <vector>
 
 #include "Entity.hpp"
@@ -67,11 +68,12 @@ private:
 	const int partitionSideLength, partitionWidth, partitionHeight;
 
 	Entity** grid;
+
 	void initializeGrid();
 	
 	bool** gridPartitions;
 
-	std::vector<SwapOperation> swaps;
+	std::vector<std::unique_ptr<SwapOperation>> swaps;
 
 };
 
