@@ -1,2 +1,3 @@
 -Iinclude
 -IC:/ProgramData/mingw64/SDL2/include/SDL2
+-std=c++20

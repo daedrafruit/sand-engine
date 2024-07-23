@@ -1,6 +1,11 @@
 #pragma once
-#include "SDL_timer.h"
 #include <SDL.h>
+#include <optional>
+
+struct SwapOperation {
+	int x1, y1;
+	int x2, y2;
+};
 
 struct Color {
     Uint8 r;
@@ -9,83 +14,52 @@ struct Color {
 };
 
 enum class CellId {
-	Air,
-	Stone,
-	Sand,
-	Water,
-	Fire,
-	Smoke
+    Air,
+    Stone,
+    Sand,
+    Water,
+    Fire,
+    Smoke
 };
 
 class Entity {
 public:
 
-	Entity(CellId p_id) 
-		:id(p_id), lastUpdated(0) {
-	}
+    Entity(CellId p_id);
 
-	Entity() 
-		:id(CellId::Air), lastUpdated(0) {
-	}
+    Entity();
 
-	void setId(CellId p_id, int p_currWorldUpdate) {
-		id = p_id;
-		lastUpdated = p_currWorldUpdate;
-	}
+    void setId(CellId p_id, int p_currWorldUpdate);
 
-	void setLastUpdated(int p_lastUpdated) {
-			lastUpdated = p_lastUpdated;
-	}
+    void setLastUpdated(int p_lastUpdated);
 
-	void setRegister(char reg, int value) { 
-		switch(reg) {
-			case 'a':
-				ra = value;
-		}
-  }
+    void setRegister(char reg, int value);
 
-	int getRegister(char reg) { 
-		switch(reg) {
-			case 'a':
-				return ra;
-		}
-		return 0;
-  }
+    int getRegister(char reg) const;
 
-	inline int getLastUpdated() const { return lastUpdated; }
+    int getLastUpdated() const;
 
-	inline CellId getId() const { return id; }
+    CellId getId() const;
 
-	bool isEmpty() const {
-		return (id == CellId::Air);
-	}
+    bool isEmpty() const;
 
-	Color getColor() const {
-		switch (id) {
-			case CellId::Stone:
-				// grey
-				return {200, 200, 200};
-			case CellId::Sand:
-				// yellow
-				return {245, 200, 70};
-			case CellId::Water:
-				// blue
-				return {0, 0, 255};
-			case CellId::Fire:
-				// red
-				return {255, 0, 0};
-			case CellId::Smoke:
-				// grey
-				return {75, 75, 75};
-			default:
-				return {0, 0, 0};
-		}
-	}
+    virtual Color getColor() const;
 
+    virtual std::optional<SwapOperation> update(const Entity* const* const grid, int x, int y);
+
+		virtual ~Entity() = default;
 
 private:
-	CellId id;
-	int lastUpdated;
-	int ra;
+    CellId id;
+    int lastUpdated;
+    int ra;
 };
+
+class Sand : public Entity {
+public:
+	std::optional<SwapOperation> update(const Entity *const *const grid, int x, int y) override;
+};
+
+class Air : public Entity {};
+
 

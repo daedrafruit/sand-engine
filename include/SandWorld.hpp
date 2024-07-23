@@ -5,10 +5,6 @@
 #include "Entity.hpp"
 #include "utils.hpp"
 
-struct SwapOperation {
-	int x1, y1;
-	int x2, y2;
-};
 
 enum class Event {
 	leftMouse,

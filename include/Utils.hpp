@@ -16,6 +16,13 @@ namespace utils {
 	}
 
 	template<typename T>
+	void swap(T*& a, T*& b) {
+			T* temp = a;
+			a = b;
+			b = temp;
+	}
+
+	template<typename T>
 	T** createDynamicArray(int rows, int cols) {
     T** grid = new T*[cols];
     for (int i = 0; i < cols; ++i) {
