@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "Entity.hpp"
-#include "utils.hpp"
 
 
 enum class Event {
@@ -16,10 +15,7 @@ class SandWorld {
 public:
 	SandWorld(const int p_windowHeight, const int p_windowWidth, const int p_cellSize, const int p_partitionSideLength);
 
-	~SandWorld() {
-		utils::deleteDynamicArray(grid, gridHeight);
-		utils::deleteDynamicArray(gridPartitions, partitionHeight);
-	}
+	~SandWorld() {}
 
 	void drawGaltonBoard();
 
@@ -55,7 +51,7 @@ public:
 	inline int getGridWidth() const { return gridWidth; }
 	inline int getGridHeight() const { return gridHeight; }
 
-	inline const Entity& getCellAt(int x, int y) const { return grid[x][y]; }
+	inline const std::unique_ptr<Entity>& getCellAt(int x, int y) const { return grid[x][y]; }
 
 	inline int getPartitionSideLength() const { return partitionSideLength; }
 	inline int getPartitionWidth() const { return partitionWidth; }
@@ -67,7 +63,7 @@ private:
 	int currWorldUpdate;
 	const int partitionSideLength, partitionWidth, partitionHeight;
 
-	Entity** grid;
+	std::vector<std::vector<std::unique_ptr<Entity>>> grid;
 
 	void initializeGrid();
 	

@@ -1,7 +1,7 @@
 #pragma once
 #include <SDL.h>
 #include <memory>
-#include <optional>
+#include <vector>
 
 struct SwapOperation {
 	int x1, y1;
@@ -24,31 +24,32 @@ enum class CellId {
 };
 
 class Entity {
+protected:
+	Entity(CellId p_id);
+
+	Entity();
+
 public:
 
-    Entity(CellId p_id);
+	void setId(CellId p_id, int p_currWorldUpdate);
 
-    Entity();
+	void setLastUpdated(int p_lastUpdated);
 
-    void setId(CellId p_id, int p_currWorldUpdate);
+	void setRegister(char reg, int value);
 
-    void setLastUpdated(int p_lastUpdated);
+	int getRegister(char reg) const;
 
-    void setRegister(char reg, int value);
+	int getLastUpdated() const;
 
-    int getRegister(char reg) const;
+	CellId getId() const;
 
-    int getLastUpdated() const;
+	bool isEmpty() const;
 
-    CellId getId() const;
+	virtual Color getColor() const = 0;
 
-    bool isEmpty() const;
+	virtual std::unique_ptr<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y);
 
-    virtual Color getColor() const;
-
-    virtual std::unique_ptr<SwapOperation> update(const Entity* const* const grid, int x, int y);
-
-		virtual ~Entity() = default;
+	virtual ~Entity() = default;
 
 private:
     CellId id;
@@ -56,9 +57,28 @@ private:
     int ra;
 };
 
+class Air : public Entity {
+public:
+	Color getColor() const override {
+		return {0, 0, 0};
+	}
+};
+
+class Stone : public Entity {
+public:
+	Color getColor() const override {
+		return {200, 200, 200};
+	}
+};
+
 class Sand : public Entity {
 public:
-	std::unique_ptr<SwapOperation> update(const Entity *const *const grid, int x, int y) override;
+
+	std::unique_ptr<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
+
+	Color getColor() const override {
+		return {245, 200, 70};
+	}
 };
 
 

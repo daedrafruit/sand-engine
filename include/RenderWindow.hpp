@@ -1,6 +1,7 @@
 
 #pragma once
 #include <SDl.h>
+#include <memory>
 
 #include "Entity.hpp"
 #include "SandWorld.hpp"
@@ -15,7 +16,7 @@ public:
 
 	void cleanUp();
 	void clear();
-	void render(const Entity& p_entity, int p_x, int p_y, const int& p_cellSize);
+	void render(const std::unique_ptr<Entity>& p_entity, int p_x, int p_y, const int& p_cellSize);
 	void display();
 
 	void renderWorld(const SandWorld& p_world);

@@ -1,7 +1,7 @@
 
 #include <iostream>
 #include <SDl.h>
-#include <numeric>
+#include <memory>
 
 #include "SDL_pixels.h"
 #include "SandWorld.hpp"
@@ -37,11 +37,11 @@ void RenderWindow::clear() {
 	SDL_RenderClear(renderer);
 }
 
-void RenderWindow::render(const Entity& p_entity, const int p_x, const int p_y, const int& p_cellSize) {
+void RenderWindow::render(const std::unique_ptr<Entity>& p_entity, const int p_x, const int p_y, const int& p_cellSize) {
 
 	SDL_Rect rect = { p_x, p_y, p_cellSize, p_cellSize};
 
-	Color color = p_entity.getColor();
+	Color color = p_entity->getColor();
 
 	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
 	SDL_RenderFillRect(renderer, &rect);
@@ -112,7 +112,7 @@ void RenderWindow::renderPartition(int p_x, int p_y, const SandWorld& p_world) {
 		for (int y = yi; y < yf; ++y) {
 			const int gridX = x * cellSize;
 			const int gridY = y * cellSize;
-			const Entity& cell = p_world.getCellAt(x, y);
+			const std::unique_ptr<Entity>& cell = p_world.getCellAt(x, y);
 
 			render(cell, gridX, gridY, cellSize);
 		}
