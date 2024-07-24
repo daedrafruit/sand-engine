@@ -23,7 +23,8 @@ public:
 	void handleEvent(const Uint8* currKeyStates, int p_x, int p_y);
 
 	// Draws a filled circle of some id around the passed in coordinates
-	void drawCircle(int p_x, int p_y, int radius, CellId p_id);
+	template <typename T>
+	void drawCircle(int p_x, int p_y, int radius);
 
 	void updatePartition(int x, int y);
 
@@ -36,16 +37,6 @@ public:
 
 	// Sets all adjacent partitions to true
   void enablePartitionsAround(int x, int y);
-
-	// Updates sand cell, also respoinsible for enabling respective partitions
-	void updateSand(int x, int y);
-
-	// Updates water cell, also respoinsible for enabling respective partitions
-	void updateWater(int x, int y);
-
-	void updateFire(int x, int y);
-
-	void updateSmoke(int x, int y);
 
 	inline int getCellSize() const { return cellSize; }
 	inline int getGridWidth() const { return gridWidth; }
