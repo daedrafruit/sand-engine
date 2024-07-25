@@ -5,7 +5,6 @@
 
 #include "Entity.hpp"
 
-
 enum class Event {
 	leftMouse,
 	rightMouse

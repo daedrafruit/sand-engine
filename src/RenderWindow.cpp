@@ -73,7 +73,7 @@ void RenderWindow::renderWorld(const SandWorld& p_world) {
 
 	for (int x = 0; x < partitionSideLength; ++x) {
 		for (int y = 0; y < partitionSideLength; ++y) {
-			if (p_world.partitionActive(x, y)) {
+//			if (p_world.partitionActive(x, y)) {
 				/*
 				SDL_Rect rect = { x  * partitionWidth, y *  partitionHeight, cellSize, cellSize};
 
@@ -82,7 +82,7 @@ void RenderWindow::renderWorld(const SandWorld& p_world) {
 */
 				renderPartition(x, y, p_world);
 
-			} else {
+//			} else {
 				/*
 				SDL_Rect rect = { x  *  partitionWidth, y *  partitionHeight, cellSize, cellSize};
 
@@ -90,7 +90,7 @@ void RenderWindow::renderWorld(const SandWorld& p_world) {
 				SDL_RenderFillRect(renderer, &rect);
 */
 				//renderPartition(x, y, p_world);
-			}
+//			}
 		}
 	}
 }
