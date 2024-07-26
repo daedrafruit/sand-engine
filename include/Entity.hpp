@@ -36,6 +36,7 @@ public:
 	virtual CellId getId() const = 0;
 	virtual Color getColor() const = 0;
 
+	//returns unique ptr so that no op can be returned, consider using std::optional
 	virtual std::unique_ptr<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y);
 
 private:
@@ -156,12 +157,7 @@ public:
 /*
 
 	 Swaps are usually very simple, just the coordinates of two cells to be swapped, however sometimes a cell needs to be replaced, such as with air if the cell is to be removed
-	 or fire -> smoke, in this case, we set x2 to -1, which signifies a replace operation, then, the second number determines which type of entity the cell is to be replaced with.
-
-	 This logic is all abstracted in the swaps namespace, which allows the Entity::update methods to get the correct swap operation based on the entity type required, then it can pass
-	 that same swap operation to the getReplaceSwap function (along with the currWorldUpdate to get a new, fresh, *unique*, entity pointer!
-
-*/
+	 or fire -> smoke, in this case, we use the newEntity variable, when this entity is not null, sandworld will know it is a replace operation, in a replace operation x2 and y2 are not used */
 
 struct SwapOperation {
   int x1, y1;
@@ -176,8 +172,9 @@ struct SwapOperation {
 
 };
 
+//just functions to save space in the update methods
+//takes x/y, returns the correct swap operation
 namespace swaps {
-
 	inline const SwapOperation upLeft(int x, int y) { return {x, y, x-1, y-1}; }
 	inline const SwapOperation above(int x, int y) { return {x, y, x, y-1}; }
 	inline const SwapOperation upRight(int x, int y) { return {x, y, x+1, y-1}; }

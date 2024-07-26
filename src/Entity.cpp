@@ -41,8 +41,8 @@ std::unique_ptr<SwapOperation> Sand::update(const std::vector<std::vector<std::u
 
 	SwapOperation checkCells[3] = {
 			swaps::below(x, y),
-			swaps::left(x, y),
-			swaps::right(x, y)
+			swaps::downLeft(x, y),
+			swaps::downRight(x, y)
 	};
 
 	std::shuffle(checkCells + 1, checkCells + 3, utils::getRandomEngine());
@@ -52,7 +52,6 @@ std::unique_ptr<SwapOperation> Sand::update(const std::vector<std::vector<std::u
 		const std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
 
 		if (cell2->getId() == CellId::Air || cell2->getId() == CellId::Water) {
-
 			return std::make_unique<SwapOperation>(swap.x1, swap.y1, swap.x2, swap.y2);
 		}
 	}
@@ -109,7 +108,8 @@ std::unique_ptr<SwapOperation> Fire::update(const std::vector<std::vector<std::u
 	//timer to self destruct
 	if ((cell1->getRegister('a') >= 100)) {
 		cell1->setRegister('a', 0);
-		return std::make_unique<SwapOperation>(x, y, x, y, std::make_unique<Smoke>(0));
+		std::unique_ptr<Entity> smoke = std::make_unique<Smoke>(0);
+		return std::make_unique<SwapOperation>(x, y, x, y, std::move(smoke));
 	} else {
 		cell1->setRegister('a', cell1->getRegister('a') + 1);
 	}
