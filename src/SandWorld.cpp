@@ -162,14 +162,16 @@ void SandWorld::commitSwaps() {
 	std::shuffle(swaps.begin(), swaps.end(), utils::getRandomEngine());
 	for (const auto& swap : swaps) {
 
+		std::unique_ptr<Entity>& cell1 = grid[swap->x1][swap->y1];
+		std::unique_ptr<Entity>& cell2 = grid[swap->x2][swap->y2];
+
 		//if x2 is -1 that means the cell is to be replaced
-		if (swap->x2 == -1) {
-			grid[swap->x1][swap->y1] = swaps::getReplaceSwap(swap, currWorldUpdate);
+		if (swap->newEntity) {
+			cell1 = std::move(swap->newEntity);
+			cell1->setLastUpdated(currWorldUpdate);
 			continue;
 		}
 
-		std::unique_ptr<Entity>& cell1 = grid[swap->x1][swap->y1];
-		std::unique_ptr<Entity>& cell2 = grid[swap->x2][swap->y2];
 		bool cellPrevUpdated = cell1->getLastUpdated() == currWorldUpdate || cell2->getLastUpdated() == currWorldUpdate;
 
 		if (cellPrevUpdated) {

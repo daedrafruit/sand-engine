@@ -123,17 +123,7 @@ public:
 
 	std::unique_ptr<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
 
-	Color getColor() const override {
-		if (this->ra <= 25) {
-			return {255, 75, 0}; // Blue
-		}
-		else if (this->ra < 50) {
-			return {255, 165, 0}; // Orange
-		}
-		else {
-			return {255, 255, 0}; // Yellow
-		}
-	}
+	Color getColor() const override;
 
 	CellId getId() const override {
 		return CellId::Fire;
@@ -174,34 +164,27 @@ public:
 */
 
 struct SwapOperation {
-    int x1, y1;
-    int x2, y2;
+  int x1, y1;
+	int x2, y2;
+	std::unique_ptr<Entity> newEntity;
+
+	SwapOperation(int x1, int y1, int x2, int y2)
+			: x1(x1), y1(y1), x2(x2), y2(y2), newEntity(nullptr) {}
+
+	SwapOperation(int x1, int y1, int x2, int y2, std::unique_ptr<Entity> newEntity)
+			: x1(x1), y1(y1), x2(x2), y2(y2), newEntity(std::move(newEntity)) {}
+
 };
 
 namespace swaps {
 
-	inline SwapOperation above(int x, int y) { return {x, y, x, y-1}; }
-	inline SwapOperation upLeft(int x, int y) { return {x, y, x-1, y-1}; }
-	inline SwapOperation upRight(int x, int y) { return {x, y, x+1, y-1}; }
-	inline SwapOperation left(int x, int y) { return {x, y, x-1, y}; }
-	inline SwapOperation right(int x, int y) { return {x, y, x+1, y}; }
-
-	inline SwapOperation self(int x, int y) { return {x, y, x, y}; }
-
-	//if x2 is -1 that means the cell is to be replaced
-	//y2 will determine which type of entity
-	inline SwapOperation air(int x, int y) { return {x, y, -1, 0}; }
-	inline SwapOperation smoke(int x, int y) { return {x, y, -1, 5}; }
-
-	//returns corresponding new entity based on swap passed in, see above
-	inline std::unique_ptr<Entity> getReplaceSwap(const std::unique_ptr<SwapOperation>& swap, int worldUpdate) {
-		switch (swap->y2) {
-			case 0:
-				return std::make_unique<Air>(worldUpdate);
-			case 5:
-				return std::make_unique<Smoke>(worldUpdate);
-			default:
-				return nullptr;
-		}
-	}
+	inline const SwapOperation upLeft(int x, int y) { return {x, y, x-1, y-1}; }
+	inline const SwapOperation above(int x, int y) { return {x, y, x, y-1}; }
+	inline const SwapOperation upRight(int x, int y) { return {x, y, x+1, y-1}; }
+	inline const SwapOperation left(int x, int y) { return {x, y, x-1, y}; }
+	inline const SwapOperation right(int x, int y) { return {x, y, x+1, y}; }
+	inline const SwapOperation downLeft(int x, int y) { return {x, y, x-1, y+1}; }
+	inline const SwapOperation below(int x, int y) { return {x, y, x, y+1}; }
+	inline const SwapOperation downRight(int x, int y) { return {x, y, x+1, y+1}; }
+	inline const SwapOperation self(int x, int y) { return {x, y, x, y}; }
 }
