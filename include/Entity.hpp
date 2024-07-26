@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <memory>
 #include <vector>
+
 struct SwapOperation;
 
 struct Color {
@@ -37,7 +38,7 @@ public:
 	virtual Color getColor() const = 0;
 
 	//returns unique ptr so that no op can be returned, consider using std::optional
-	virtual std::unique_ptr<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y);
+	virtual std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y);
 
 private:
 };
@@ -84,7 +85,7 @@ class Sand : public Entity {
 public:
 	using Entity::Entity;
 
-	std::unique_ptr<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
+	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
 
 	Color getColor() const override {
 		return {245, 200, 70};
@@ -103,7 +104,7 @@ class Water : public Entity {
 public:
 	using Entity::Entity;
 
-	std::unique_ptr<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
+	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
 
 	Color getColor() const override {
 		return {0, 0, 255};
@@ -122,7 +123,7 @@ class Fire : public Entity {
 public:
 	using Entity::Entity;
 
-	std::unique_ptr<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
+	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
 
 	Color getColor() const override;
 
@@ -139,7 +140,7 @@ class Smoke : public Entity {
 public:
 	using Entity::Entity;
 
-	std::unique_ptr<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
+	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
 
 	Color getColor() const override {
 			return {70, 70, 70};
@@ -169,19 +170,18 @@ struct SwapOperation {
 
 	SwapOperation(int x1, int y1, int x2, int y2, std::unique_ptr<Entity> newEntity)
 			: x1(x1), y1(y1), x2(x2), y2(y2), newEntity(std::move(newEntity)) {}
-
 };
 
 //just functions to save space in the update methods
 //takes x/y, returns the correct swap operation
 namespace swaps {
-	inline const SwapOperation upLeft(int x, int y) { return {x, y, x-1, y-1}; }
-	inline const SwapOperation above(int x, int y) { return {x, y, x, y-1}; }
-	inline const SwapOperation upRight(int x, int y) { return {x, y, x+1, y-1}; }
-	inline const SwapOperation left(int x, int y) { return {x, y, x-1, y}; }
-	inline const SwapOperation right(int x, int y) { return {x, y, x+1, y}; }
-	inline const SwapOperation downLeft(int x, int y) { return {x, y, x-1, y+1}; }
-	inline const SwapOperation below(int x, int y) { return {x, y, x, y+1}; }
-	inline const SwapOperation downRight(int x, int y) { return {x, y, x+1, y+1}; }
-	inline const SwapOperation self(int x, int y) { return {x, y, x, y}; }
+	inline SwapOperation upLeft(int x, int y) { return {x, y, x-1, y-1}; }
+	inline SwapOperation above(int x, int y) { return {x, y, x, y-1}; }
+	inline SwapOperation upRight(int x, int y) { return {x, y, x+1, y-1}; }
+	inline SwapOperation left(int x, int y) { return {x, y, x-1, y}; }
+	inline SwapOperation right(int x, int y) { return {x, y, x+1, y}; }
+	inline SwapOperation downLeft(int x, int y) { return {x, y, x-1, y+1}; }
+	inline SwapOperation below(int x, int y) { return {x, y, x, y+1}; }
+	inline SwapOperation downRight(int x, int y) { return {x, y, x+1, y+1}; }
+	inline SwapOperation self(int x, int y) { return {x, y, x, y}; }
 }

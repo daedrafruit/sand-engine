@@ -59,7 +59,7 @@ private:
 	
 	bool** gridPartitions;
 
-	std::vector<std::unique_ptr<SwapOperation>> swaps;
+	std::vector<SwapOperation> swaps;
 
 };
 

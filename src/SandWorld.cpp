@@ -149,10 +149,12 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 				continue;
 			}
 
-			std::unique_ptr<SwapOperation> swap = grid[x][y]->update(grid, x, y);
-			if (swap) {
+			std::vector<SwapOperation> newSwaps = grid[x][y]->update(grid, x, y);
+			if (!newSwaps.empty()) {
 				enablePartitionsAround(x, y);
-				swaps.push_back(std::move(swap));
+				for (SwapOperation& swap : newSwaps) {
+						swaps.emplace_back(std::move(swap));
+				}
 			}
 		}
 	}
@@ -160,14 +162,14 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 
 void SandWorld::commitSwaps() {
 	std::shuffle(swaps.begin(), swaps.end(), utils::getRandomEngine());
-	for (const auto& swap : swaps) {
+	for (auto& swap : swaps) {
 
-		std::unique_ptr<Entity>& cell1 = grid[swap->x1][swap->y1];
-		std::unique_ptr<Entity>& cell2 = grid[swap->x2][swap->y2];
+		std::unique_ptr<Entity>& cell1 = grid[swap.x1][swap.y1];
+		std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
 
 		//if x2 is -1 that means the cell is to be replaced
-		if (swap->newEntity) {
-			cell1 = std::move(swap->newEntity);
+		if (swap.newEntity) {
+			cell1 = std::move(swap.newEntity);
 			cell1->setLastUpdated(currWorldUpdate);
 			continue;
 		}
@@ -181,7 +183,7 @@ void SandWorld::commitSwaps() {
 		cell1->setLastUpdated(currWorldUpdate);
 		cell2->setLastUpdated(currWorldUpdate);
 
-		std::swap(grid[swap->x1][swap->y1], grid[swap->x2][swap->y2]);
+		std::swap(grid[swap.x1][swap.y1], grid[swap.x2][swap.y2]);
 	}
 	swaps.clear();
 }
