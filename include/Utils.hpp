@@ -15,38 +15,15 @@ namespace utils {
 		return engine;
 	}
 
-	template<typename T>
-	void swap(T*& a, T*& b) {
-			T* temp = a;
-			a = b;
-			b = temp;
-	}
+	inline void logicalOr2D(std::vector<std::vector<bool>>& array1, const std::vector<std::vector<bool>>& array2) {
+		int rows = array1.size();
+		int cols = array1[0].size(); // Assuming all rows have the same number of columns
 
-	template<typename T>
-	T** createDynamicArray(int rows, int cols) {
-    T** grid = new T*[cols];
-    for (int i = 0; i < cols; ++i) {
-        grid[i] = new T[rows];
-    }
-    return grid;
-	}
-
-	template<typename T>
-	void deleteDynamicArray(T** grid, int cols) {
-    for (int i = 0; i < cols; ++i) {
-        delete[] grid[i];
-    }
-    delete[] grid;
-	}
-
-	template<typename T>
-	void initializeDynamicArray(T** grid, int rows, int cols) {
 		for (int i = 0; i < rows; ++i) {
 			for (int j = 0; j < cols; ++j) {
-				grid[i][j] = T();
+				array1[i][j] = array1[i][j] || array2[i][j];
 			}
 		}
 	}
-
 }
 

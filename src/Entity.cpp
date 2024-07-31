@@ -5,14 +5,6 @@
 #include "Entity.hpp"
 #include "Utils.hpp"
 
-Entity::Entity(int p_lastUpdated) 
-    :lastUpdated(p_lastUpdated) {
-}
-
-void Entity::setLastUpdated(int p_lastUpdated) {
-    lastUpdated = p_lastUpdated;
-}
-
 void Entity::setRegister(char reg, int value) { 
     switch(reg) {
         case 'a':
@@ -27,8 +19,6 @@ int Entity::getRegister(char reg) const {
     }
     return 0;
 }
-
-int Entity::getLastUpdated() const { return lastUpdated; }
 
 std::vector<SwapOperation> Entity::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
 	std::vector<SwapOperation> outSwaps;
@@ -102,7 +92,7 @@ Color Fire::getColor() const {
 		return {255, 165, 0}; 
 	}
 	else {
-		return {255, 255, 0}; 
+		return this->color; 
 	}
 }
 

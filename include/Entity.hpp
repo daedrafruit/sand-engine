@@ -24,131 +24,83 @@ class Entity {
 protected:
 	int lastUpdated;
 	int ra = 0;
+	int density;
+	const CellId id;
+	const Color color;
+	Entity(int p_lastUpdated, CellId p_id, Color p_color)
+			: lastUpdated(p_lastUpdated), id(p_id), color(p_color) {}
+
 public:
 
-	Entity(int lastUpdated);
 	virtual ~Entity() = default;
 
-	void setLastUpdated(int p_lastUpdated);
+	void setLastUpdated(int p_lastUpdated) { lastUpdated = p_lastUpdated; }
+	int getLastUpdated() const { return lastUpdated; }
+
 	void setRegister(char reg, int value);
-
 	int getRegister(char reg) const;
-	int getLastUpdated() const;
-	virtual CellId getId() const = 0;
-	virtual Color getColor() const = 0;
+	int getDensity() const { return density; }
+	CellId getId() const { return id; }
 
+	virtual Color getColor() const { return color; }
 	//returns unique ptr so that no op can be returned, consider using std::optional
 	virtual std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y);
 
-private:
 };
-
-// *********************************************************************
-// Air
-// *********************************************************************
 
 class Air : public Entity {
 public:
-	using Entity::Entity;
-
-	Color getColor() const override {
-		return {0, 0, 0};
-	}
-
-	CellId getId() const override {
-		return CellId::Air;
+	Air(int p_lastUpdated)
+		:Entity(p_lastUpdated, CellId::Air, {0,0,0}) {
 	}
 };
-
-// *********************************************************************
-// Stone
-// *********************************************************************
 
 class Stone : public Entity {
 public:
-	using Entity::Entity;
-
-	Color getColor() const override {
-		return {200, 200, 200};
-	}
-
-	CellId getId() const override {
-		return CellId::Stone;
+	Stone(int p_lastUpdated)
+		:Entity(p_lastUpdated, CellId::Stone, {200,200,200}) {
 	}
 };
-
-// *********************************************************************
-// Sand
-// *********************************************************************
 
 class Sand : public Entity {
 public:
-	using Entity::Entity;
+	Sand(int p_lastUpdated)
+		:Entity(p_lastUpdated, CellId::Sand, {245,200,70}) {
+	}
 
 	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
-
-	Color getColor() const override {
-		return {245, 200, 70};
-	}
-
-	CellId getId() const override {
-		return CellId::Sand;
-	}
 };
-
-// *********************************************************************
-// Water
-// *********************************************************************
 
 class Water : public Entity {
 public:
-	using Entity::Entity;
-
+	Water(int p_lastUpdated)
+		:Entity(p_lastUpdated, CellId::Water, {0,0,255}) {
+	}
+	
 	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
-
-	Color getColor() const override {
-		return {0, 0, 255};
-	}
-
-	CellId getId() const override {
-		return CellId::Water;
-	}
 };
-
-// *********************************************************************
-// Fire
-// *********************************************************************
 
 class Fire : public Entity {
 public:
-	using Entity::Entity;
 
-	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
+	Fire(int p_lastUpdated)
+		//fire color is determined by function
+		:Entity(p_lastUpdated, CellId::Fire, {255,255,0}) {
+	}
 
 	Color getColor() const override;
 
-	CellId getId() const override {
-		return CellId::Fire;
-	}
+	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
 };
-
-// *********************************************************************
-// Smoke
-// *********************************************************************
 
 class Smoke : public Entity {
 public:
-	using Entity::Entity;
+	Smoke(int p_lastUpdated)
+		:Entity(p_lastUpdated, CellId::Smoke, {70,70,70}) {
+	}
 
 	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
 
-	Color getColor() const override {
-			return {70, 70, 70};
-	}
-
-	CellId getId() const override {
-		return CellId::Smoke;
-	}
 };
 
 // *********************************************************************
@@ -172,7 +124,7 @@ struct SwapOperation {
 			: x1(x1), y1(y1), x2(x2), y2(y2), newEntity(std::move(newEntity)) {}
 };
 
-//just functions to save space in the update methods
+//just functions to make update methods a bit more consistent and readable
 //takes x/y, returns the correct swap operation
 namespace swaps {
 	inline SwapOperation upLeft(int x, int y) { return {x, y, x-1, y-1}; }

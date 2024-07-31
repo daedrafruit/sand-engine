@@ -8,25 +8,19 @@
 #include "Entity.hpp"
 #include "RenderWindow.hpp"
 
-RenderWindow::RenderWindow(const char* p_title, int p_w, int p_h)
-	:window(NULL), renderer(NULL), width(p_w), height(p_h) {
+RenderWindow::RenderWindow(const char* title, int p_width, int p_height, int p_partitionSideLength)
+	:window(NULL), renderer(NULL), width(p_width), height(p_height), partitionSideLength(p_partitionSideLength) {
 
-	window = SDL_CreateWindow(p_title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, p_w, p_h, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, p_width, p_height, SDL_WINDOW_SHOWN);
 
 	if (window == NULL) {
 		std::cout << "Window failed to init" << SDL_GetError() << std::endl; 
-    }
+  }
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+	renderPartitions.resize(partitionSideLength, std::vector<bool>(partitionSideLength, true));
 } 
-
-const int RenderWindow::getWidth() const {
-	return width;
-}
-
-const int RenderWindow::getHeight() const {
-	return height;
-}
 
 void RenderWindow::cleanUp() {
 	SDL_DestroyWindow(window);
@@ -37,11 +31,11 @@ void RenderWindow::clear() {
 	SDL_RenderClear(renderer);
 }
 
-void RenderWindow::render(const std::unique_ptr<Entity>& p_entity, const int p_x, const int p_y, const int& p_cellSize) {
+void RenderWindow::render(const std::unique_ptr<Entity>& entity, int x, int y, int cellSize) {
 
-	SDL_Rect rect = { p_x, p_y, p_cellSize, p_cellSize};
+	SDL_Rect rect = { x, y, cellSize, cellSize};
 
-	Color color = p_entity->getColor();
+	Color color = entity->getColor();
 
 	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
 	SDL_RenderFillRect(renderer, &rect);
@@ -51,12 +45,12 @@ void RenderWindow::display() {
 	SDL_RenderPresent(renderer);
 }
 
-void RenderWindow::renderWorld(const SandWorld& p_world) {
+void RenderWindow::renderWorld(const SandWorld& world) {
 
-	const int partitionSideLength = p_world.getPartitionSideLength();
-	const int cellSize = p_world.getCellSize();
-	const int partitionWidth = p_world.getPartitionWidth();
-	const int partitionHeight = p_world.getPartitionHeight();
+	const int partitionSideLength = world.getPartitionSideLength();
+	const int cellSize = world.getCellSize();
+	const int partitionWidth = world.getPartitionWidth();
+	const int partitionHeight = world.getPartitionHeight();
 	
 	/*
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
@@ -73,32 +67,27 @@ void RenderWindow::renderWorld(const SandWorld& p_world) {
 
 	for (int x = 0; x < partitionSideLength; ++x) {
 		for (int y = 0; y < partitionSideLength; ++y) {
-//			if (p_world.partitionActive(x, y)) {
-				/*
-				SDL_Rect rect = { x  * partitionWidth, y *  partitionHeight, cellSize, cellSize};
+			if (renderPartitions[x][y]) {
 
-				SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
-				SDL_RenderFillRect(renderer, &rect);
-*/
-				renderPartition(x, y, p_world);
+				renderPartition(x, y, world);
+				renderPartitions[x][y] = false;
 
-//			} else {
-				/*
-				SDL_Rect rect = { x  *  partitionWidth, y *  partitionHeight, cellSize, cellSize};
+			} else {
 
+				SDL_Rect rect = { x  * partitionWidth * cellSize, y * partitionHeight * cellSize, cellSize, cellSize};
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
 				SDL_RenderFillRect(renderer, &rect);
-*/
+
 				//renderPartition(x, y, p_world);
-//			}
+			}
 		}
 	}
 }
 
-void RenderWindow::renderPartition(int p_x, int p_y, const SandWorld& p_world) {
+void RenderWindow::renderPartition(int p_x, int p_y, const SandWorld& world) {
 
-	const int partitionWidth = p_world.getPartitionWidth();
-	const int partitionHeight = p_world.getPartitionHeight();
+	const int partitionWidth = world.getPartitionWidth();
+	const int partitionHeight = world.getPartitionHeight();
 
 	int xi = p_x * partitionWidth;
 	int yi = p_y * partitionHeight;
@@ -106,18 +95,25 @@ void RenderWindow::renderPartition(int p_x, int p_y, const SandWorld& p_world) {
 	int xf = (xi + partitionWidth);
 	int yf = (yi + partitionHeight);
 
-	const int cellSize = p_world.getCellSize();
+	const int cellSize = world.getCellSize();
 
 	for (int x = xi; x < xf; ++x) {
 		for (int y = yi; y < yf; ++y) {
 			const int gridX = x * cellSize;
 			const int gridY = y * cellSize;
-			const std::unique_ptr<Entity>& cell = p_world.getCellAt(x, y);
+			const std::unique_ptr<Entity>& cell = world.getCellAt(x, y);
 
 			render(cell, gridX, gridY, cellSize);
 		}
 	}
 }
 
+void RenderWindow::updateRenderPartitions(std::vector<std::vector<bool>> worldPartitions) {
+	for (int x = 0; x < partitionSideLength; ++x) {
+		for (int y = 0; y < partitionSideLength; ++y) {
+			renderPartitions[x][y] = worldPartitions[x][y] || renderPartitions[x][y];
+		}
+	}
+}
 
 

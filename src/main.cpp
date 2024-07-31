@@ -16,10 +16,10 @@ int main(int argc, char* args[]) {
 
     const int windowWidth = 1280;
     const int windowHeight = 720;
-    const int cellSize = 4;
-		const int partitionSideLength = 10;
+    const int cellSize = 2;
+		const int partitionSideLength = 20;
 
-    RenderWindow window("Falling Sand", windowWidth, windowHeight);
+    RenderWindow window("Falling Sand", windowWidth, windowHeight, partitionSideLength);
 
     SandWorld world(windowHeight, windowWidth, cellSize, partitionSideLength);
 
@@ -54,6 +54,7 @@ int main(int argc, char* args[]) {
 
 			while (accumulator >= timeStep) {
 				world.updateWorld();
+				window.updateRenderPartitions(world.getWorldPartitions());
 				accumulator -= timeStep;
 			}
 
