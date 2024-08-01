@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <memory>
 #include <vector>
+
 struct SwapOperation;
 
 struct Color {
@@ -23,130 +24,83 @@ class Entity {
 protected:
 	int lastUpdated;
 	int ra = 0;
+	int density;
+	const CellId id;
+	const Color color;
+	Entity(int p_lastUpdated, CellId p_id, Color p_color)
+			: lastUpdated(p_lastUpdated), id(p_id), color(p_color) {}
+
 public:
 
-	Entity(int lastUpdated);
 	virtual ~Entity() = default;
 
-	void setLastUpdated(int p_lastUpdated);
+	void setLastUpdated(int p_lastUpdated) { lastUpdated = p_lastUpdated; }
+	int getLastUpdated() const { return lastUpdated; }
+
 	void setRegister(char reg, int value);
-
 	int getRegister(char reg) const;
-	int getLastUpdated() const;
-	virtual CellId getId() const = 0;
-	virtual Color getColor() const = 0;
+	int getDensity() const { return density; }
+	CellId getId() const { return id; }
 
-	virtual std::unique_ptr<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y);
+	virtual Color getColor() const { return color; }
+	//returns unique ptr so that no op can be returned, consider using std::optional
+	virtual std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y);
 
-private:
 };
-
-// *********************************************************************
-// Air
-// *********************************************************************
 
 class Air : public Entity {
 public:
-	using Entity::Entity;
-
-	Color getColor() const override {
-		return {0, 0, 0};
-	}
-
-	CellId getId() const override {
-		return CellId::Air;
+	Air(int p_lastUpdated)
+		:Entity(p_lastUpdated, CellId::Air, {0,0,0}) {
 	}
 };
-
-// *********************************************************************
-// Stone
-// *********************************************************************
 
 class Stone : public Entity {
 public:
-	using Entity::Entity;
-
-	Color getColor() const override {
-		return {200, 200, 200};
-	}
-
-	CellId getId() const override {
-		return CellId::Stone;
+	Stone(int p_lastUpdated)
+		:Entity(p_lastUpdated, CellId::Stone, {200,200,200}) {
 	}
 };
-
-// *********************************************************************
-// Sand
-// *********************************************************************
 
 class Sand : public Entity {
 public:
-	using Entity::Entity;
-
-	std::unique_ptr<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
-
-	Color getColor() const override {
-		return {245, 200, 70};
+	Sand(int p_lastUpdated)
+		:Entity(p_lastUpdated, CellId::Sand, {245,200,70}) {
 	}
 
-	CellId getId() const override {
-		return CellId::Sand;
-	}
+	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
 };
-
-// *********************************************************************
-// Water
-// *********************************************************************
 
 class Water : public Entity {
 public:
-	using Entity::Entity;
-
-	std::unique_ptr<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
-
-	Color getColor() const override {
-		return {0, 0, 255};
+	Water(int p_lastUpdated)
+		:Entity(p_lastUpdated, CellId::Water, {0,0,255}) {
 	}
-
-	CellId getId() const override {
-		return CellId::Water;
-	}
+	
+	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
 };
-
-// *********************************************************************
-// Fire
-// *********************************************************************
 
 class Fire : public Entity {
 public:
-	using Entity::Entity;
 
-	std::unique_ptr<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
+	Fire(int p_lastUpdated)
+		//fire color is determined by function
+		:Entity(p_lastUpdated, CellId::Fire, {255,255,0}) {
+	}
 
 	Color getColor() const override;
 
-	CellId getId() const override {
-		return CellId::Fire;
-	}
+	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
 };
-
-// *********************************************************************
-// Smoke
-// *********************************************************************
 
 class Smoke : public Entity {
 public:
-	using Entity::Entity;
-
-	std::unique_ptr<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
-
-	Color getColor() const override {
-			return {70, 70, 70};
+	Smoke(int p_lastUpdated)
+		:Entity(p_lastUpdated, CellId::Smoke, {70,70,70}) {
 	}
 
-	CellId getId() const override {
-		return CellId::Smoke;
-	}
+	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
+
 };
 
 // *********************************************************************
@@ -156,12 +110,7 @@ public:
 /*
 
 	 Swaps are usually very simple, just the coordinates of two cells to be swapped, however sometimes a cell needs to be replaced, such as with air if the cell is to be removed
-	 or fire -> smoke, in this case, we set x2 to -1, which signifies a replace operation, then, the second number determines which type of entity the cell is to be replaced with.
-
-	 This logic is all abstracted in the swaps namespace, which allows the Entity::update methods to get the correct swap operation based on the entity type required, then it can pass
-	 that same swap operation to the getReplaceSwap function (along with the currWorldUpdate to get a new, fresh, *unique*, entity pointer!
-
-*/
+	 or fire -> smoke, in this case, we use the newEntity variable, when this entity is not null, sandworld will know it is a replace operation, in a replace operation x2 and y2 are not used */
 
 struct SwapOperation {
   int x1, y1;
@@ -173,18 +122,18 @@ struct SwapOperation {
 
 	SwapOperation(int x1, int y1, int x2, int y2, std::unique_ptr<Entity> newEntity)
 			: x1(x1), y1(y1), x2(x2), y2(y2), newEntity(std::move(newEntity)) {}
-
 };
 
+//just functions to make update methods a bit more consistent and readable
+//takes x/y, returns the correct swap operation
 namespace swaps {
-
-	inline const SwapOperation upLeft(int x, int y) { return {x, y, x-1, y-1}; }
-	inline const SwapOperation above(int x, int y) { return {x, y, x, y-1}; }
-	inline const SwapOperation upRight(int x, int y) { return {x, y, x+1, y-1}; }
-	inline const SwapOperation left(int x, int y) { return {x, y, x-1, y}; }
-	inline const SwapOperation right(int x, int y) { return {x, y, x+1, y}; }
-	inline const SwapOperation downLeft(int x, int y) { return {x, y, x-1, y+1}; }
-	inline const SwapOperation below(int x, int y) { return {x, y, x, y+1}; }
-	inline const SwapOperation downRight(int x, int y) { return {x, y, x+1, y+1}; }
-	inline const SwapOperation self(int x, int y) { return {x, y, x, y}; }
+	inline SwapOperation upLeft(int x, int y) { return {x, y, x-1, y-1}; }
+	inline SwapOperation above(int x, int y) { return {x, y, x, y-1}; }
+	inline SwapOperation upRight(int x, int y) { return {x, y, x+1, y-1}; }
+	inline SwapOperation left(int x, int y) { return {x, y, x-1, y}; }
+	inline SwapOperation right(int x, int y) { return {x, y, x+1, y}; }
+	inline SwapOperation downLeft(int x, int y) { return {x, y, x-1, y+1}; }
+	inline SwapOperation below(int x, int y) { return {x, y, x, y+1}; }
+	inline SwapOperation downRight(int x, int y) { return {x, y, x+1, y+1}; }
+	inline SwapOperation self(int x, int y) { return {x, y, x, y}; }
 }

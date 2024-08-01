@@ -1,16 +1,9 @@
 #include <memory>
 #include <algorithm>
+#include <vector>
 
 #include "Entity.hpp"
 #include "Utils.hpp"
-
-Entity::Entity(int p_lastUpdated) 
-    :lastUpdated(p_lastUpdated) {
-}
-
-void Entity::setLastUpdated(int p_lastUpdated) {
-    lastUpdated = p_lastUpdated;
-}
 
 void Entity::setRegister(char reg, int value) { 
     switch(reg) {
@@ -27,43 +20,43 @@ int Entity::getRegister(char reg) const {
     return 0;
 }
 
-int Entity::getLastUpdated() const { return lastUpdated; }
-
-std::unique_ptr<SwapOperation> Entity::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
-		return nullptr;
+std::vector<SwapOperation> Entity::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
+	std::vector<SwapOperation> outSwaps;
+	return outSwaps;
 }
 
 // *********************************************************************
 // Sand
 // *********************************************************************
 
-std::unique_ptr<SwapOperation> Sand::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
+std::vector<SwapOperation> Sand::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
 
 	SwapOperation checkCells[3] = {
 			swaps::below(x, y),
-			swaps::left(x, y),
-			swaps::right(x, y)
+			swaps::downLeft(x, y),
+			swaps::downRight(x, y)
 	};
-
 	std::shuffle(checkCells + 1, checkCells + 3, utils::getRandomEngine());
 
-	for (const SwapOperation& swap : checkCells) {
+	std::vector<SwapOperation> outSwaps;
+
+	for (SwapOperation& swap : checkCells) {
 		const std::unique_ptr<Entity>& cell1 = grid[swap.x1][swap.y1];
 		const std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
 
 		if (cell2->getId() == CellId::Air || cell2->getId() == CellId::Water) {
-
-			return std::make_unique<SwapOperation>(swap.x1, swap.y1, swap.x2, swap.y2);
+			outSwaps.emplace_back(std::move(swap));
+			break;
 		}
 	}
-	return nullptr;
+	return outSwaps;
 }
 
 // *********************************************************************
 // Water
 // *********************************************************************
 
-std::unique_ptr<SwapOperation> Water::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
+std::vector<SwapOperation> Water::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
 
 	SwapOperation checkCells[5] = {
 			swaps::below(x, y),
@@ -72,18 +65,19 @@ std::unique_ptr<SwapOperation> Water::update(const std::vector<std::vector<std::
 			swaps::left(x, y),
 			swaps::right(x, y)
 	};
-
 	std::shuffle(checkCells + 1, checkCells + 5, utils::getRandomEngine());
-	for (const SwapOperation& swap : checkCells) {
+
+	std::vector<SwapOperation> outSwaps;
+	for (SwapOperation& swap : checkCells) {
 		const std::unique_ptr<Entity>& cell1 = grid[swap.x1][swap.y1];
 		const std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
 
 		if (cell2->getId() == CellId::Air) {
-
-			return std::make_unique<SwapOperation>(swap.x1, swap.y1, swap.x2, swap.y2);
+			outSwaps.emplace_back(std::move(swap));
+			break;
 		}
 	}
-	return nullptr;
+	return outSwaps;
 }
 
 // *********************************************************************
@@ -98,18 +92,21 @@ Color Fire::getColor() const {
 		return {255, 165, 0}; 
 	}
 	else {
-		return {255, 255, 0}; 
+		return this->color; 
 	}
 }
 
-std::unique_ptr<SwapOperation> Fire::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
+std::vector<SwapOperation> Fire::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
 
 	const std::unique_ptr<Entity>& cell1 = grid[x][y];
 
+	std::vector<SwapOperation> outSwaps;
 	//timer to self destruct
 	if ((cell1->getRegister('a') >= 100)) {
 		cell1->setRegister('a', 0);
-		return std::make_unique<SwapOperation>(x, y, x, y, std::make_unique<Smoke>(0));
+		std::unique_ptr<Entity> smoke = std::make_unique<Smoke>(0);
+		outSwaps.emplace_back(x, y, x, y, std::move(smoke));
+		return outSwaps;
 	} else {
 		cell1->setRegister('a', cell1->getRegister('a') + 1);
 	}
@@ -123,29 +120,33 @@ std::unique_ptr<SwapOperation> Fire::update(const std::vector<std::vector<std::u
 	};
 
 	std::shuffle(checkCells, checkCells + 5, utils::getRandomEngine());
-	for (const SwapOperation& swap : checkCells) {
+	for (SwapOperation& swap : checkCells) {
 		const std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
 
 		if (cell2->getId() == CellId::Air) {
-			return std::make_unique<SwapOperation>(swap.x1, swap.y1, swap.x2, swap.y2);
+			outSwaps.emplace_back(std::move(swap));
+			break;
 		} 
 	}
 	//return self swap so that partition stays enabled and timer can continue
-	return std::make_unique<SwapOperation>(x, y, x, y);
+	return outSwaps;
 }
 
 // *********************************************************************
 // Smoke
 // *********************************************************************
 
-std::unique_ptr<SwapOperation> Smoke::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
+std::vector<SwapOperation> Smoke::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
 
 	const std::unique_ptr<Entity>& cell1 = grid[x][y];
 
+	std::vector<SwapOperation> outSwaps;
 	//timer to self destruct
 	if ((cell1->getRegister('a') >= 75)) {
 		cell1->setRegister('a', 0);
-		return std::make_unique<SwapOperation>(x, y, x, y, std::make_unique<Air>(0));
+		std::unique_ptr<Entity> air = std::make_unique<Air>(0);
+		outSwaps.emplace_back(x, y, x, y, std::move(air));
+		return outSwaps;
 	} else {
 		cell1->setRegister('a', cell1->getRegister('a') + 1);
 	}
@@ -159,13 +160,14 @@ std::unique_ptr<SwapOperation> Smoke::update(const std::vector<std::vector<std::
 	};
 
 	std::shuffle(checkCells, checkCells + 5, utils::getRandomEngine());
-	for (const SwapOperation& swap : checkCells) {
+	for (SwapOperation& swap : checkCells) {
 		const std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
 
 		if (cell2->getId() == CellId::Air) {
-			return std::make_unique<SwapOperation>(swap.x1, swap.y1, swap.x2, swap.y2);
+			outSwaps.emplace_back(std::move(swap));
+			break;
 		} 
 	}
 	//return self swap so that partition stays enabled and timer can continue
-	return std::make_unique<SwapOperation>(x, y, x, y);
+	return outSwaps;
 }

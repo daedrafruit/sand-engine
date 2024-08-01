@@ -12,7 +12,7 @@ enum class Event {
 
 class SandWorld {
 public:
-	SandWorld(const int p_windowHeight, const int p_windowWidth, const int p_cellSize, const int p_partitionSideLength);
+	SandWorld(const int windowHeight, const int windowWidth, const int p_cellSize, const int p_partitionSideLength);
 
 	~SandWorld() {}
 
@@ -23,7 +23,7 @@ public:
 
 	// Draws a filled circle of some id around the passed in coordinates
 	template <typename T>
-	void drawCircle(int p_x, int p_y, int radius);
+	void drawCircle(int x, int y, int radius);
 
 	void updatePartition(int x, int y);
 
@@ -46,7 +46,8 @@ public:
 	inline int getPartitionSideLength() const { return partitionSideLength; }
 	inline int getPartitionWidth() const { return partitionWidth; }
 	inline int getPartitionHeight() const { return partitionHeight; }
-	inline const bool& partitionActive(int x, int y) const { return gridPartitions[x][y]; }
+	inline std::vector<std::vector<bool>> getWorldPartitions() const { return worldPartitions; }
+	inline bool partitionActive(int x, int y) const { return worldPartitions[x][y]; }
 
 private:
 	const int gridHeight, gridWidth, cellSize;
@@ -57,9 +58,9 @@ private:
 
 	void initializeGrid();
 	
-	bool** gridPartitions;
+	std::vector<std::vector<bool>> worldPartitions;
 
-	std::vector<std::unique_ptr<SwapOperation>> swaps;
+	std::vector<SwapOperation> swaps;
 
 };
 
