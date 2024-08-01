@@ -60,7 +60,7 @@ private:
 	
 	std::vector<std::vector<bool>> worldPartitions;
 
-	std::vector<SwapOperation> swaps;
+	std::vector<SwapOp> swaps;
 
 };
 

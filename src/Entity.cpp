@@ -20,27 +20,23 @@ int Entity::getRegister(char reg) const {
     return 0;
 }
 
-std::vector<SwapOperation> Entity::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
-	std::vector<SwapOperation> outSwaps;
+std::vector<SwapOp> Entity::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
+	std::vector<SwapOp> outSwaps;
 	return outSwaps;
 }
 
-// *********************************************************************
-// Sand
-// *********************************************************************
+std::vector<SwapOp> Sand::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
 
-std::vector<SwapOperation> Sand::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
-
-	SwapOperation checkCells[3] = {
+	SwapOp checkCells[3] = {
 			swaps::below(x, y),
 			swaps::downLeft(x, y),
 			swaps::downRight(x, y)
 	};
 	std::shuffle(checkCells + 1, checkCells + 3, utils::getRandomEngine());
 
-	std::vector<SwapOperation> outSwaps;
+	std::vector<SwapOp> outSwaps;
 
-	for (SwapOperation& swap : checkCells) {
+	for (SwapOp& swap : checkCells) {
 		const std::unique_ptr<Entity>& cell1 = grid[swap.x1][swap.y1];
 		const std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
 
@@ -52,13 +48,9 @@ std::vector<SwapOperation> Sand::update(const std::vector<std::vector<std::uniqu
 	return outSwaps;
 }
 
-// *********************************************************************
-// Water
-// *********************************************************************
+std::vector<SwapOp> Water::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
 
-std::vector<SwapOperation> Water::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
-
-	SwapOperation checkCells[5] = {
+	SwapOp checkCells[5] = {
 			swaps::below(x, y),
 			swaps::downLeft(x, y),
 			swaps::downRight(x, y),
@@ -67,8 +59,8 @@ std::vector<SwapOperation> Water::update(const std::vector<std::vector<std::uniq
 	};
 	std::shuffle(checkCells + 1, checkCells + 5, utils::getRandomEngine());
 
-	std::vector<SwapOperation> outSwaps;
-	for (SwapOperation& swap : checkCells) {
+	std::vector<SwapOp> outSwaps;
+	for (SwapOp& swap : checkCells) {
 		const std::unique_ptr<Entity>& cell1 = grid[swap.x1][swap.y1];
 		const std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
 
@@ -79,10 +71,6 @@ std::vector<SwapOperation> Water::update(const std::vector<std::vector<std::uniq
 	}
 	return outSwaps;
 }
-
-// *********************************************************************
-// Fire
-// *********************************************************************
 
 Color Fire::getColor() const {
 	if (this->ra <= 25) {
@@ -96,11 +84,11 @@ Color Fire::getColor() const {
 	}
 }
 
-std::vector<SwapOperation> Fire::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
+std::vector<SwapOp> Fire::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
 
 	const std::unique_ptr<Entity>& cell1 = grid[x][y];
 
-	std::vector<SwapOperation> outSwaps;
+	std::vector<SwapOp> outSwaps;
 	//timer to self destruct
 	if ((cell1->getRegister('a') >= 100)) {
 		cell1->setRegister('a', 0);
@@ -111,7 +99,7 @@ std::vector<SwapOperation> Fire::update(const std::vector<std::vector<std::uniqu
 		cell1->setRegister('a', cell1->getRegister('a') + 1);
 	}
 
-	SwapOperation checkCells[5] = {
+	SwapOp checkCells[5] = {
 			swaps::above(x, y),
 			swaps::upLeft(x, y),
 			swaps::upRight(x, y),
@@ -120,7 +108,7 @@ std::vector<SwapOperation> Fire::update(const std::vector<std::vector<std::uniqu
 	};
 
 	std::shuffle(checkCells, checkCells + 5, utils::getRandomEngine());
-	for (SwapOperation& swap : checkCells) {
+	for (SwapOp& swap : checkCells) {
 		const std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
 
 		if (cell2->getId() == CellId::Air) {
@@ -132,15 +120,11 @@ std::vector<SwapOperation> Fire::update(const std::vector<std::vector<std::uniqu
 	return outSwaps;
 }
 
-// *********************************************************************
-// Smoke
-// *********************************************************************
-
-std::vector<SwapOperation> Smoke::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
+std::vector<SwapOp> Smoke::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
 
 	const std::unique_ptr<Entity>& cell1 = grid[x][y];
 
-	std::vector<SwapOperation> outSwaps;
+	std::vector<SwapOp> outSwaps;
 	//timer to self destruct
 	if ((cell1->getRegister('a') >= 75)) {
 		cell1->setRegister('a', 0);
@@ -151,7 +135,7 @@ std::vector<SwapOperation> Smoke::update(const std::vector<std::vector<std::uniq
 		cell1->setRegister('a', cell1->getRegister('a') + 1);
 	}
 
-	SwapOperation checkCells[5] = {
+	SwapOp checkCells[5] = {
 			swaps::above(x, y),
 			swaps::upLeft(x, y),
 			swaps::upRight(x, y),
@@ -160,7 +144,7 @@ std::vector<SwapOperation> Smoke::update(const std::vector<std::vector<std::uniq
 	};
 
 	std::shuffle(checkCells, checkCells + 5, utils::getRandomEngine());
-	for (SwapOperation& swap : checkCells) {
+	for (SwapOp& swap : checkCells) {
 		const std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
 
 		if (cell2->getId() == CellId::Air) {

@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-struct SwapOperation;
+struct SwapOp;
 
 struct Color {
     Uint8 r;
@@ -44,7 +44,7 @@ public:
 
 	virtual Color getColor() const { return color; }
 	//returns unique ptr so that no op can be returned, consider using std::optional
-	virtual std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y);
+	virtual std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y);
 
 };
 
@@ -68,7 +68,7 @@ public:
 		:Entity(p_lastUpdated, CellId::Sand, {245,200,70}) {
 	}
 
-	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
+	std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
 };
 
 class Water : public Entity {
@@ -77,7 +77,7 @@ public:
 		:Entity(p_lastUpdated, CellId::Water, {0,0,255}) {
 	}
 	
-	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
+	std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
 };
 
 class Fire : public Entity {
@@ -90,7 +90,7 @@ public:
 
 	Color getColor() const override;
 
-	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
+	std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
 };
 
 class Smoke : public Entity {
@@ -99,7 +99,7 @@ public:
 		:Entity(p_lastUpdated, CellId::Smoke, {70,70,70}) {
 	}
 
-	std::vector<SwapOperation> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
+	std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
 
 };
 
@@ -112,28 +112,28 @@ public:
 	 Swaps are usually very simple, just the coordinates of two cells to be swapped, however sometimes a cell needs to be replaced, such as with air if the cell is to be removed
 	 or fire -> smoke, in this case, we use the newEntity variable, when this entity is not null, sandworld will know it is a replace operation, in a replace operation x2 and y2 are not used */
 
-struct SwapOperation {
+struct SwapOp {
   int x1, y1;
 	int x2, y2;
 	std::unique_ptr<Entity> newEntity;
 
-	SwapOperation(int x1, int y1, int x2, int y2)
+	SwapOp(int x1, int y1, int x2, int y2)
 			: x1(x1), y1(y1), x2(x2), y2(y2), newEntity(nullptr) {}
 
-	SwapOperation(int x1, int y1, int x2, int y2, std::unique_ptr<Entity> newEntity)
+	SwapOp(int x1, int y1, int x2, int y2, std::unique_ptr<Entity> newEntity)
 			: x1(x1), y1(y1), x2(x2), y2(y2), newEntity(std::move(newEntity)) {}
 };
 
 //just functions to make update methods a bit more consistent and readable
 //takes x/y, returns the correct swap operation
 namespace swaps {
-	inline SwapOperation upLeft(int x, int y) { return {x, y, x-1, y-1}; }
-	inline SwapOperation above(int x, int y) { return {x, y, x, y-1}; }
-	inline SwapOperation upRight(int x, int y) { return {x, y, x+1, y-1}; }
-	inline SwapOperation left(int x, int y) { return {x, y, x-1, y}; }
-	inline SwapOperation right(int x, int y) { return {x, y, x+1, y}; }
-	inline SwapOperation downLeft(int x, int y) { return {x, y, x-1, y+1}; }
-	inline SwapOperation below(int x, int y) { return {x, y, x, y+1}; }
-	inline SwapOperation downRight(int x, int y) { return {x, y, x+1, y+1}; }
-	inline SwapOperation self(int x, int y) { return {x, y, x, y}; }
+	inline SwapOp upLeft(int x, int y) { return {x, y, x-1, y-1}; }
+	inline SwapOp above(int x, int y) { return {x, y, x, y-1}; }
+	inline SwapOp upRight(int x, int y) { return {x, y, x+1, y-1}; }
+	inline SwapOp left(int x, int y) { return {x, y, x-1, y}; }
+	inline SwapOp right(int x, int y) { return {x, y, x+1, y}; }
+	inline SwapOp downLeft(int x, int y) { return {x, y, x-1, y+1}; }
+	inline SwapOp below(int x, int y) { return {x, y, x, y+1}; }
+	inline SwapOp downRight(int x, int y) { return {x, y, x+1, y+1}; }
+	inline SwapOp self(int x, int y) { return {x, y, x, y}; }
 }

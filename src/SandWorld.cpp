@@ -127,6 +127,9 @@ void SandWorld::updateWorld() {
 	for (int x = 0; x < partitionSideLength; ++x) {
 		for (int y = 0; y < partitionSideLength; ++y) {
 			if (!worldPartitions[x][y]) continue;
+
+			//TODO: partitions on the right/down (higher x/y) are biased to be disabled, this is why the render partitions are not accurate
+
 			worldPartitions[x][y] = false;
 			updatePartition(x, y);
 		}
@@ -151,10 +154,10 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 				continue;
 			}
 
-			std::vector<SwapOperation> newSwaps = grid[x][y]->update(grid, x, y);
+			std::vector<SwapOp> newSwaps = grid[x][y]->update(grid, x, y);
 			if (!newSwaps.empty()) {
 				enablePartitionsAround(x, y);
-				for (SwapOperation& swap : newSwaps) {
+				for (SwapOp& swap : newSwaps) {
 						swaps.emplace_back(std::move(swap));
 				}
 			}
@@ -164,7 +167,7 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 
 void SandWorld::commitSwaps() {
 	std::shuffle(swaps.begin(), swaps.end(), utils::getRandomEngine());
-	for (SwapOperation& swap : swaps) {
+	for (SwapOp& swap : swaps) {
 
 		std::unique_ptr<Entity>& cell1 = grid[swap.x1][swap.y1];
 		std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
