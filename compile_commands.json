@@ -1,22 +1,22 @@
 [
     {
-        "directory": "C:/ma-crib/code/C++/sand-engine",
-        "command": "g++ -g -c src/Entity.cpp -o build/Entity.o -Iinclude -IC:/ProgramData/mingw64/SDL2/include/SDL2",
+        "directory": "/home/daedr/ma-field/code/cpp/sand-engine",
+        "command": "g++ -g -c src/Entity.cpp -o build/Entity.o -Iinclude -I/usr/include/SDL2",
         "file": "src/Entity.cpp"
     },
     {
-        "directory": "C:/ma-crib/code/C++/sand-engine",
-        "command": "g++ -g -c src/main.cpp -o build/main.o -Iinclude -IC:/ProgramData/mingw64/SDL2/include/SDL2",
+        "directory": "/home/daedr/ma-field/code/cpp/sand-engine",
+        "command": "g++ -g -c src/main.cpp -o build/main.o -Iinclude -I/usr/include/SDL2",
         "file": "src/main.cpp"
     },
     {
-        "directory": "C:/ma-crib/code/C++/sand-engine",
-        "command": "g++ -g -c src/RenderWindow.cpp -o build/RenderWindow.o -Iinclude -IC:/ProgramData/mingw64/SDL2/include/SDL2",
+        "directory": "/home/daedr/ma-field/code/cpp/sand-engine",
+        "command": "g++ -g -c src/RenderWindow.cpp -o build/RenderWindow.o -Iinclude -I/usr/include/SDL2",
         "file": "src/RenderWindow.cpp"
     },
     {
-        "directory": "C:/ma-crib/code/C++/sand-engine",
-        "command": "g++ -g -c src/SandWorld.cpp -o build/SandWorld.o -Iinclude -IC:/ProgramData/mingw64/SDL2/include/SDL2",
+        "directory": "/home/daedr/ma-field/code/cpp/sand-engine",
+        "command": "g++ -g -c src/SandWorld.cpp -o build/SandWorld.o -Iinclude -I/usr/include/SDL2",
         "file": "src/SandWorld.cpp"
     }
 ]

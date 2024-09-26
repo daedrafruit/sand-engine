@@ -1,14 +1,14 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <stdexcept>
 
 #include "SandWorld.hpp"
 #include "Entity.hpp"
 #include "SDL_scancode.h"
 #include "SDL_timer.h"
-#include "utils.hpp"
+#include "Utils.hpp"
 
 // *********************************************************************
 // Initialization
@@ -129,6 +129,7 @@ void SandWorld::updateWorld() {
 			if (!worldPartitions[x][y]) continue;
 
 			//TODO: partitions on the right/down (higher x/y) are biased to be disabled, this is why the render partitions are not accurate
+			//if a cell updates a group of partitions, the update world will still continue and re-disable the bottom right partitions, while the top left will remain enabled
 
 			worldPartitions[x][y] = false;
 			updatePartition(x, y);

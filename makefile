@@ -6,10 +6,10 @@ SRCS := $(wildcard $(SRCDIR)/*.cpp)
 OBJS := $(patsubst $(SRCDIR)/%.cpp,$(BUILDDIR)/%.o,$(SRCS))
 
 build/%.o: src/%.cpp
-	g++ -g -c $< -o $@ -Iinclude -IC:\ProgramData\mingw64\SDL2\include\SDL2
+	g++ -g -c $< -o $@ -I$(INCDIR) -I/usr/include/SDL2
 
 run: $(OBJS)
-	g++ $(OBJS) -g -o $@ -LC:\ProgramData\mingw64\SDL2\lib -lmingw32 -lSDL2main -lSDL2 
+	g++ $(OBJS) -g -o run -L/usr/lib -lSDL2
 
 clean:
-	del /Q build\*.o run.exe
+	rm -f $(BUILDDIR)/*.o run

@@ -1,10 +1,10 @@
 
 #include <iostream>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
-#include "SDL_events.h"
-#include "SDL_mouse.h"
-#include "utils.hpp"
+#include "SDL2/SDL_events.h"
+#include "SDL2/SDL_mouse.h"
+#include "Utils.hpp"
 #include "RenderWindow.hpp"
 #include "SandWorld.hpp"
 

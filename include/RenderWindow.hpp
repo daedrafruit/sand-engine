@@ -1,6 +1,6 @@
 
 #pragma once
-#include <SDl.h>
+#include <SDL2/SDL.h>
 #include <memory>
 #include <vector>
 
