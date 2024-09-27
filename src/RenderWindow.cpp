@@ -68,21 +68,21 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 	for (int x = 0; x < partitionSideLength; ++x) {
 		for (int y = 0; y < partitionSideLength; ++y) {
 			SDL_Rect rect = { x  * partitionWidth , y * partitionHeight , cellSize, cellSize};
-//			if (renderPartitions[x][y]) {
+			if (renderPartitions[x][y]) {
 
 				renderPartition(x, y, world);
 				renderPartitions[x][y] = false;
 
-//				SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
-//				SDL_RenderFillRect(renderer, &rect);
+				SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
+				SDL_RenderFillRect(renderer, &rect);
 
-//			} else {
+			} else {
 
-//				SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-//				SDL_RenderFillRect(renderer, &rect);
+				SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
+				SDL_RenderFillRect(renderer, &rect);
 
 				//renderPartition(x, y, p_world);
-//			}
+			}
 		}
 	}
 }
