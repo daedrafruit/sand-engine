@@ -25,9 +25,10 @@ public:
 	template <typename T>
 	void drawCircle(int x, int y, int radius);
 
+	//call resepctive update function for each cell in given partition
 	void updatePartition(int x, int y);
 
-	// Calls the respective 'updateCell' function for each cell in the world
+	// Call update partition function on each partition in the world
 	void updateWorld();
 
 	// When an 'updateCell' function is called, the updates do not happen immediately, 

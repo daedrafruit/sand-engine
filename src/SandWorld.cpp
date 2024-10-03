@@ -103,14 +103,16 @@ void SandWorld::drawCircle(int x, int y, int radius) {
 
 	for (int dx = -radius; dx <= radius; ++dx) {
 		for (int dy = -radius; dy <= radius; dy++) {
-			std::unique_ptr<Entity>& cell = grid[x + dx][y + dy];
+			int cellx = x + dx;
+			int celly = y + dy;
 
 			// Quadratic formula
 			bool withinRadius = dx * dx + dy * dy <= radius * radius;
 
 			if (withinRadius) {
-				enablePartitionsAround(x + dx, y + dy);
-				cell = std::make_unique<T>(currWorldUpdate);
+				enablePartitionsAround(cellx, celly);
+				std::unique_ptr<Entity> stone = std::make_unique<T>(currWorldUpdate);
+				swaps.emplace_back(cellx, celly, cellx, celly, std::move(stone));
 			}
 		}
 	}
@@ -120,6 +122,7 @@ void SandWorld::drawCircle(int x, int y, int radius) {
 // Updating World
 // *********************************************************************
 
+//
 void SandWorld::updateWorld() {
 
 	currWorldUpdate = (SDL_GetTicks());
@@ -130,6 +133,7 @@ void SandWorld::updateWorld() {
 
 			//TODO: partitions on the right/down (higher x/y) are biased to be disabled, this is why the render partitions are not accurate
 			//if a cell updates a group of partitions, the update world will still continue and re-disable the bottom right partitions, while the top left will remain enabled
+			//this issue may have to do with the greater partition logic, which may need to be reconsidered 
 
 			worldPartitions[x][y] = false;
 			updatePartition(x, y);
@@ -149,17 +153,20 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 	for (int x = xi; x < xf; ++x) {
 		for (int y = yi; y < yf; ++y) {
 
-			//delete cell when it reaches the boundry
-			if ((x == 0 || x == gridWidth || y == 0 || y == gridHeight - 1) && grid[x][y]->getId() > CellId::Stone) {
-				grid[x][y] = std::make_unique<Air>(currWorldUpdate);
-				continue;
-			}
+			std::unique_ptr<Entity>& currCell = grid[x][y];
 
-			std::vector<SwapOp> newSwaps = grid[x][y]->update(grid, x, y);
+			if ((x == 0 || x == gridWidth || y == 0 || y == gridHeight - 1) && currCell->getId() > CellId::Stone) {
+				std::unique_ptr<Entity> air = std::make_unique<Air>(0);
+				swaps.emplace_back(x, y, x, y, std::move(air));
+				continue;
+			} 
+
+
+			std::vector<SwapOp> newSwaps = currCell->update(grid, x, y);
 			if (!newSwaps.empty()) {
 				enablePartitionsAround(x, y);
 				for (SwapOp& swap : newSwaps) {
-						swaps.emplace_back(std::move(swap));
+					swaps.emplace_back(std::move(swap));
 				}
 			}
 		}

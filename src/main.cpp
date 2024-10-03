@@ -23,6 +23,8 @@ int main(int argc, char* args[]) {
 
     SandWorld world(windowHeight, windowWidth, cellSize, partitionSideLength);
 
+		window.updateRenderPartitions(world.getWorldPartitions());
+
     bool gameRunning = true;
     SDL_Event event;
     
@@ -44,6 +46,7 @@ int main(int argc, char* args[]) {
 				int y;
 				SDL_GetMouseState(&x, &y);
 				world.handleEvent(currentKeyStates, x, y);
+				window.updateRenderPartitions(world.getWorldPartitions());
 			}
 		
 			float newTime = utils::hireTimeInSeconds();
