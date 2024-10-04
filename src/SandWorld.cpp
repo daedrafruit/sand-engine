@@ -133,10 +133,6 @@ void SandWorld::updateWorld() {
 		for (int y = 0; y < partitionSideLength; ++y) {
 			if (!worldPartitions[x][y].isEnabled()) continue;
 
-			//TODO: partitions on the right/down (higher x/y) are biased to be disabled, this is why the render partitions are not accurate
-			//if a cell updates a group of partitions, the update world will still continue and re-disable the bottom right partitions, while the top left will remain enabled
-			//this issue may have to do with the greater partition logic, which may need to be reconsidered 
-
 			partition& currPartition = worldPartitions[x][y];
 
 			if (currPartition.getLastUpdated() != currWorldUpdate) {
