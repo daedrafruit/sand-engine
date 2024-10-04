@@ -18,7 +18,7 @@ SandWorld::SandWorld(const int windowHeight, const int windowWidth, const int p_
 
 	:gridHeight(windowHeight / p_cellSize), gridWidth(windowWidth / p_cellSize), cellSize(p_cellSize), 
 	partitionSideLength(p_partitionSideLength), partitionWidth(gridWidth / partitionSideLength), partitionHeight(gridHeight / partitionSideLength),
- 	worldPartitions(partitionHeight, std::vector<bool>(partitionWidth, false)),
+ 	worldPartitions(partitionHeight, std::vector<partition>(partitionWidth)),
 	currWorldUpdate(SDL_GetTicks()) {
 
     if (windowWidth % p_cellSize != 0 || windowHeight % p_cellSize != 0) {
@@ -34,7 +34,7 @@ SandWorld::SandWorld(const int windowHeight, const int windowWidth, const int p_
 
 void SandWorld::initializeGrid() {
 
-	worldPartitions.resize(partitionSideLength, std::vector<bool>(partitionSideLength, false));
+	worldPartitions.resize(partitionSideLength, std::vector<partition>(partitionSideLength));
 
 	grid.resize(gridWidth);
 	for (int x = 0; x < gridWidth; ++x) {
@@ -54,7 +54,7 @@ void SandWorld::initializeGrid() {
 
 	for (int x = 0; x < partitionSideLength; ++x) {
 		for (int y = 0; y < partitionSideLength; ++y) {
-			worldPartitions[x][y] = true;
+			worldPartitions[x][y].setStatus(true, currWorldUpdate);
 		}
 	}
 }
@@ -111,8 +111,8 @@ void SandWorld::drawCircle(int x, int y, int radius) {
 
 			if (withinRadius) {
 				enablePartitionsAround(cellx, celly);
-				std::unique_ptr<Entity> stone = std::make_unique<T>(currWorldUpdate);
-				swaps.emplace_back(cellx, celly, cellx, celly, std::move(stone));
+				std::unique_ptr<Entity> cell = std::make_unique<T>(currWorldUpdate);
+				swaps.emplace_back(cellx, celly, cellx, celly, std::move(cell));
 			}
 		}
 	}
@@ -122,20 +122,26 @@ void SandWorld::drawCircle(int x, int y, int radius) {
 // Updating World
 // *********************************************************************
 
+void SandWorld::setWorldUpdate() {
+	currWorldUpdate = (SDL_GetTicks());
+}
+
 //
 void SandWorld::updateWorld() {
 
-	currWorldUpdate = (SDL_GetTicks());
-
 	for (int x = 0; x < partitionSideLength; ++x) {
 		for (int y = 0; y < partitionSideLength; ++y) {
-			if (!worldPartitions[x][y]) continue;
+			if (!worldPartitions[x][y].isEnabled()) continue;
 
 			//TODO: partitions on the right/down (higher x/y) are biased to be disabled, this is why the render partitions are not accurate
 			//if a cell updates a group of partitions, the update world will still continue and re-disable the bottom right partitions, while the top left will remain enabled
 			//this issue may have to do with the greater partition logic, which may need to be reconsidered 
 
-			worldPartitions[x][y] = false;
+			partition& currPartition = worldPartitions[x][y];
+
+			if (currPartition.getLastUpdated() != currWorldUpdate) {
+				currPartition.setStatus(false, currWorldUpdate);
+			}
 			updatePartition(x, y);
 		}
 	}
@@ -204,15 +210,23 @@ void SandWorld::commitSwaps() {
 void SandWorld::enablePartitionsAround(int x, int y) {
 	int partitionX = x / partitionWidth;
 	int partitionY = y / partitionHeight;
-	for (int dx = -1; dx <= 1; ++dx) {
-		for (int dy = -1; dy <= 1; ++dy) {
-			if((partitionX + dx < 0) || (partitionY + dy < 0)) continue;
-			if ((partitionX + dx >= partitionSideLength) || (partitionY + dy >= partitionSideLength)) continue;
-			worldPartitions[x / partitionWidth + dx][y / partitionHeight + dy] = true;
+	int radius = 1;
+
+	for (int dx = -radius; dx <= radius; ++dx) {
+		for (int dy = -radius; dy <= radius; ++dy) {
+			int newPartitionX = partitionX + dx;
+			int newPartitionY = partitionY + dy;
+
+			bool withinBounds = (newPartitionX >= 0 && newPartitionX < partitionSideLength) &&
+			                   	(newPartitionY >= 0 && newPartitionY < partitionSideLength);
+
+			if (withinBounds) {
+				partition& currPartition = worldPartitions[newPartitionX][newPartitionY];
+				currPartition.setStatus(true, currWorldUpdate);
+			}
 		}
 	}
 }
-
 // *********************************************************************
 // Fun
 // *********************************************************************
@@ -265,7 +279,7 @@ void SandWorld::drawGaltonBoard() {
 	//enable all partitions
 	for (int x = 0; x < partitionSideLength; ++x) {
 		for (int y = 0; y < partitionSideLength; ++y) {
-			worldPartitions[x][y] = true;
+			worldPartitions[x][y].setStatus(true, currWorldUpdate);
 		}
 	}
 }

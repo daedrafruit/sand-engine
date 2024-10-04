@@ -22,7 +22,7 @@ public:
 
 	void renderWorld(const SandWorld& world);
 	void renderPartition(int p_x, int p_y, const SandWorld& world);
-	void updateRenderPartitions(std::vector<std::vector<bool>> worldPartitions);
+	void updateRenderPartitions(std::vector<std::vector<partition>> worldPartitions);
 
 private:
 	SDL_Window* window;

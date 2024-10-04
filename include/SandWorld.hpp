@@ -10,11 +10,34 @@ enum class Event {
 	rightMouse
 };
 
+class partition {
+	private:
+		bool status = false;
+		int lastUpdated = 0;
+
+	public:
+		bool isEnabled() const {
+			return status;
+		}
+
+		int getLastUpdated() const {
+			return lastUpdated;
+		}
+
+		void setStatus(bool p_status, int p_worldUpdate) {
+			status = p_status;
+			lastUpdated = p_worldUpdate;
+		}
+
+};
+
 class SandWorld {
 public:
 	SandWorld(const int windowHeight, const int windowWidth, const int p_cellSize, const int p_partitionSideLength);
 
 	~SandWorld() {}
+
+	void setWorldUpdate();
 
 	void drawGaltonBoard();
 
@@ -35,7 +58,7 @@ public:
 	// they are added to a list of updates. This functiont randomizes, and applies those updates
 	void commitSwaps();
 
-	// Sets all adjacent partitions to true
+// Sets all adjacent partitions to true
   void enablePartitionsAround(int x, int y);
 
 	inline int getCellSize() const { return cellSize; }
@@ -47,8 +70,8 @@ public:
 	inline int getPartitionSideLength() const { return partitionSideLength; }
 	inline int getPartitionWidth() const { return partitionWidth; }
 	inline int getPartitionHeight() const { return partitionHeight; }
-	inline std::vector<std::vector<bool>> getWorldPartitions() const { return worldPartitions; }
-	inline bool partitionActive(int x, int y) const { return worldPartitions[x][y]; }
+	inline std::vector<std::vector<partition>> getWorldPartitions() const { return worldPartitions; }
+	inline bool partitionActive(int x, int y) const { return worldPartitions[x][y].isEnabled(); }
 
 private:
 	const int gridHeight, gridWidth, cellSize;
@@ -59,7 +82,7 @@ private:
 
 	void initializeGrid();
 	
-	std::vector<std::vector<bool>> worldPartitions;
+	std::vector<std::vector<partition>> worldPartitions;
 
 	std::vector<SwapOp> swaps;
 

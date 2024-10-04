@@ -111,10 +111,10 @@ void RenderWindow::renderPartition(int p_x, int p_y, const SandWorld& world) {
 	}
 }
 
-void RenderWindow::updateRenderPartitions(std::vector<std::vector<bool>> worldPartitions) {
+void RenderWindow::updateRenderPartitions(std::vector<std::vector<partition>> worldPartitions) {
 	for (int x = 0; x < partitionSideLength; ++x) {
 		for (int y = 0; y < partitionSideLength; ++y) {
-			renderPartitions[x][y] = worldPartitions[x][y] || renderPartitions[x][y];
+			renderPartitions[x][y] = worldPartitions[x][y].isEnabled() || renderPartitions[x][y];
 		}
 	}
 }

@@ -7,15 +7,15 @@
 
 void Entity::setRegister(char reg, int value) { 
     switch(reg) {
-        case 'a':
-            ra = value;
+      case 'a':
+				ra = value;
     }
 }
 
 int Entity::getRegister(char reg) const { 
     switch(reg) {
-        case 'a':
-            return ra;
+			case 'a':
+				return ra;
     }
     return 0;
 }

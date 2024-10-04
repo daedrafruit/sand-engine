@@ -40,15 +40,10 @@ int main(int argc, char* args[]) {
 					gameRunning = false;
 			}
 
-			{		
-				const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
-				int x;
-				int y;
-				SDL_GetMouseState(&x, &y);
-				world.handleEvent(currentKeyStates, x, y);
-				window.updateRenderPartitions(world.getWorldPartitions());
-			}
-		
+			const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+			int x, y;
+			SDL_GetMouseState(&x, &y);
+
 			float newTime = utils::hireTimeInSeconds();
 			float deltaTime = newTime - prevTime;
 			prevTime = newTime;
@@ -56,6 +51,8 @@ int main(int argc, char* args[]) {
 			accumulator += std::min(deltaTime, maxTimeStep);
 
 			while (accumulator >= timeStep) {
+				world.setWorldUpdate();
+				world.handleEvent(currentKeyStates, x, y);
 				world.updateWorld();
 				window.updateRenderPartitions(world.getWorldPartitions());
 				accumulator -= timeStep;
