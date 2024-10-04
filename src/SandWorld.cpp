@@ -95,11 +95,7 @@ void SandWorld::handleEvent(const Uint8* currKeyStates, int p_x, int p_y) {
 template <typename T>
 void SandWorld::drawCircle(int x, int y, int radius) {
 
-	bool withinBounds = x >= radius && x < gridWidth - radius && y >= radius && y < gridHeight - radius;
 
-	if (!withinBounds) {
-		return;
-	}
 
 	for (int dx = -radius; dx <= radius; ++dx) {
 		for (int dy = -radius; dy <= radius; dy++) {
@@ -108,8 +104,10 @@ void SandWorld::drawCircle(int x, int y, int radius) {
 
 			// Quadratic formula
 			bool withinRadius = dx * dx + dy * dy <= radius * radius;
+			bool withinBounds = (cellx >= 0 && cellx < gridWidth) &&
+													(celly >= 0 && celly < gridHeight);
 
-			if (withinRadius) {
+			if (withinRadius && withinBounds) {
 				enablePartitionsAround(cellx, celly);
 				std::unique_ptr<Entity> cell = std::make_unique<T>(currWorldUpdate);
 				swaps.emplace_back(cellx, celly, cellx, celly, std::move(cell));
@@ -126,7 +124,6 @@ void SandWorld::setWorldUpdate() {
 	currWorldUpdate = (SDL_GetTicks());
 }
 
-//
 void SandWorld::updateWorld() {
 
 	for (int x = 0; x < partitionSideLength; ++x) {
@@ -157,7 +154,10 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 
 			std::unique_ptr<Entity>& currCell = grid[x][y];
 
-			if ((x == 0 || x == gridWidth || y == 0 || y == gridHeight - 1) && currCell->getId() > CellId::Stone) {
+			bool atEdge = (x <= 0 || x >= gridWidth - 1) ||
+			              (y <= 0 || y >= gridHeight - 1);
+
+			if (atEdge && currCell->getId() > CellId::Stone) {
 				std::unique_ptr<Entity> air = std::make_unique<Air>(0);
 				swaps.emplace_back(x, y, x, y, std::move(air));
 				continue;
