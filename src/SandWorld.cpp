@@ -95,8 +95,6 @@ void SandWorld::handleEvent(const Uint8* currKeyStates, int p_x, int p_y) {
 template <typename T>
 void SandWorld::drawCircle(int x, int y, int radius) {
 
-
-
 	for (int dx = -radius; dx <= radius; ++dx) {
 		for (int dy = -radius; dy <= radius; dy++) {
 			int cellx = x + dx;
