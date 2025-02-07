@@ -67,7 +67,7 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 
 	for (int x = 0; x < partitionSideLength; ++x) {
 		for (int y = 0; y < partitionSideLength; ++y) {
-			SDL_Rect rect = { x  * partitionWidth , y * partitionHeight , cellSize, cellSize};
+			SDL_Rect rect = { x  * partitionWidth * cellSize, y * partitionHeight * cellSize, cellSize, cellSize};
 			if (renderPartitions[x][y]) {
 
 				renderPartition(x, y, world);
