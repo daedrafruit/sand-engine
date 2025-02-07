@@ -70,7 +70,7 @@ public:
 	inline int getPartitionSideLength() const { return partitionSideLength; }
 	inline int getPartitionWidth() const { return partitionWidth; }
 	inline int getPartitionHeight() const { return partitionHeight; }
-	inline std::vector<std::vector<partition>> getWorldPartitions() const { return worldPartitions; }
+	inline const std::vector<std::vector<partition>>& getWorldPartitions() const { return worldPartitions; }
 	inline bool partitionActive(int x, int y) const { return worldPartitions[x][y].isEnabled(); }
 
 private:

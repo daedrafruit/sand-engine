@@ -14,10 +14,10 @@ int main(int argc, char* args[]) {
         return -1;
     }
 
-    const int windowWidth = 1280;
-    const int windowHeight = 720;
+    const int windowWidth = 1000;
+    const int windowHeight = 1000;
     const int cellSize = 2;
-		const int partitionSideLength = 20;
+		const int partitionSideLength = 25;
 
     RenderWindow window("Falling Sand", windowWidth, windowHeight, partitionSideLength);
 

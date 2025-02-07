@@ -81,7 +81,7 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 				SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
 				SDL_RenderFillRect(renderer, &rect);
 
-				//renderPartition(x, y, p_world);
+				renderPartition(x, y, world);
 			}
 		}
 	}
