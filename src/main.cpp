@@ -17,7 +17,7 @@ int main(int argc, char* args[]) {
     const int windowWidth = 1000;
     const int windowHeight = 1000;
     const int cellSize = 2;
-		const int partitionSideLength = 25;
+		const int partitionSideLength = 20;
 
     RenderWindow window("Falling Sand", windowWidth, windowHeight, partitionSideLength);
 
