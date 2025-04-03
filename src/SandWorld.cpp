@@ -269,8 +269,8 @@ void SandWorld::drawGaltonBoard() {
 	}
 
 	//enable all partitions
-	for (int x = 0; x < partitionSizeInCells; ++x) {
-		for (int y = 0; y < partitionSizeInCells; ++y) {
+	for (int x = 0; x < numPartitionsX; ++x) {
+		for (int y = 0; y < numPartitionsY; ++y) {
 			worldPartitions[x][y].setStatus(true, currWorldUpdate);
 		}
 	}
