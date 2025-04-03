@@ -115,6 +115,11 @@ std::vector<SwapOp> Fire::update(const std::vector<std::vector<std::unique_ptr<E
 			outSwaps.emplace_back(std::move(swap));
 			break;
 		} 
+		if (cell2->getId() == CellId::Water) {
+			std::unique_ptr<Entity> air = std::make_unique<Air>(0);
+			outSwaps.emplace_back(x, y, x, y, std::move(air));
+			break;
+		} 
 	}
 	//return self swap so that partition stays enabled and timer can continue
 	return outSwaps;
