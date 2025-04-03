@@ -19,11 +19,17 @@ int main(int argc, char* args[]) {
     const int cellSize = 2;
 		const int partitionSideLength = 20;
 
+		std::cout << "Initializing Window... ";
     RenderWindow window("Falling Sand", windowWidth, windowHeight, partitionSideLength);
+		std::cout << "done." << std::endl;
 
+		std::cout << "Initializing World... ";
     SandWorld world(windowHeight, windowWidth, cellSize, partitionSideLength);
+		std::cout << "done." << std::endl;
 
+		std::cout << "Initializing Render Partitions... ";
 		window.updateRenderPartitions(world.getWorldPartitions());
+		std::cout << "done." << std::endl;
 
     bool gameRunning = true;
     SDL_Event event;
