@@ -14,20 +14,21 @@ int main(int argc, char* args[]) {
         return -1;
     }
 
-    const int windowWidth = 1000;
+    const int windowWidth = 500;
     const int windowHeight = 800;
     const int cellSize = 2;
-		const int partitionSizeInCells = 20;
+		const int partitionSizeInCells = 25;
 
-		std::cout << "Initializing Window... ";
-    RenderWindow window("Falling Sand", windowWidth, windowHeight, partitionSizeInCells);
-		std::cout << "done." << std::endl;
 
-		std::cout << "Initializing World... ";
+		std::cout << "Initializing World... " << std::endl;
     SandWorld world(windowHeight, windowWidth, cellSize, partitionSizeInCells);
 		std::cout << "done." << std::endl;
 
-		std::cout << "Initializing Render Partitions... ";
+		std::cout << "Initializing Window... " << std::endl;
+    RenderWindow window("Falling Sand", windowWidth, windowHeight, world);
+		std::cout << "done." << std::endl;
+
+		std::cout << "Initializing Render Partitions... " << std::endl;
 		window.updateRenderPartitions(world.getWorldPartitions());
 		std::cout << "done." << std::endl;
 

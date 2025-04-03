@@ -1,4 +1,5 @@
 
+#include <execution>
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <memory>
@@ -8,8 +9,8 @@
 #include "Entity.hpp"
 #include "RenderWindow.hpp"
 
-RenderWindow::RenderWindow(const char* title, int p_width, int p_height, int p_partitionSizeInCells)
-	:window(NULL), renderer(NULL), width(p_width), height(p_height), partitionSizeInCells(p_partitionSizeInCells) {
+RenderWindow::RenderWindow(const char* title, int p_width, int p_height, const SandWorld& p_world)
+	:window(NULL), renderer(NULL), width(p_width), height(p_height), world(p_world) {
 
 	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, p_width, p_height, SDL_WINDOW_SHOWN);
 
@@ -19,7 +20,7 @@ RenderWindow::RenderWindow(const char* title, int p_width, int p_height, int p_p
 
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-	renderPartitions.resize(partitionSizeInCells, std::vector<bool>(partitionSizeInCells, true));
+	renderPartitions.resize(world.getNumPartitionsX(), std::vector<bool>(world.getNumPartitionsY(), true));
 } 
 
 void RenderWindow::cleanUp() {
@@ -49,8 +50,8 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 
 	const int partitionSizeInCells = world.getPartitionSizeInCells();
 	const int cellSize = world.getCellSize();
-	const int partitionWidth = world.getNumPartitionsX();
-	const int partitionHeight = world.getNumPartitionsY();
+	const int numPartitionsX = world.getNumPartitionsX();
+	const int numPartitionsY = world.getNumPartitionsY();
 	
 /*
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
@@ -65,9 +66,9 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 	}
 */
 
-	for (int x = 0; x < partitionSizeInCells; ++x) {
-		for (int y = 0; y < partitionSizeInCells; ++y) {
-			SDL_Rect rect = { x  * partitionWidth * cellSize, y * partitionHeight * cellSize, cellSize, cellSize};
+	for (int x = 0; x < numPartitionsX; ++x) {
+		for (int y = 0; y < numPartitionsY; ++y) {
+			SDL_Rect rect = { x  * partitionSizeInCells * cellSize, y * partitionSizeInCells * cellSize, cellSize, cellSize};
 			if (renderPartitions[x][y]) {
 
 				renderPartition(x, y, world);
@@ -89,14 +90,15 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 
 void RenderWindow::renderPartition(int p_x, int p_y, const SandWorld& world) {
 
-	const int partitionWidth = world.getNumPartitionsX();
-	const int partitionHeight = world.getNumPartitionsY();
+	const int numPartitionsX = world.getNumPartitionsX();
+	const int numPartitionsY = world.getNumPartitionsY();
+	const int partitionSizeInCells = world.getPartitionSizeInCells();
 
-	int xi = p_x * partitionWidth;
-	int yi = p_y * partitionHeight;
+	int xi = p_x * partitionSizeInCells;
+	int yi = p_y * partitionSizeInCells;
 
-	int xf = (xi + partitionWidth);
-	int yf = (yi + partitionHeight);
+	int xf = (xi + partitionSizeInCells);
+	int yf = (yi + partitionSizeInCells);
 
 	const int cellSize = world.getCellSize();
 
@@ -112,8 +114,8 @@ void RenderWindow::renderPartition(int p_x, int p_y, const SandWorld& world) {
 }
 
 void RenderWindow::updateRenderPartitions(std::vector<std::vector<partition>> worldPartitions) {
-	for (int x = 0; x < partitionSizeInCells; ++x) {
-		for (int y = 0; y < partitionSizeInCells; ++y) {
+	for (int x = 0; x < world.getNumPartitionsX(); ++x) {
+		for (int y = 0; y < world.getNumPartitionsY(); ++y) {
 			renderPartitions[x][y] = worldPartitions[x][y].isEnabled() || renderPartitions[x][y];
 		}
 	}

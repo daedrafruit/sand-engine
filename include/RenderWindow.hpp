@@ -10,7 +10,7 @@
 class RenderWindow {
 
 public:
-	RenderWindow(const char* title, const int p_width, const int p_height, int p_partitionSizeInCells);
+	RenderWindow(const char* title, const int p_width, const int p_height, const SandWorld& p_world);
 
 	inline int getWidth() const { return width; }
 	inline int getHeight() const { return height;	}
@@ -30,5 +30,5 @@ private:
 
 	std::vector<std::vector<bool>> renderPartitions;
 	const int width, height;
-	const int partitionSizeInCells;
+	const SandWorld& world;
 };
