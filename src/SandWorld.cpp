@@ -161,7 +161,6 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 				continue;
 			} 
 
-
 			std::vector<SwapOp> newSwaps = currCell->update(grid, x, y);
 			if (!newSwaps.empty()) {
 				enablePartitionsAround(x, y);

@@ -1,15 +1,17 @@
-SRCDIR := src
-INCDIR := include
-BUILDDIR := build
+SRCS := $(wildcard src/*.cpp)
+OBJS := $(patsubst src/%.cpp,%.o,$(SRCS))
 
-SRCS := $(wildcard $(SRCDIR)/*.cpp)
-OBJS := $(patsubst $(SRCDIR)/%.cpp,$(BUILDDIR)/%.o,$(SRCS))
+all: build run
 
-build/%.o: src/%.cpp
-	g++ -g -c $< -o $@ -I$(INCDIR) -I/usr/include/SDL2
+%.o: src/%.cpp
+	g++ -g -c $< -o $@ -Iinclude -I/usr/include/SDL2
 
-run: $(OBJS)
-	g++ $(OBJS) -g -o run -L/usr/lib -lSDL2
+build: $(OBJS)
+	g++ $(OBJS) -g -o sandgame -L/usr/lib -lSDL2
+
+run: sandgame
+	./sandgame
 
 clean:
-	rm -f $(BUILDDIR)/*.o run
+	rm -f *.o sandgame
+
