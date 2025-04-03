@@ -15,16 +15,16 @@ int main(int argc, char* args[]) {
     }
 
     const int windowWidth = 1000;
-    const int windowHeight = 1000;
+    const int windowHeight = 800;
     const int cellSize = 2;
-		const int partitionSideLength = 20;
+		const int partitionSizeInCells = 20;
 
 		std::cout << "Initializing Window... ";
-    RenderWindow window("Falling Sand", windowWidth, windowHeight, partitionSideLength);
+    RenderWindow window("Falling Sand", windowWidth, windowHeight, partitionSizeInCells);
 		std::cout << "done." << std::endl;
 
 		std::cout << "Initializing World... ";
-    SandWorld world(windowHeight, windowWidth, cellSize, partitionSideLength);
+    SandWorld world(windowHeight, windowWidth, cellSize, partitionSizeInCells);
 		std::cout << "done." << std::endl;
 
 		std::cout << "Initializing Render Partitions... ";

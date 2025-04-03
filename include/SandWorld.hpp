@@ -33,7 +33,7 @@ class partition {
 
 class SandWorld {
 public:
-	SandWorld(const int windowHeight, const int windowWidth, const int p_cellSize, const int p_partitionSideLength);
+	SandWorld(const int windowHeight, const int windowWidth, const int p_cellSize, const int p_partitionSizeInCells);
 
 	~SandWorld() {}
 

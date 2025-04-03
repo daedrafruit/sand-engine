@@ -14,17 +14,18 @@
 // Initialization
 // *********************************************************************
 
-SandWorld::SandWorld(const int windowHeight, const int windowWidth, const int p_cellSize, const int p_partitionSideLength)
-
+SandWorld::SandWorld(const int windowHeight, const int windowWidth, const int p_cellSize, const int p_partitionSizeInCells)
 	:gridHeight(windowHeight / p_cellSize), gridWidth(windowWidth / p_cellSize), cellSize(p_cellSize), 
-	partitionSizeInCells(p_partitionSideLength), numPartitionsX(gridWidth / partitionSizeInCells), numPartitionsY(gridHeight / partitionSizeInCells),
- 	worldPartitions(numPartitionsX, std::vector<partition>(numPartitionsY)),
+	partitionSizeInCells(p_partitionSizeInCells),
+	numPartitionsX(gridWidth / partitionSizeInCells),
+	numPartitionsY(gridHeight / partitionSizeInCells),
+	worldPartitions(numPartitionsY, std::vector<partition>(numPartitionsX)),
 	currWorldUpdate(SDL_GetTicks()) {
 
     if (windowWidth % p_cellSize != 0 || windowHeight % p_cellSize != 0) {
       throw std::invalid_argument("Window dimensions are not divisible by cell size.");
     }
-    if (gridHeight % p_partitionSideLength != 0 || gridWidth % p_partitionSideLength != 0) {
+    if (gridHeight % p_partitionSizeInCells != 0 || gridWidth % p_partitionSizeInCells != 0) {
       throw std::invalid_argument("Grid dimensions are not divisible by partition side length.");
     }
 
@@ -33,6 +34,8 @@ SandWorld::SandWorld(const int windowHeight, const int windowWidth, const int p_
 }
 
 void SandWorld::initializeGrid() {
+
+	worldPartitions.resize(numPartitionsX, std::vector<partition>(numPartitionsY));
 
 	grid.resize(gridWidth);
 	for (int x = 0; x < gridWidth; ++x) {
@@ -208,8 +211,8 @@ void SandWorld::enablePartitionsAround(int x, int y) {
 			int newPartitionX = partitionX + dx;
 			int newPartitionY = partitionY + dy;
 
-			bool withinBounds = (newPartitionX >= 0 && newPartitionX < numPartitionsX) &&
-			                   	(newPartitionY >= 0 && newPartitionY < numPartitionsY);
+			bool withinBounds = (newPartitionX >= 0 && newPartitionX < partitionSizeInCells) &&
+			                   	(newPartitionY >= 0 && newPartitionY < partitionSizeInCells);
 
 			if (withinBounds) {
 				partition& currPartition = worldPartitions[newPartitionX][newPartitionY];
@@ -268,8 +271,8 @@ void SandWorld::drawGaltonBoard() {
 	}
 
 	//enable all partitions
-	for (int x = 0; x < numPartitionsX; ++x) {
-		for (int y = 0; y < numPartitionsY; ++y) {
+	for (int x = 0; x < partitionSizeInCells; ++x) {
+		for (int y = 0; y < partitionSizeInCells; ++y) {
 			worldPartitions[x][y].setStatus(true, currWorldUpdate);
 		}
 	}
