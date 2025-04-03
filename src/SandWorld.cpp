@@ -17,8 +17,8 @@
 SandWorld::SandWorld(const int windowHeight, const int windowWidth, const int p_cellSize, const int p_partitionSideLength)
 
 	:gridHeight(windowHeight / p_cellSize), gridWidth(windowWidth / p_cellSize), cellSize(p_cellSize), 
-	partitionSideLength(p_partitionSideLength), partitionWidth(gridWidth / partitionSideLength), partitionHeight(gridHeight / partitionSideLength),
- 	worldPartitions(partitionHeight, std::vector<partition>(partitionWidth)),
+	partitionSizeInCells(p_partitionSideLength), numPartitionsX(gridWidth / partitionSizeInCells), numPartitionsY(gridHeight / partitionSizeInCells),
+ 	worldPartitions(numPartitionsY, std::vector<partition>(numPartitionsX)),
 	currWorldUpdate(SDL_GetTicks()) {
 
     if (windowWidth % p_cellSize != 0 || windowHeight % p_cellSize != 0) {
@@ -34,7 +34,7 @@ SandWorld::SandWorld(const int windowHeight, const int windowWidth, const int p_
 
 void SandWorld::initializeGrid() {
 
-	worldPartitions.resize(partitionSideLength, std::vector<partition>(partitionSideLength));
+	worldPartitions.resize(partitionSizeInCells, std::vector<partition>(partitionSizeInCells));
 
 	grid.resize(gridWidth);
 	for (int x = 0; x < gridWidth; ++x) {
@@ -52,8 +52,8 @@ void SandWorld::initializeGrid() {
 		}
 	}
 
-	for (int x = 0; x < partitionSideLength; ++x) {
-		for (int y = 0; y < partitionSideLength; ++y) {
+	for (int x = 0; x < partitionSizeInCells; ++x) {
+		for (int y = 0; y < partitionSizeInCells; ++y) {
 			worldPartitions[x][y].setStatus(true, currWorldUpdate);
 		}
 	}
@@ -124,8 +124,8 @@ void SandWorld::setWorldUpdate() {
 
 void SandWorld::updateWorld() {
 
-	for (int x = 0; x < partitionSideLength; ++x) {
-		for (int y = 0; y < partitionSideLength; ++y) {
+	for (int x = 0; x < partitionSizeInCells; ++x) {
+		for (int y = 0; y < partitionSizeInCells; ++y) {
 			if (!worldPartitions[x][y].isEnabled()) continue;
 
 			partition& currPartition = worldPartitions[x][y];
@@ -141,11 +141,11 @@ void SandWorld::updateWorld() {
 
 void SandWorld::updatePartition(int p_x, int p_y) {
 
-	int xi = p_x * partitionWidth;
-	int yi = p_y * partitionHeight;
+	int xi = p_x * numPartitionsX;
+	int yi = p_y * numPartitionsY;
 
-	int xf = (xi + partitionWidth);
-	int yf = (yi + partitionHeight);
+	int xf = (xi + numPartitionsX);
+	int yf = (yi + numPartitionsY);
 
 	for (int x = xi; x < xf; ++x) {
 		for (int y = yi; y < yf; ++y) {
@@ -201,8 +201,8 @@ void SandWorld::commitSwaps() {
 }
 
 void SandWorld::enablePartitionsAround(int x, int y) {
-	int partitionX = x / partitionWidth;
-	int partitionY = y / partitionHeight;
+	int partitionX = x / numPartitionsX;
+	int partitionY = y / numPartitionsY;
 	int radius = 1;
 
 	for (int dx = -radius; dx <= radius; ++dx) {
@@ -210,8 +210,8 @@ void SandWorld::enablePartitionsAround(int x, int y) {
 			int newPartitionX = partitionX + dx;
 			int newPartitionY = partitionY + dy;
 
-			bool withinBounds = (newPartitionX >= 0 && newPartitionX < partitionSideLength) &&
-			                   	(newPartitionY >= 0 && newPartitionY < partitionSideLength);
+			bool withinBounds = (newPartitionX >= 0 && newPartitionX < partitionSizeInCells) &&
+			                   	(newPartitionY >= 0 && newPartitionY < partitionSizeInCells);
 
 			if (withinBounds) {
 				partition& currPartition = worldPartitions[newPartitionX][newPartitionY];
@@ -270,8 +270,8 @@ void SandWorld::drawGaltonBoard() {
 	}
 
 	//enable all partitions
-	for (int x = 0; x < partitionSideLength; ++x) {
-		for (int y = 0; y < partitionSideLength; ++y) {
+	for (int x = 0; x < partitionSizeInCells; ++x) {
+		for (int y = 0; y < partitionSizeInCells; ++y) {
 			worldPartitions[x][y].setStatus(true, currWorldUpdate);
 		}
 	}

@@ -47,10 +47,10 @@ void RenderWindow::display() {
 
 void RenderWindow::renderWorld(const SandWorld& world) {
 
-	const int partitionSideLength = world.getPartitionSideLength();
+	const int partitionSizeInCells = world.getPartitionSizeInCells();
 	const int cellSize = world.getCellSize();
-	const int partitionWidth = world.getPartitionWidth();
-	const int partitionHeight = world.getPartitionHeight();
+	const int partitionWidth = world.getNumPartitionsX();
+	const int partitionHeight = world.getNumPartitionsY();
 	
 /*
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
@@ -65,8 +65,8 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 	}
 */
 
-	for (int x = 0; x < partitionSideLength; ++x) {
-		for (int y = 0; y < partitionSideLength; ++y) {
+	for (int x = 0; x < partitionSizeInCells; ++x) {
+		for (int y = 0; y < partitionSizeInCells; ++y) {
 			SDL_Rect rect = { x  * partitionWidth * cellSize, y * partitionHeight * cellSize, cellSize, cellSize};
 			if (renderPartitions[x][y]) {
 
@@ -89,8 +89,8 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 
 void RenderWindow::renderPartition(int p_x, int p_y, const SandWorld& world) {
 
-	const int partitionWidth = world.getPartitionWidth();
-	const int partitionHeight = world.getPartitionHeight();
+	const int partitionWidth = world.getNumPartitionsX();
+	const int partitionHeight = world.getNumPartitionsY();
 
 	int xi = p_x * partitionWidth;
 	int yi = p_y * partitionHeight;

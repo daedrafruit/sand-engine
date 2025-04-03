@@ -67,16 +67,16 @@ public:
 
 	inline const std::unique_ptr<Entity>& getCellAt(int x, int y) const { return grid[x][y]; }
 
-	inline int getPartitionSideLength() const { return partitionSideLength; }
-	inline int getPartitionWidth() const { return partitionWidth; }
-	inline int getPartitionHeight() const { return partitionHeight; }
+	inline int getPartitionSizeInCells() const { return partitionSizeInCells; }
+	inline int getNumPartitionsX() const { return numPartitionsX; }
+	inline int getNumPartitionsY() const { return numPartitionsY; }
 	inline const std::vector<std::vector<partition>>& getWorldPartitions() const { return worldPartitions; }
 	inline bool partitionActive(int x, int y) const { return worldPartitions[x][y].isEnabled(); }
 
 private:
 	const int gridHeight, gridWidth, cellSize;
 	int currWorldUpdate;
-	const int partitionSideLength, partitionWidth, partitionHeight;
+	const int partitionSizeInCells, numPartitionsX, numPartitionsY;
 
 	std::vector<std::vector<std::unique_ptr<Entity>>> grid;
 
