@@ -1,5 +1,4 @@
 
-#include <execution>
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <memory>
@@ -74,11 +73,13 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 				renderPartition(x, y, world);
 				renderPartitions[x][y] = false;
 
-//				SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
-//				SDL_RenderFillRect(renderer, &rect);
+				SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
+				SDL_RenderFillRect(renderer, &rect);
 
 			} else {
 
+//				renderPartition(x, y, world);
+//				renderPartitions[x][y] = false;
 //				SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
 //				SDL_RenderFillRect(renderer, &rect);
 
