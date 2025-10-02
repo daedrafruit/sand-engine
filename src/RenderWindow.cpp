@@ -1,10 +1,14 @@
 
+#include <cstddef>
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <memory>
 
 #include "SDL2/SDL_pixels.h"
+#include "SDL_error.h"
+#include "SDL_rect.h"
 #include "SDL_render.h"
+#include "SDL_stdinc.h"
 #include "SandWorld.hpp"
 #include "Entity.hpp"
 #include "RenderWindow.hpp"
@@ -12,16 +16,27 @@
 RenderWindow::RenderWindow(const char* title, int p_width, int p_height, const SandWorld& p_world)
 	:window(NULL), renderer(NULL), width(p_width), height(p_height), world(p_world) {
 
-	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, p_width, p_height, SDL_WINDOW_SHOWN);
-
-	if (window == NULL) {
+	window = SDL_CreateWindow(title, 
+			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
+			p_width, p_height, SDL_WINDOW_SHOWN
+	);
+	if (!window) {
 		std::cout << "Window failed to init" << SDL_GetError() << std::endl; 
   }
-	
-	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, width, height);
 
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (!renderer) {
+		std::cout << "Renderer failed to init" << SDL_GetError() << std::endl; 
+  }
 
-	renderPartitions.resize(world.getNumPartitionsX(), std::vector<bool>(world.getNumPartitionsY(), true));
+	texture = SDL_CreateTexture(renderer, 
+			SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 
+			width, height
+	);
+	if (!texture) {
+		std::cout << "Texture failed to init" << SDL_GetError() << std::endl; 
+  }
+
 } 
 
 void RenderWindow::cleanUp() {
@@ -48,92 +63,33 @@ void RenderWindow::display() {
 }
 
 void RenderWindow::renderWorld(const SandWorld& world) {
+	Uint32* pixels;
+	int pitch;
 
-	const int partitionSizeInCells = world.getPartitionSizeInCells();
-	const int cellSize = world.getCellSize();
-	const int numPartitionsX = world.getNumPartitionsX();
-	const int numPartitionsY = world.getNumPartitionsY();
-	
-	for (int x = 0; x < numPartitionsX * cellSize; ++x) {
-		for (int y = 0; y < numPartitionsY * cellSize; ++y) {
+	if (SDL_LockTexture(texture, nullptr, (void **)&pixels, &pitch)) {
+		std::cout << "Failed to lock texture: " << SDL_GetError() << std::endl;
+	}
+
+	SDL_PixelFormat pixelFormat;
+	pixelFormat.format = SDL_PIXELFORMAT_RGBA8888;
+
+	for (int x = 0; x < world.getGridWidth(); ++x) {
+		for (int y = 0; y < world.getGridHeight(); ++y) {
 			const std::unique_ptr<Entity>& cell = world.getCellAt(x, y);
-			SDL_LockTexture(texture);
-			Color color = cell->getColor();
-			SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
-
-
+			Color cellColor = cell->getColor();
+			Uint32 color = SDL_MapRGBA(&pixelFormat, 
+					cellColor.r, cellColor.g, cellColor.b, SDL_ALPHA_OPAQUE
+			);
+			pixels[y * (pitch/sizeof(unsigned int)) + x] = color;
 
 		}
 	}
-/*
-	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-	for (int col = 0; col <= partitionSideLength; ++col) {
-		int x = col * partitionWidth * cellSize;
-		SDL_RenderDrawLine(renderer, x, 0, x, cellSize * partitionSideLength * partitionHeight);
-	}
 
-	for (int row = 0; row <= partitionSideLength; ++row) {
-		int y = row * partitionHeight * cellSize;
-		SDL_RenderDrawLine(renderer, 0, y, cellSize * partitionSideLength * partitionWidth, y);
-	}
-*/
-/*
+	SDL_UnlockTexture(texture);
+	SDL_Rect rect = {0, 0, 
+		width * world.getCellSize(),
+		height * world.getCellSize()
+	};
 
-	for (int x = 0; x < numPartitionsX; ++x) {
-		for (int y = 0; y < numPartitionsY; ++y) {
-			SDL_Rect rect = { x  * partitionSizeInCells * cellSize, y * partitionSizeInCells * cellSize, cellSize, cellSize};
-			if (renderPartitions[x][y]) {
-
-				renderPartition(x, y, world);
-				renderPartitions[x][y] = false;
-
-				SDL_SetRenderDrawColor(renderer, 0, 255, 0, SDL_ALPHA_OPAQUE);
-				SDL_RenderFillRect(renderer, &rect);
-
-			} else {
-
-//				renderPartition(x, y, world);
-//				renderPartitions[x][y] = false;
-//				SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-//				SDL_RenderFillRect(renderer, &rect);
-
-			}
-		}
-	}
-*/
+	SDL_RenderCopy(renderer, texture, NULL, &rect);
 }
-
-void RenderWindow::renderPartition(int p_x, int p_y, const SandWorld& world) {
-
-	const int numPartitionsX = world.getNumPartitionsX();
-	const int numPartitionsY = world.getNumPartitionsY();
-	const int partitionSizeInCells = world.getPartitionSizeInCells();
-
-	int xi = p_x * partitionSizeInCells;
-	int yi = p_y * partitionSizeInCells;
-
-	int xf = (xi + partitionSizeInCells);
-	int yf = (yi + partitionSizeInCells);
-
-	const int cellSize = world.getCellSize();
-
-	for (int x = xi; x < xf; ++x) {
-		for (int y = yi; y < yf; ++y) {
-			const int gridX = x * cellSize;
-			const int gridY = y * cellSize;
-			const std::unique_ptr<Entity>& cell = world.getCellAt(x, y);
-
-			render(cell, gridX, gridY, cellSize);
-		}
-	}
-}
-
-void RenderWindow::updateRenderPartitions(std::vector<std::vector<partition>> worldPartitions) {
-	for (int x = 0; x < world.getNumPartitionsX(); ++x) {
-		for (int y = 0; y < world.getNumPartitionsY(); ++y) {
-			renderPartitions[x][y] = worldPartitions[x][y].isEnabled() || renderPartitions[x][y];
-		}
-	}
-}
-
-

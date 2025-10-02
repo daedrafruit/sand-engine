@@ -14,9 +14,9 @@ int main(int argc, char* args[]) {
         return -1;
     }
 
-    const int windowWidth = 1000;
-    const int windowHeight = 1000;
-    const int cellSize = 10;
+    const int windowWidth = 1920;
+    const int windowHeight = 1080;
+    const int cellSize = 2;
 		const int partitionSizeInCells = 10;
 
 
@@ -26,10 +26,6 @@ int main(int argc, char* args[]) {
 
 		std::cout << "Initializing Window... " << std::endl;
     RenderWindow window("Falling Sand", windowWidth, windowHeight, world);
-		std::cout << "done." << std::endl;
-
-		std::cout << "Initializing Render Partitions... " << std::endl;
-		window.updateRenderPartitions(world.getWorldPartitions());
 		std::cout << "done." << std::endl;
 
     bool gameRunning = true;
@@ -61,7 +57,6 @@ int main(int argc, char* args[]) {
 				world.setWorldUpdate();
 				world.handleEvent(currentKeyStates, x, y);
 				world.updateWorld();
-				window.updateRenderPartitions(world.getWorldPartitions());
 				accumulator -= timeStep;
 			}
 
