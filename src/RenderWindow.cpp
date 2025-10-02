@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "SDL2/SDL_pixels.h"
+#include "SDL_render.h"
 #include "SandWorld.hpp"
 #include "Entity.hpp"
 #include "RenderWindow.hpp"
@@ -16,8 +17,9 @@ RenderWindow::RenderWindow(const char* title, int p_width, int p_height, const S
 	if (window == NULL) {
 		std::cout << "Window failed to init" << SDL_GetError() << std::endl; 
   }
+	
+	texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, width, height);
 
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	renderPartitions.resize(world.getNumPartitionsX(), std::vector<bool>(world.getNumPartitionsY(), true));
 } 
@@ -52,6 +54,17 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 	const int numPartitionsX = world.getNumPartitionsX();
 	const int numPartitionsY = world.getNumPartitionsY();
 	
+	for (int x = 0; x < numPartitionsX * cellSize; ++x) {
+		for (int y = 0; y < numPartitionsY * cellSize; ++y) {
+			const std::unique_ptr<Entity>& cell = world.getCellAt(x, y);
+			SDL_LockTexture(texture);
+			Color color = cell->getColor();
+			SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
+
+
+
+		}
+	}
 /*
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
 	for (int col = 0; col <= partitionSideLength; ++col) {
@@ -64,6 +77,7 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 		SDL_RenderDrawLine(renderer, 0, y, cellSize * partitionSideLength * partitionWidth, y);
 	}
 */
+/*
 
 	for (int x = 0; x < numPartitionsX; ++x) {
 		for (int y = 0; y < numPartitionsY; ++y) {
@@ -86,6 +100,7 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 			}
 		}
 	}
+*/
 }
 
 void RenderWindow::renderPartition(int p_x, int p_y, const SandWorld& world) {

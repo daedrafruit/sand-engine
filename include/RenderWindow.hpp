@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Entity.hpp"
+#include "SDL_render.h"
 #include "SandWorld.hpp"
 
 class RenderWindow {
@@ -27,6 +28,7 @@ public:
 private:
 	SDL_Window* window;
 	SDL_Renderer* renderer;
+	SDL_Texture* texture;
 
 	std::vector<std::vector<bool>> renderPartitions;
 	const int width, height;

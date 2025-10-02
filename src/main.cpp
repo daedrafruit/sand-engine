@@ -65,7 +65,7 @@ int main(int argc, char* args[]) {
 				accumulator -= timeStep;
 			}
 
-			//window.clear();
+			window.clear();
 
 			window.renderWorld(world);
 
