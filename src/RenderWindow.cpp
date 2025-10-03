@@ -3,6 +3,7 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <memory>
+#include <string>
 
 #include "SDL2/SDL_pixels.h"
 #include "SDL_error.h"
@@ -36,6 +37,14 @@ RenderWindow::RenderWindow(const char* title, int p_width, int p_height, const S
 	if (!texture) {
 		std::cout << "Texture failed to init" << SDL_GetError() << std::endl; 
   }
+	TTF_Init();
+	font = TTF_OpenFont("/usr/share/fonts/TTF/Hack-Regular.ttf", 24);
+	if (!font) {
+		std::cout << "Font failed to init: " << SDL_GetError() << std::endl; 
+		return;
+  }
+
+	showDebug = false;
 
 } 
 
@@ -62,6 +71,37 @@ void RenderWindow::display() {
 	SDL_RenderPresent(renderer);
 }
 
+void RenderWindow::handleEvent(const Uint8* currKeyStates, int p_x, int p_y) {
+	if (currKeyStates[SDL_SCANCODE_GRAVE])
+		showDebug = !showDebug;
+}
+
+
+void RenderWindow::renderDebug(int fps) {
+
+	SDL_Color white{255, 255, 255, 255};
+
+	std::string text = std::to_string(fps);
+
+	SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), white);
+	if (!surface) {
+		std::cout << "Surface failed to init: " << SDL_GetError() << std::endl; 
+		return;
+  }
+
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+	if (!texture) {
+		std::cout << "Texture failed to init: " << SDL_GetError() << std::endl; 
+		return;
+  }
+
+	SDL_Rect rect{10, 10, surface->w, surface->h};
+	SDL_RenderCopy(renderer, texture, nullptr, &rect);
+
+	SDL_DestroyTexture(texture);
+	SDL_FreeSurface(surface);
+
+}
 void RenderWindow::renderWorld(const SandWorld& world) {
 	Uint32* pixels;
 	int pitch;
@@ -81,7 +121,28 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 					cellColor.r, cellColor.g, cellColor.b, SDL_ALPHA_OPAQUE
 			);
 			pixels[y * (pitch/sizeof(unsigned int)) + x] = color;
-
+			if (showDebug) {
+				Uint32 green = SDL_MapRGBA(&pixelFormat, 
+						0, 255, 0, 1
+				);
+				int partitionX = x / world.getPartitionSizeInCells();
+				int partitionY = y / world.getPartitionSizeInCells();
+				int partitionModX = x % world.getPartitionSizeInCells();
+				int partitionModY = y % world.getPartitionSizeInCells();
+				int finalCell = world.getPartitionSizeInCells() - 1;
+				if (world.partitionActive(partitionX, partitionY) &&
+						((
+							partitionModX == 0 ||
+							partitionModX == finalCell
+						) ||
+						(
+							partitionModY == 0 ||
+							partitionModY == finalCell
+						))
+				) {
+				pixels[y * (pitch/sizeof(unsigned int)) + x] = green;
+				}
+			}
 		}
 	}
 

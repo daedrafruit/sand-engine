@@ -39,8 +39,6 @@ public:
 
 	void setWorldUpdate();
 
-	void drawGaltonBoard();
-
 	// Responsible for input and other events
 	void handleEvent(const Uint8* currKeyStates, int p_x, int p_y);
 

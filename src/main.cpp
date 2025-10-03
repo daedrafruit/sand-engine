@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <SDL2/SDL.h>
 
@@ -8,14 +7,16 @@
 #include "RenderWindow.hpp"
 #include "SandWorld.hpp"
 
+#define FPS_INTERVAL 1.0 //seconds.
+															 //
 int main(int argc, char* args[]) {
     if (SDL_Init(SDL_INIT_EVERYTHING) > 0) {
         std::cout << "SDL_Init failed: " << SDL_GetError() << std::endl;
         return -1;
     }
 
-    const int windowWidth = 1920;
-    const int windowHeight = 1080;
+    const int windowWidth = 1000;
+    const int windowHeight = 1000;
     const int cellSize = 2;
 		const int partitionSizeInCells = 10;
 
@@ -35,6 +36,10 @@ int main(int argc, char* args[]) {
     const float maxTimeStep = 0.25f;
     float accumulator = 0.0f;
     float prevTime = utils::hireTimeInSeconds();
+
+		Uint32 fps_lasttime = SDL_GetTicks();
+		Uint32 fps_current;
+		Uint32 fps_frames = 0;
 
     while (gameRunning) {
 
@@ -56,6 +61,7 @@ int main(int argc, char* args[]) {
 			while (accumulator >= timeStep) {
 				world.setWorldUpdate();
 				world.handleEvent(currentKeyStates, x, y);
+				window.handleEvent(currentKeyStates, x, y);
 				world.updateWorld();
 				accumulator -= timeStep;
 			}
@@ -63,6 +69,15 @@ int main(int argc, char* args[]) {
 			window.clear();
 
 			window.renderWorld(world);
+
+			fps_frames++;
+			if (fps_lasttime < SDL_GetTicks() - FPS_INTERVAL*1000) {
+					fps_lasttime = SDL_GetTicks();
+					fps_current = fps_frames;
+					fps_frames = 0;
+			}
+
+			window.renderDebug(fps_current);
 
 			window.display();
     }

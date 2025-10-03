@@ -30,7 +30,6 @@ SandWorld::SandWorld(const int windowHeight, const int windowWidth, const int p_
     }
 
 		initializeGrid();
-		//drawGaltonBoard();
 }
 
 void SandWorld::initializeGrid() {
@@ -84,9 +83,6 @@ void SandWorld::handleEvent(const Uint8* currKeyStates, int p_x, int p_y) {
 	if (currKeyStates[SDL_SCANCODE_5])
 		drawCircle<Smoke>(x, y, 3);
 
-	if (currKeyStates[SDL_SCANCODE_G])
-		drawGaltonBoard();
-	
 	if (currKeyStates[SDL_SCANCODE_ESCAPE])
 		initializeGrid();
 }
@@ -150,6 +146,8 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 		for (int y = yi; y < yf; ++y) {
 
 			std::unique_ptr<Entity>& currCell = grid[x][y];
+			if (currCell->getId() == CellId::Air) continue;
+			if (currCell->getId() == CellId::Stone) continue;
 
 			bool atEdge = (x <= 0 || x >= gridWidth - 1) ||
 			              (y <= 0 || y >= gridHeight - 1);
@@ -223,55 +221,3 @@ void SandWorld::enablePartitionsAround(int x, int y) {
 // Fun
 // *********************************************************************
 
-void SandWorld::drawGaltonBoard() {
-
-	int radius = 2;
-	int margin = gridHeight / 6; 
-	int pegSpacing = radius * 3;
-	int rows = (gridHeight - 2 * margin) / pegSpacing;
-
-	//get number of rows based on grid size
-	while ((rows * pegSpacing) + 2 * margin > gridHeight || (rows * pegSpacing / 2) + 2 * margin > gridWidth) {
-		--rows;
-	}
-
-	int startX = gridWidth / 2;
-	int startY = margin;
-
-	//draw dropper
-	int topY = margin / 2;
-	for (int x = 0; x < gridWidth; ++x) {
-		if (x != startX) {
-			grid[x][topY] = std::make_unique<Stone>(currWorldUpdate);
-		}
-	}
-
-	//draw pegs
-	for (int row = 0; row < rows; ++row) {
-		for (int col = 0; col <= row; ++col) {
-			int pegX = startX + col * pegSpacing - row * (pegSpacing / 2);
-			int pegY = startY + row * pegSpacing;
-			if (pegX >= margin && pegX < gridWidth - margin && pegY >= margin && pegY < gridHeight - margin) {
-				drawCircle<Stone>(pegX, pegY, radius);
-			}
-		}
-	}
-
-	//draw collectors
-	int collectorY = gridHeight;
-	for (int col = 0; col <= rows; ++col) {
-		int collectorX = startX - (rows * pegSpacing / 2) + col * pegSpacing;
-		if (collectorX >= margin && collectorX < gridWidth - margin) {
-			for (int y = collectorY; y >= gridHeight - margin; --y) {
-				grid[collectorX][y] = std::make_unique<Stone>(currWorldUpdate);
-			}
-		}
-	}
-
-	//enable all partitions
-	for (int x = 0; x < numPartitionsX; ++x) {
-		for (int y = 0; y < numPartitionsY; ++y) {
-			worldPartitions[x][y].setStatus(true, currWorldUpdate);
-		}
-	}
-}
