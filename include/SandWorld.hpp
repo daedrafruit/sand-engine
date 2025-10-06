@@ -1,5 +1,5 @@
 #pragma once
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <memory>
 #include <vector>
 
@@ -40,7 +40,7 @@ public:
 	void setWorldUpdate();
 
 	// Responsible for input and other events
-	void handleEvent(const Uint8* currKeyStates, int p_x, int p_y);
+	void handleEvent(const bool* currKeyStates, int p_x, int p_y);
 
 	// Draws a filled circle of some id around the passed in coordinates
 	template <typename T>

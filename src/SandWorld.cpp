@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <stdexcept>
 
 #include "SandWorld.hpp"
@@ -61,7 +61,7 @@ void SandWorld::initializeGrid() {
 // Event Handling
 // *********************************************************************
 
-void SandWorld::handleEvent(const Uint8* currKeyStates, int p_x, int p_y) {
+void SandWorld::handleEvent(const bool* currKeyStates, int p_x, int p_y) {
 	const int x = p_x / cellSize;
 	const int y = p_y / cellSize;
 

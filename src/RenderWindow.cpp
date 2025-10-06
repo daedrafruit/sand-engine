@@ -1,11 +1,13 @@
 
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include <cstddef>
+#include <cstdint>
 #include <iostream>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <memory>
-#include <string>
 
-#include "SDL2/SDL_pixels.h"
+#include "SDL3/SDL_pixels.h"
 #include "SDL_error.h"
 #include "SDL_rect.h"
 #include "SDL_render.h"
@@ -17,32 +19,20 @@
 RenderWindow::RenderWindow(const char* title, int p_width, int p_height, const SandWorld& p_world)
 	:window(NULL), renderer(NULL), width(p_width), height(p_height), world(p_world) {
 
-	window = SDL_CreateWindow(title, 
-			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
-			p_width, p_height, SDL_WINDOW_SHOWN
-	);
-	if (!window) {
+	window = SDL_CreateWindow(title, p_width, p_height, 0);
+	if (!window)
 		std::cout << "Window failed to init" << SDL_GetError() << std::endl; 
-  }
 
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (!renderer) {
+	renderer = SDL_CreateRenderer(window, NULL);
+	if (!renderer)
 		std::cout << "Renderer failed to init" << SDL_GetError() << std::endl; 
-  }
 
 	texture = SDL_CreateTexture(renderer, 
 			SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 
 			width, height
 	);
-	if (!texture) {
+	if (!texture)
 		std::cout << "Texture failed to init" << SDL_GetError() << std::endl; 
-  }
-	TTF_Init();
-	font = TTF_OpenFont("/usr/share/fonts/TTF/Hack-Regular.ttf", 24);
-	if (!font) {
-		std::cout << "Font failed to init: " << SDL_GetError() << std::endl; 
-		return;
-  }
 
 	showDebug = false;
 
@@ -54,82 +44,55 @@ void RenderWindow::cleanUp() {
 
 void RenderWindow::clear() {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-	SDL_RenderClear(renderer);
+	if (!SDL_RenderClear(renderer))
+			std::cout << "Failed to clear renderer: " << SDL_GetError() << std::endl;
 }
 
-void RenderWindow::render(const std::unique_ptr<Entity>& entity, int x, int y, int cellSize) {
-
-	SDL_Rect rect = { x, y, cellSize, cellSize};
-
-	Color color = entity->getColor();
-
-	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, SDL_ALPHA_OPAQUE);
-	SDL_RenderFillRect(renderer, &rect);
-}
 
 void RenderWindow::display() {
-	SDL_RenderPresent(renderer);
+	if (!SDL_RenderPresent(renderer))
+		std::cout << "Failed to present renderer: " << SDL_GetError() << std::endl;
 }
 
-void RenderWindow::handleEvent(const Uint8* currKeyStates, int p_x, int p_y) {
+void RenderWindow::handleEvent(const bool* currKeyStates, int p_x, int p_y) {
 	if (currKeyStates[SDL_SCANCODE_GRAVE])
 		showDebug = !showDebug;
 }
 
-
-void RenderWindow::renderDebug(int fps) {
-
-	SDL_Color white{255, 255, 255, 255};
-
-	std::string text = std::to_string(fps);
-
-	SDL_Surface* surface = TTF_RenderText_Solid(font, text.c_str(), white);
-	if (!surface) {
-		std::cout << "Surface failed to init: " << SDL_GetError() << std::endl; 
-		return;
-  }
-
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-	if (!texture) {
-		std::cout << "Texture failed to init: " << SDL_GetError() << std::endl; 
-		return;
-  }
-
-	SDL_Rect rect{10, 10, surface->w, surface->h};
-	SDL_RenderCopy(renderer, texture, nullptr, &rect);
-
-	SDL_DestroyTexture(texture);
-	SDL_FreeSurface(surface);
-
-}
 void RenderWindow::renderWorld(const SandWorld& world) {
 	Uint32* pixels;
 	int pitch;
 
-	if (SDL_LockTexture(texture, nullptr, (void **)&pixels, &pitch)) {
+	if (!SDL_LockTexture(texture, nullptr, (void **)&pixels, &pitch)) {
 		std::cout << "Failed to lock texture: " << SDL_GetError() << std::endl;
 	}
 
-	SDL_PixelFormat pixelFormat;
-	pixelFormat.format = SDL_PIXELFORMAT_RGBA8888;
+	int props = SDL_GetTextureProperties(texture);
+	SDL_PixelFormatDetails pixelFormat;
+	SDL_PixelFormat format = static_cast<SDL_PixelFormat>(atoi(SDL_GetStringProperty(props, SDL_PROP_TEXTURE_FORMAT_NUMBER, 0))); 
+	pixelFormat.format = format;
 
 	for (int x = 0; x < world.getGridWidth(); ++x) {
 		for (int y = 0; y < world.getGridHeight(); ++y) {
+
+			int partitionX = x / world.getPartitionSizeInCells();
+			int partitionY = y / world.getPartitionSizeInCells();
+			int partitionModX = x % world.getPartitionSizeInCells();
+			int partitionModY = y % world.getPartitionSizeInCells();
+			int finalCell = world.getPartitionSizeInCells() - 1;
+
 			const std::unique_ptr<Entity>& cell = world.getCellAt(x, y);
+
 			Color cellColor = cell->getColor();
-			Uint32 color = SDL_MapRGBA(&pixelFormat, 
+			Uint32 color = SDL_MapRGBA(&pixelFormat, NULL,
 					cellColor.r, cellColor.g, cellColor.b, SDL_ALPHA_OPAQUE
 			);
+
 			pixels[y * (pitch/sizeof(unsigned int)) + x] = color;
+
 			if (showDebug) {
-				Uint32 green = SDL_MapRGBA(&pixelFormat, 
-						0, 255, 0, 1
-				);
-				int partitionX = x / world.getPartitionSizeInCells();
-				int partitionY = y / world.getPartitionSizeInCells();
-				int partitionModX = x % world.getPartitionSizeInCells();
-				int partitionModY = y % world.getPartitionSizeInCells();
-				int finalCell = world.getPartitionSizeInCells() - 1;
+				Uint32 green = SDL_MapRGBA(&pixelFormat, NULL, 0, 255, 0, 1 );
+
 				if (world.partitionActive(partitionX, partitionY) &&
 						((
 							partitionModX == 0 ||
@@ -151,6 +114,9 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 		width * world.getCellSize(),
 		height * world.getCellSize()
 	};
+	SDL_FRect frect;
+	SDL_RectToFRect(&rect, &frect);
+	SDL_RenderRect(renderer, &frect);
 
-	SDL_RenderCopy(renderer, texture, NULL, &rect);
+	SDL_RenderTexture(renderer, texture, NULL, &frect);
 }

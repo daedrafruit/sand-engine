@@ -1,16 +1,16 @@
+#include <SDL3/SDL_init.h>
 #include <iostream>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
-#include "SDL2/SDL_events.h"
-#include "SDL2/SDL_mouse.h"
+#include "SDL3/SDL_events.h"
+#include "SDL3/SDL_mouse.h"
+#include "SDL_keyboard.h"
 #include "Utils.hpp"
 #include "RenderWindow.hpp"
 #include "SandWorld.hpp"
 
-#define FPS_INTERVAL 1.0 //seconds.
-															 //
 int main(int argc, char* args[]) {
-    if (SDL_Init(SDL_INIT_EVERYTHING) > 0) {
+    if (!SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
         std::cout << "SDL_Init failed: " << SDL_GetError() << std::endl;
         return -1;
     }
@@ -18,7 +18,7 @@ int main(int argc, char* args[]) {
     const int windowWidth = 1000;
     const int windowHeight = 1000;
     const int cellSize = 2;
-		const int partitionSizeInCells = 10;
+		const int partitionSizeInCells = 25;
 
 
 		std::cout << "Initializing World... " << std::endl;
@@ -38,18 +38,19 @@ int main(int argc, char* args[]) {
     float prevTime = utils::hireTimeInSeconds();
 
 		Uint32 fps_lasttime = SDL_GetTicks();
-		Uint32 fps_current;
+		Uint32 fps_current = 0;
 		Uint32 fps_frames = 0;
 
     while (gameRunning) {
 
 			while (SDL_PollEvent(&event)) {
-				if (event.type == SDL_QUIT) 
+				if (event.type == SDL_EVENT_QUIT) 
 					gameRunning = false;
 			}
 
-			const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
-			int x, y;
+			const bool* currentKeyStates = SDL_GetKeyboardState(NULL);
+
+			float x, y;
 			SDL_GetMouseState(&x, &y);
 
 			float newTime = utils::hireTimeInSeconds();
@@ -69,15 +70,14 @@ int main(int argc, char* args[]) {
 			window.clear();
 
 			window.renderWorld(world);
-
 			fps_frames++;
-			if (fps_lasttime < SDL_GetTicks() - FPS_INTERVAL*1000) {
-					fps_lasttime = SDL_GetTicks();
-					fps_current = fps_frames;
-					fps_frames = 0;
+			if (fps_lasttime < SDL_GetTicks() - 1000) {
+				fps_lasttime = SDL_GetTicks();
+				fps_current = fps_frames;
+				fps_frames = 0;
 			}
 
-			window.renderDebug(fps_current);
+			//window.renderDebug(fps_current);
 
 			window.display();
     }
