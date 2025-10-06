@@ -68,12 +68,24 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 	}
 
 	int props = SDL_GetTextureProperties(texture);
-	SDL_PixelFormatDetails pixelFormat;
-	SDL_PixelFormat format = static_cast<SDL_PixelFormat>(atoi(SDL_GetStringProperty(props, SDL_PROP_TEXTURE_FORMAT_NUMBER, 0))); 
-	pixelFormat.format = format;
 
-	for (int x = 0; x < world.getGridWidth(); ++x) {
-		for (int y = 0; y < world.getGridHeight(); ++y) {
+	SDL_PixelFormatDetails pixelFormat;
+	SDL_PixelFormat extractedFormat = static_cast<SDL_PixelFormat>(atoi(SDL_GetStringProperty(props, SDL_PROP_TEXTURE_FORMAT_NUMBER, 0))); 
+
+	if (!extractedFormat) { std::cout << "Failed to extract pixel format: " << SDL_GetError() << std::endl; return; }
+	pixelFormat.format = extractedFormat;
+	SDL_Color colors[256];
+	int ncolors = 255;
+	SDL_Palette* palette = SDL_CreatePalette(ncolors);
+	for(int i=0;i<=ncolors;i++){
+		colors[i].r=i;
+		colors[i].g=i;
+		colors[i].b=i;
+	}
+	SDL_SetPaletteColors(palette, colors, 0, ncolors);
+
+	for (int y = 0; y < world.getGridHeight(); ++y) {
+		for (int x = 0; x < world.getGridWidth(); ++x) {
 
 			int partitionX = x / world.getPartitionSizeInCells();
 			int partitionY = y / world.getPartitionSizeInCells();
@@ -91,7 +103,7 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 			pixels[y * (pitch/sizeof(unsigned int)) + x] = color;
 
 			if (showDebug) {
-				Uint32 green = SDL_MapRGBA(&pixelFormat, NULL, 0, 255, 0, 1 );
+				Uint32 green = SDL_MapRGBA(&pixelFormat, NULL, 0, 255, 0, SDL_ALPHA_OPAQUE);
 
 				if (world.partitionActive(partitionX, partitionY) &&
 						((
