@@ -60,7 +60,7 @@ void RenderWindow::handleEvent(const bool* currKeyStates, int p_x, int p_y) {
 		showDebug = !showDebug;
 }
 
-void RenderWindow::renderPartitionBorders(const SandWorld& world, int x, int y, Uint32* pixels, int pitch) {
+void RenderWindow::renderPartitionBorders(const SandWorld& world, int x, int y, Uint32* pixels, int pixelPitch) {
 	int pSize = world.getPartitionSizeInCells();
 	int pX = x / pSize;
 	int pY = y / pSize;
@@ -76,7 +76,7 @@ void RenderWindow::renderPartitionBorders(const SandWorld& world, int x, int y, 
 
 	Uint32 green = 0x00ff00ffu;
 
-	int index = y * pitch/sizeof(unsigned int) + x;
+	int index = y * pixelPitch + x;
 
 	if (pActive && (atSide || atTop)) {
 		pixels[index] = green;
@@ -99,19 +99,21 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 	if (!extractedFormat) { std::cout << "Failed to extract pixel format: " << SDL_GetError() << std::endl; return; }
 	pixelFormat.format = extractedFormat;
 
+	int pixelPitch = pitch/sizeof(unsigned int);
+
 	for (int y = 0; y < world.getGridHeight(); ++y) {
 		for (int x = 0; x < world.getGridWidth(); ++x) {
 
 			const std::unique_ptr<Entity>& cell = world.getCellAt(x, y);
-
 			Color cellColor = cell->getColor();
+
 			Uint32 color = utils::mapRGBA(cellColor.r, cellColor.g, cellColor.b, 0xFF);
+			int pixelIndex = y * pixelPitch + x;
 
-			pixels[y * (pitch/sizeof(unsigned int)) + x] = color;
+			pixels[pixelIndex] = color;
 
-			if (showDebug) {
-				renderPartitionBorders(world, x, y, pixels, pitch);
-			}
+			if (showDebug)
+				renderPartitionBorders(world, x, y, pixels, pixelPitch);
 		}
 	}
 
