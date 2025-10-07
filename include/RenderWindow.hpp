@@ -11,7 +11,7 @@
 class RenderWindow {
 
 public:
-	RenderWindow(const char* title, const int p_width, const int p_height, const SandWorld& p_world);
+	RenderWindow(const char* title, const int p_width, const int p_height);
 
 	inline int getWidth() const { return width; }
 	inline int getHeight() const { return height;	}
@@ -22,7 +22,7 @@ public:
 	void handleEvent(const bool* currKeyStates, int p_x, int p_y);
 
 	void renderWorld(const SandWorld& world);
-	void renderDebug(const int fps);
+	void renderPartitionBorders(const SandWorld& world, int x, int y, Uint32* pixels, int pitch);
 
 private:
 	SDL_Window* window;
@@ -32,5 +32,4 @@ private:
 	bool showDebug;
 
 	const int width, height;
-	const SandWorld& world;
 };

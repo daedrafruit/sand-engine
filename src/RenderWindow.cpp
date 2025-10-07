@@ -1,23 +1,24 @@
+#include <cstddef>
+#include <iostream>
+#include <memory>
 
+#include <SDL3/SDL.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_surface.h>
-#include <cstddef>
-#include <iostream>
-#include <SDL3/SDL.h>
-#include <memory>
-
 #include "SDL3/SDL_pixels.h"
 #include "SDL_error.h"
 #include "SDL_rect.h"
 #include "SDL_render.h"
 #include "SDL_stdinc.h"
+
 #include "SandWorld.hpp"
 #include "Entity.hpp"
 #include "RenderWindow.hpp"
+#include "Utils.hpp"
 
-RenderWindow::RenderWindow(const char* title, int p_width, int p_height, const SandWorld& p_world)
-	:window(NULL), renderer(NULL), width(p_width), height(p_height), world(p_world) {
+RenderWindow::RenderWindow(const char* title, int p_width, int p_height)
+	:window(NULL), renderer(NULL), width(p_width), height(p_height) {
 
 	window = SDL_CreateWindow(title, p_width, p_height, 0);
 	if (!window)
@@ -59,6 +60,29 @@ void RenderWindow::handleEvent(const bool* currKeyStates, int p_x, int p_y) {
 		showDebug = !showDebug;
 }
 
+void RenderWindow::renderPartitionBorders(const SandWorld& world, int x, int y, Uint32* pixels, int pitch) {
+	int pSize = world.getPartitionSizeInCells();
+	int pX = x / pSize;
+	int pY = y / pSize;
+
+	int pModX = x % pSize;
+	int pModY = y % pSize;
+	int finalCell = pSize - 1;
+
+	bool atSide = pModX == 0 || pModX == finalCell;
+	bool atTop = pModY == 0 || pModY == finalCell;
+
+	bool pActive = world.partitionActive(pX, pY);
+
+	Uint32 green = 0x00ff00ffu;
+
+	int index = y * pitch/sizeof(unsigned int) + x;
+
+	if (pActive && (atSide || atTop)) {
+		pixels[index] = green;
+	}
+}
+
 void RenderWindow::renderWorld(const SandWorld& world) {
 	Uint32* pixels;
 	int pitch;
@@ -78,41 +102,15 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 	for (int y = 0; y < world.getGridHeight(); ++y) {
 		for (int x = 0; x < world.getGridWidth(); ++x) {
 
-			int partitionX = x / world.getPartitionSizeInCells();
-			int partitionY = y / world.getPartitionSizeInCells();
-			int partitionModX = x % world.getPartitionSizeInCells();
-			int partitionModY = y % world.getPartitionSizeInCells();
-			int finalCell = world.getPartitionSizeInCells() - 1;
-
 			const std::unique_ptr<Entity>& cell = world.getCellAt(x, y);
 
 			Color cellColor = cell->getColor();
-			Uint32 color = (cellColor.r << 24) |
-										 (cellColor.g << 16) |
-										 (cellColor.b << 8)  |
-										 0xFF;
-
-			if (cell->getId() == CellId::Air)
-				color = 0;
-
+			Uint32 color = utils::mapRGBA(cellColor.r, cellColor.g, cellColor.b, 0xFF);
 
 			pixels[y * (pitch/sizeof(unsigned int)) + x] = color;
 
 			if (showDebug) {
-				Uint32 green = SDL_MapRGBA(&pixelFormat, NULL, 0, 255, 0, SDL_ALPHA_OPAQUE);
-
-				if (world.partitionActive(partitionX, partitionY) &&
-						((
-							partitionModX == 0 ||
-							partitionModX == finalCell
-						) ||
-						(
-							partitionModY == 0 ||
-							partitionModY == finalCell
-						))
-				) {
-				pixels[y * (pitch/sizeof(unsigned int)) + x] = green;
-				}
+				renderPartitionBorders(world, x, y, pixels, pitch);
 			}
 		}
 	}

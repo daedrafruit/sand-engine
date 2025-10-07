@@ -26,7 +26,7 @@ int main(int argc, char* args[]) {
 		std::cout << "done." << std::endl;
 
 		std::cout << "Initializing Window... " << std::endl;
-    RenderWindow window("Falling Sand", windowWidth, windowHeight, world);
+    RenderWindow window("Falling Sand", windowWidth, windowHeight);
 		std::cout << "done." << std::endl;
 
     bool gameRunning = true;
