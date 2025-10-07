@@ -1,8 +1,8 @@
 
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
+#include <SDL3/SDL_surface.h>
 #include <cstddef>
-#include <cstdint>
 #include <iostream>
 #include <SDL3/SDL.h>
 #include <memory>
@@ -74,15 +74,6 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 
 	if (!extractedFormat) { std::cout << "Failed to extract pixel format: " << SDL_GetError() << std::endl; return; }
 	pixelFormat.format = extractedFormat;
-	SDL_Color colors[256];
-	int ncolors = 255;
-	SDL_Palette* palette = SDL_CreatePalette(ncolors);
-	for(int i=0;i<=ncolors;i++){
-		colors[i].r=i;
-		colors[i].g=i;
-		colors[i].b=i;
-	}
-	SDL_SetPaletteColors(palette, colors, 0, ncolors);
 
 	for (int y = 0; y < world.getGridHeight(); ++y) {
 		for (int x = 0; x < world.getGridWidth(); ++x) {
@@ -96,9 +87,14 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 			const std::unique_ptr<Entity>& cell = world.getCellAt(x, y);
 
 			Color cellColor = cell->getColor();
-			Uint32 color = SDL_MapRGBA(&pixelFormat, NULL,
-					cellColor.r, cellColor.g, cellColor.b, SDL_ALPHA_OPAQUE
-			);
+			Uint32 color = (cellColor.r << 24) |
+										 (cellColor.g << 16) |
+										 (cellColor.b << 8)  |
+										 0xFF;
+
+			if (cell->getId() == CellId::Air)
+				color = 0;
+
 
 			pixels[y * (pitch/sizeof(unsigned int)) + x] = color;
 
@@ -129,6 +125,9 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 	SDL_FRect frect;
 	SDL_RectToFRect(&rect, &frect);
 	SDL_RenderRect(renderer, &frect);
+	if (!SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST)) {
+		std::cout << "Failed to set scale mode: " << SDL_GetError() << std::endl;
+	}
 
 	SDL_RenderTexture(renderer, texture, NULL, &frect);
 }
