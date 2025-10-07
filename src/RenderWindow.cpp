@@ -40,6 +40,8 @@ RenderWindow::RenderWindow(const char* title, int p_width, int p_height)
 } 
 
 void RenderWindow::cleanUp() {
+	SDL_DestroyTexture(texture);
+	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 }
 
