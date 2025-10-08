@@ -41,8 +41,6 @@ int main(int argc, char* args[]) {
 		Uint32 fps_current = 0;
 		Uint32 fps_frames = 0;
 		
-
-		int mainStart = SDL_GetTicks();
     while (gameRunning) {
 
 			while (SDL_PollEvent(&event)) {
@@ -85,7 +83,6 @@ int main(int argc, char* args[]) {
 			window.display();
 
 			if (currentKeyStates[SDL_SCANCODE_Q]) {
-				std::cout << SDL_GetTicks() - mainStart << std::endl;
 				break;
 			}
     }

@@ -1,7 +1,9 @@
 #pragma once
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_timer.h>
+#include <iostream>
 #include <random>
+#include <chrono>
 
 namespace utils {
 	inline float hireTimeInSeconds() {
@@ -32,12 +34,32 @@ namespace utils {
 		return ((r << 24) | (g << 16) | (b << 8) | a);
 	}
 
-	inline auto timeFuncInvocation = 
-    [](auto&& func, auto&&... params) {
-        auto start = SDL_GetTicks();
-        std::forward<decltype(func)>(func)(std::forward<decltype(params)>(params)...);
-        auto stop = SDL_GetTicks();
-        return stop - start;
-     };
+
+/* at beginning place:
+		{ float time = 0; { utils::timer timer(&time);
+
+	 at end place:
+	 	} std::cout << "\033[2J\033[1;1H" << time << std::endl;}
+*/
+	class timer {
+		private:
+			int begin, end;
+			float* time;
+
+		public:
+			timer(float* t) {
+				begin = SDL_GetTicks();
+				time = t;
+			}
+
+			~timer() {
+				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+				float totalTime = (float)(SDL_GetTicks() - begin) / 1000;
+				//std::cout << totalTime << std::endl;
+				*time = totalTime;
+			}
+
+	};
+
 }
 
