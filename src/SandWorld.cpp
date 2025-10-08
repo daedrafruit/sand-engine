@@ -1,5 +1,8 @@
+#include <SDL3/SDL_timer.h>
 #include <algorithm>
+#include <iostream>
 #include <memory>
+#include <ostream>
 #include <vector>
 #include <SDL3/SDL.h>
 #include <stdexcept>
@@ -118,7 +121,6 @@ void SandWorld::setWorldUpdate() {
 }
 
 void SandWorld::updateWorld() {
-
 	for (int x = 0; x < numPartitionsX; ++x) {
 		for (int y = 0; y < numPartitionsY; ++y) {
 			if (!worldPartitions[x][y].isEnabled()) continue;

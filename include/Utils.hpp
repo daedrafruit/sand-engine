@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_timer.h>
 #include <random>
 
 namespace utils {
@@ -30,5 +31,13 @@ namespace utils {
 	inline Uint32 mapRGBA(int r, int g, int b, int a) {
 		return ((r << 24) | (g << 16) | (b << 8) | a);
 	}
+
+	inline auto timeFuncInvocation = 
+    [](auto&& func, auto&&... params) {
+        auto start = SDL_GetTicks();
+        std::forward<decltype(func)>(func)(std::forward<decltype(params)>(params)...);
+        auto stop = SDL_GetTicks();
+        return stop - start;
+     };
 }
 

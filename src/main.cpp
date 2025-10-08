@@ -40,7 +40,9 @@ int main(int argc, char* args[]) {
 		Uint32 fps_lasttime = SDL_GetTicks();
 		Uint32 fps_current = 0;
 		Uint32 fps_frames = 0;
+		
 
+		int mainStart = SDL_GetTicks();
     while (gameRunning) {
 
 			while (SDL_PollEvent(&event)) {
@@ -49,6 +51,7 @@ int main(int argc, char* args[]) {
 			}
 
 			const bool* currentKeyStates = SDL_GetKeyboardState(NULL);
+
 
 			float x, y;
 			SDL_GetMouseState(&x, &y);
@@ -80,6 +83,11 @@ int main(int argc, char* args[]) {
 			//window.renderDebug(fps_current);
 
 			window.display();
+
+			if (currentKeyStates[SDL_SCANCODE_Q]) {
+				std::cout << SDL_GetTicks() - mainStart << std::endl;
+				break;
+			}
     }
 
     window.cleanUp();
