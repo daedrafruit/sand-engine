@@ -1,12 +1,11 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_timer.h>
 #include <algorithm>
-#include <iostream>
 #include <memory>
-#include <ostream>
 #include <vector>
 #include <SDL3/SDL.h>
 #include <stdexcept>
+#include <thread>
 
 #include "SandWorld.hpp"
 #include "Entity.hpp"
@@ -26,12 +25,16 @@ SandWorld::SandWorld(const int windowHeight, const int windowWidth, const int p_
 	worldPartitions(numPartitionsX, std::vector<partition>(numPartitionsY)),
 	currWorldUpdate(SDL_GetTicks()) {
 
-    if (windowWidth % p_cellSize != 0 || windowHeight % p_cellSize != 0) {
+    if (windowWidth % p_cellSize != 0 || windowHeight % p_cellSize != 0)
       throw std::invalid_argument("Window dimensions are not divisible by cell size.");
-    }
-    if (gridHeight % p_partitionSizeInCells != 0 || gridWidth % p_partitionSizeInCells != 0) {
+
+    if (gridHeight % p_partitionSizeInCells != 0 || gridWidth % p_partitionSizeInCells != 0)
       throw std::invalid_argument("Grid dimensions are not divisible by partition side length.");
-    }
+
+		int threads = 10;
+		if ((numPartitionsX + numPartitionsY) % threads != 0) 
+      throw std::invalid_argument("Number of partitions is not divisible by thread count.");
+
 
 		initializeGrid();
 }
@@ -121,9 +124,9 @@ void SandWorld::setWorldUpdate() {
 	currWorldUpdate = (SDL_GetTicks());
 }
 
-void SandWorld::updateWorld() {
-	for (int x = 0; x < numPartitionsX; ++x) {
-		for (int y = 0; y < numPartitionsY; ++y) {
+void SandWorld::updatePartitionRange(int xi, int xf, int yi, int yf) {
+	for (int x = xi; x < xf; ++x) {
+		for (int y = yi; y < yf; ++y) {
 			if (!worldPartitions[x][y].isEnabled()) continue;
 
 			partition& currPartition = worldPartitions[x][y];
@@ -134,6 +137,21 @@ void SandWorld::updateWorld() {
 			updatePartition(x, y);
 		}
 	}
+}
+
+void SandWorld::updateWorld() {
+	// top-left
+	std::thread t1(&SandWorld::updatePartitionRange, this, 0                 , numPartitionsX / 2, 0                 , numPartitionsY / 2);
+	// top-right
+	std::thread t3(&SandWorld::updatePartitionRange, this, numPartitionsX / 2, numPartitionsX    , 0                 , numPartitionsY / 2);
+	// bottom-left
+	std::thread t4(&SandWorld::updatePartitionRange, this, 0                 , numPartitionsX / 2, numPartitionsY / 2, numPartitionsY);
+	// bottom-right
+	std::thread t2(&SandWorld::updatePartitionRange, this, numPartitionsX / 2, numPartitionsX    , numPartitionsY / 2, numPartitionsY);
+	t1.join();
+	t2.join();
+	t3.join();
+	t4.join();
 	commitSwaps();
 }
 

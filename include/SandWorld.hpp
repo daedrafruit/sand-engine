@@ -79,6 +79,7 @@ private:
 	std::vector<std::vector<std::unique_ptr<Entity>>> grid;
 
 	void initializeGrid();
+	void updatePartitionRange(int xi, int xf, int yi, int yf); 
 	
 	std::vector<std::vector<partition>> worldPartitions;
 
