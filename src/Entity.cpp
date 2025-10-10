@@ -6,44 +6,42 @@
 #include "Entity.hpp"
 #include "Utils.hpp"
 
-namespace Entity {
-	std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
+std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
 
-		SwapOp checkCells[3] = {
-				swaps::below(x, y),
-				swaps::downLeft(x, y),
-				swaps::downRight(x, y)
-		};
+	SwapOp checkCells[3] = {
+			swaps::below(x, y),
+			swaps::downLeft(x, y),
+			swaps::downRight(x, y)
+	};
 
-		std::shuffle(checkCells + 1, checkCells + 3, utils::getRandomEngine());
+	std::shuffle(checkCells + 1, checkCells + 3, utils::getRandomEngine());
 
-		std::vector<SwapOp> outSwaps;
-		for (SwapOp& swap : checkCells) {
-			const std::unique_ptr<Entity>& cell1 = grid[swap.x1][swap.y1];
-			const std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
+	std::vector<SwapOp> outSwaps;
+	for (SwapOp& swap : checkCells) {
+		const std::unique_ptr<Entity>& cell1 = grid[swap.x1][swap.y1];
+		const std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
 
-			if (cell2->id == CellId::Air || cell2->id == CellId::Water) {
-				outSwaps.emplace_back(std::move(swap));
-				break;
-			}
+		if (cell2->id == CellId::Air || cell2->id == CellId::Water) {
+			outSwaps.emplace_back(std::move(swap));
+			break;
 		}
-		return outSwaps;
 	}
-	Entity newEntity(CellId id, int worldUpdate) {
-		Color color;
-		switch (id) {
-			default:
-				color = Color{0, 0, 0};
-			
-		}
-
-		return Entity{worldUpdate, 0, id, color};
+	return outSwaps;
+}
+Entity newEntity(CellId id, int worldUpdate) {
+	Color color;
+	switch (id) {
+		default:
+			color = Color{0, 0, 0};
+		
 	}
 
-	void Entity::updateEntity(Entity& cell, CellId id, int worldUpdate) {
-		cell.id = id;
+	return Entity{worldUpdate, 0, id, color};
+}
 
-	}
+void Entity::updateEntity(Entity& cell, CellId id, int worldUpdate) {
+	cell.id = id;
+
 }
 
 /*
