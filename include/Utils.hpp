@@ -2,8 +2,10 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_timer.h>
 #include <iostream>
+#include <memory>
 #include <random>
 #include <chrono>
+#include <utility>
 
 namespace utils {
 	inline float hireTimeInSeconds() {
@@ -44,19 +46,18 @@ namespace utils {
 	class timer {
 		private:
 			int begin, end;
-			float* time;
+			float& time;
 
 		public:
-			timer(float* t) {
+			timer(float& t) : time(t) {
 				begin = SDL_GetTicks();
-				time = t;
 			}
 
 			~timer() {
 				std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 				float totalTime = (float)(SDL_GetTicks() - begin) / 1000;
 				//std::cout << totalTime << std::endl;
-				*time = totalTime;
+				time = totalTime;
 			}
 
 	};

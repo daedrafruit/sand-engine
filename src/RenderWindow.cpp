@@ -106,8 +106,8 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 	for (int y = 0; y < world.getGridHeight(); ++y) {
 		for (int x = 0; x < world.getGridWidth(); ++x) {
 
-			const std::unique_ptr<Entity>& cell = world.getCellAt(x, y);
-			Color cellColor = cell->getColor();
+			const std::unique_ptr<Entity::Entity>& cell = world.getCellAt(x, y);
+			Entity::Color cellColor = cell->color;
 
 			Uint32 color = utils::mapRGBA(cellColor.r, cellColor.g, cellColor.b, 0xFF);
 			int pixelIndex = y * pixelPitch + x;

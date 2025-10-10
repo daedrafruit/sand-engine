@@ -48,11 +48,11 @@ void SandWorld::initializeGrid() {
 
 	for (int x = 0; x < gridWidth; ++x) {
 		for (int y = 0; y < gridHeight; ++y) {
-			grid[x][y] = std::make_unique<Air>(currWorldUpdate);
+			grid[x][y] = Entity::newEntity(Entity::CellId::Air, currWorldUpdate);
 
 			//add barrier
 			if (x == 0 || x == gridWidth - 1 || y == 0 || y == gridHeight - 1) {
-				grid[x][y] = std::make_unique<Stone>(currWorldUpdate);
+				grid[x][y] = Entity::newEntity(Entity::CellId::Stone, currWorldUpdate);
 			}
 		}
 	}
@@ -73,29 +73,28 @@ void SandWorld::handleEvent(const bool* currKeyStates, int p_x, int p_y) {
 	const int y = p_y / cellSize;
 
 	if (currKeyStates[SDL_SCANCODE_0])
-		drawCircle<Air>(x, y, 3);
+		drawCircle(Entity::CellId::Air, x, y, 3);
 	
 	if (currKeyStates[SDL_SCANCODE_1])
-		drawCircle<Stone>(x, y, 3);
+		drawCircle(Entity::CellId::Stone, x, y, 3);
 	
 	if (currKeyStates[SDL_SCANCODE_2])
-		drawCircle<Sand>(x, y, 3);
+		drawCircle(Entity::CellId::Sand, x, y, 3);
 	
 	if (currKeyStates[SDL_SCANCODE_3])
-		drawCircle<Water>(x, y, 3);
+		drawCircle(Entity::CellId::Water, x, y, 3);
 
 	if (currKeyStates[SDL_SCANCODE_4])
-		drawCircle<Fire>(x, y, 3);
+		drawCircle(Entity::CellId::Fire, x, y, 3);
 
 	if (currKeyStates[SDL_SCANCODE_5])
-		drawCircle<Smoke>(x, y, 3);
+		drawCircle(Entity::CellId::Smoke, x, y, 3);
 
 	if (currKeyStates[SDL_SCANCODE_ESCAPE])
 		initializeGrid();
 }
 
-template <typename T>
-void SandWorld::drawCircle(int x, int y, int radius) {
+void SandWorld::drawCircle(Entity::CellId id, int x, int y, int radius) {
 
 	for (int dx = -radius; dx <= radius; ++dx) {
 		for (int dy = -radius; dy <= radius; dy++) {
@@ -109,8 +108,8 @@ void SandWorld::drawCircle(int x, int y, int radius) {
 
 			if (withinRadius && withinBounds) {
 				enablePartitionsAround(cellx, celly);
-				std::unique_ptr<Entity> cell = std::make_unique<T>(currWorldUpdate);
-				swaps.emplace_back(cellx, celly, cellx, celly, std::move(cell));
+				grid[x][y].id = id;
+				grid[x][y].lastUpdated = currWorldUpdate;
 			}
 		}
 	}
@@ -123,8 +122,8 @@ void SandWorld::drawCircle(int x, int y, int radius) {
 void SandWorld::setWorldUpdate() {
 	currWorldUpdate = (SDL_GetTicks());
 }
-
-void SandWorld::updatePartitionRange(int xi, int xf, int yi, int yf) {
+/*
+std::vector<SwapOp> SandWorld::updatePartitionRange(int xi, int xf, int yi, int yf) {
 	for (int x = xi; x < xf; ++x) {
 		for (int y = yi; y < yf; ++y) {
 			if (!worldPartitions[x][y].isEnabled()) continue;
@@ -134,12 +133,14 @@ void SandWorld::updatePartitionRange(int xi, int xf, int yi, int yf) {
 			if (currPartition.getLastUpdated() != currWorldUpdate) {
 				currPartition.setStatus(false, currWorldUpdate);
 			}
-			updatePartition(x, y);
+			return updatePartition(x, y);
 		}
 	}
 }
+*/
 
 void SandWorld::updateWorld() {
+	/*
 	// top-left
 	std::thread t1(&SandWorld::updatePartitionRange, this, 0                 , numPartitionsX / 2, 0                 , numPartitionsY / 2);
 	// top-right
@@ -152,6 +153,23 @@ void SandWorld::updateWorld() {
 	t2.join();
 	t3.join();
 	t4.join();
+	/*
+	for (SwapOp& swap : newSwaps) {
+		swaps.emplace_back(std::move(swap));
+	}
+	*/
+	for (int x = 0; x < numPartitionsX; ++x) {
+		for (int y = 0; y < numPartitionsY; ++y) {
+			if (!worldPartitions[x][y].isEnabled()) continue;
+
+			partition& currPartition = worldPartitions[x][y];
+
+			if (currPartition.getLastUpdated() != currWorldUpdate) {
+				currPartition.setStatus(false, currWorldUpdate);
+			}
+			updatePartition(x, y);
+		}
+	}
 	commitSwaps();
 }
 
@@ -162,6 +180,8 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 
 	int xf = (xi + partitionSizeInCells);
 	int yf = (yi + partitionSizeInCells);
+
+	std::vector<SwapOp> newSwaps;
 
 	for (int x = xi; x < xf; ++x) {
 		for (int y = yi; y < yf; ++y) {
@@ -238,7 +258,4 @@ void SandWorld::enablePartitionsAround(int x, int y) {
 		}
 	}
 }
-// *********************************************************************
-// Fun
-// *********************************************************************
 

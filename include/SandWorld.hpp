@@ -43,11 +43,7 @@ public:
 	void handleEvent(const bool* currKeyStates, int p_x, int p_y);
 
 	// Draws a filled circle of some id around the passed in coordinates
-	template <typename T>
-	void drawCircle(int x, int y, int radius);
-
-	//call resepctive update function for each cell in given partition
-	void updatePartition(int x, int y);
+	void drawCircle(Entity::CellId id, int x, int y, int radius);
 
 	// Call update partition function on each partition in the world
 	void updateWorld();
@@ -63,7 +59,7 @@ public:
 	inline int getGridWidth() const { return gridWidth; }
 	inline int getGridHeight() const { return gridHeight; }
 
-	inline const std::unique_ptr<Entity>& getCellAt(int x, int y) const { return grid[x][y]; }
+	//inline const std::unique_ptr<Entity::Entity>& getCellAt(int x, int y) const { return grid[x][y]; }
 
 	inline int getPartitionSizeInCells() const { return partitionSizeInCells; }
 	inline int getNumPartitionsX() const { return numPartitionsX; }
@@ -76,10 +72,13 @@ private:
 	int currWorldUpdate;
 	const int partitionSizeInCells, numPartitionsX, numPartitionsY;
 
-	std::vector<std::vector<std::unique_ptr<Entity>>> grid;
+	std::vector<std::vector<Entity::Entity>> grid;
 
 	void initializeGrid();
-	void updatePartitionRange(int xi, int xf, int yi, int yf); 
+	std::vector<SwapOp> updatePartitionRange(int xi, int xf, int yi, int yf); 
+	//call resepctive update function for each cell in given partition
+ 	void updatePartition(int x, int y);
+
 	
 	std::vector<std::vector<partition>> worldPartitions;
 
