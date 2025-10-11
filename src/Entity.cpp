@@ -28,21 +28,33 @@ std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>
 	}
 	return outSwaps;
 }
-Entity newEntity(CellId id, int worldUpdate) {
-	Color color;
-	switch (id) {
-		default:
-			color = Color{0, 0, 0};
-		
-	}
 
-	return Entity{worldUpdate, 0, id, color};
+
+
+
+
+Entity::Entity(CellId p_id, int worldUpdate) {
+	lastUpdated = worldUpdate;
+	id = p_id;
+	ra = 0;
 }
 
-void Entity::updateEntity(Entity& cell, CellId id, int worldUpdate) {
-	cell.id = id;
-
+void Entity::updateEntity(CellId p_id, int worldUpdate) {
+	lastUpdated = worldUpdate;
+	id = p_id;
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
 std::vector<SwapOp> Water::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {

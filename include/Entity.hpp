@@ -24,8 +24,11 @@ struct Entity {
 		int ra;
 		CellId id;
 	public:
-		Entity(CellId id, int currWorldUpdate);
-		void updateEntity(Entity&, CellId id, int worldUpdate);
+		Entity(CellId p_id, int currWorldUpdate);
+		void updateEntity(CellId p_id, int worldUpdate);
+
+		CellId getId() { return id; }
+		int getLastUpdated() { return lastUpdated; }
 };
 
 
