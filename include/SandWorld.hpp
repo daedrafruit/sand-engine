@@ -43,8 +43,7 @@ public:
 	void handleEvent(const bool* currKeyStates, int p_x, int p_y);
 
 	// Draws a filled circle of some id around the passed in coordinates
-	template <typename T>
-	void drawCircle(int x, int y, int radius);
+	void drawCircle(CellId id, int x, int y, int radius);
 
 	//call resepctive update function for each cell in given partition
 	void updatePartition(int x, int y);

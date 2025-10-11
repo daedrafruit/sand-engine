@@ -20,11 +20,39 @@ int Entity::getRegister(char reg) const {
     return 0;
 }
 
+void Entity::setId(CellId p_id, int worldUpdate) {
+	id = p_id;
+	lastUpdated = worldUpdate;
+
+}
+
+Color Entity::getColor() const {
+	switch (id) {
+		case CellId::Air: return {0,0,0};
+		case CellId::Stone: return {200,200,200};
+		case CellId::Sand: return {245,200,70};
+		case CellId::Water: return {0,0,255};
+
+		case CellId::Fire:
+			if (this->ra <= 25)
+				return {255, 75, 0}; 
+			else if (this->ra < 50)
+				return {255, 165, 0}; 
+			else
+				return {255,255,0}; 
+
+		case CellId::Smoke: return {70,70,70};
+		default:
+			return {0,255,0}; 
+	}
+}
+
 std::vector<SwapOp> Entity::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
 	std::vector<SwapOp> outSwaps;
 	return outSwaps;
 }
 
+/*
 std::vector<SwapOp> Sand::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
 
 	SwapOp checkCells[3] = {
@@ -70,18 +98,6 @@ std::vector<SwapOp> Water::update(const std::vector<std::vector<std::unique_ptr<
 		}
 	}
 	return outSwaps;
-}
-
-Color Fire::getColor() const {
-	if (this->ra <= 25) {
-		return {255, 75, 0}; 
-	}
-	else if (this->ra < 50) {
-		return {255, 165, 0}; 
-	}
-	else {
-		return this->color; 
-	}
 }
 
 std::vector<SwapOp> Fire::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
@@ -160,3 +176,4 @@ std::vector<SwapOp> Smoke::update(const std::vector<std::vector<std::unique_ptr<
 	//return self swap so that partition stays enabled and timer can continue
 	return outSwaps;
 }
+*/

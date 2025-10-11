@@ -48,11 +48,11 @@ void SandWorld::initializeGrid() {
 
 	for (int x = 0; x < gridWidth; ++x) {
 		for (int y = 0; y < gridHeight; ++y) {
-			grid[x][y] = std::make_unique<Air>(currWorldUpdate);
+			grid[x][y]->setId(CellId::Air, currWorldUpdate);
 
 			//add barrier
 			if (x == 0 || x == gridWidth - 1 || y == 0 || y == gridHeight - 1) {
-				grid[x][y] = std::make_unique<Stone>(currWorldUpdate);
+				grid[x][y]->setId(CellId::Stone, currWorldUpdate);
 			}
 		}
 	}
@@ -73,30 +73,28 @@ void SandWorld::handleEvent(const bool* currKeyStates, int p_x, int p_y) {
 	const int y = p_y / cellSize;
 
 	if (currKeyStates[SDL_SCANCODE_0])
-		drawCircle<Air>(x, y, 3);
+		drawCircle(CellId::Air, x, y, 3);
 	
 	if (currKeyStates[SDL_SCANCODE_1])
-		drawCircle<Stone>(x, y, 3);
+		drawCircle(CellId::Stone, x, y, 3);
 	
 	if (currKeyStates[SDL_SCANCODE_2])
-		drawCircle<Sand>(x, y, 3);
+		drawCircle(CellId::Sand, x, y, 3);
 	
 	if (currKeyStates[SDL_SCANCODE_3])
-		drawCircle<Water>(x, y, 3);
+		drawCircle(CellId::Water, x, y, 3);
 
 	if (currKeyStates[SDL_SCANCODE_4])
-		drawCircle<Fire>(x, y, 3);
+		drawCircle(CellId::Fire, x, y, 3);
 
 	if (currKeyStates[SDL_SCANCODE_5])
-		drawCircle<Smoke>(x, y, 3);
+		drawCircle(CellId::Smoke, x, y, 3);
 
 	if (currKeyStates[SDL_SCANCODE_ESCAPE])
 		initializeGrid();
 }
 
-template <typename T>
-void SandWorld::drawCircle(int x, int y, int radius) {
-
+void SandWorld::drawCircle(CellId id, int x, int y, int radius) {
 	for (int dx = -radius; dx <= radius; ++dx) {
 		for (int dy = -radius; dy <= radius; dy++) {
 			int cellx = x + dx;
@@ -109,13 +107,11 @@ void SandWorld::drawCircle(int x, int y, int radius) {
 
 			if (withinRadius && withinBounds) {
 				enablePartitionsAround(cellx, celly);
-				std::unique_ptr<Entity> cell = std::make_unique<T>(currWorldUpdate);
-				swaps.emplace_back(cellx, celly, cellx, celly, std::move(cell));
+				grid[x][y]->setId(id, currWorldUpdate);
 			}
 		}
 	}
 }
-
 // *********************************************************************
 // Updating World
 // *********************************************************************
@@ -174,8 +170,7 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 			              (y <= 0 || y >= gridHeight - 1);
 
 			if (atEdge && currCell->getId() > CellId::Stone) {
-				std::unique_ptr<Entity> air = std::make_unique<Air>(0);
-				swaps.emplace_back(x, y, x, y, std::move(air));
+				grid[x][y]->setId(CellId::Air, currWorldUpdate);
 				continue;
 			} 
 

@@ -25,14 +25,13 @@ protected:
 	int lastUpdated;
 	int ra = 0;
 	int density;
-	const CellId id;
-	const Color color;
-	Entity(int p_lastUpdated, CellId p_id, Color p_color)
-			: lastUpdated(p_lastUpdated), id(p_id), color(p_color) {}
+	CellId id;
+	Entity(int p_lastUpdated, CellId p_id)
+			: lastUpdated(p_lastUpdated), id(p_id) {}
 
 public:
 
-	virtual ~Entity() = default;
+	~Entity() = default;
 
 	void setLastUpdated(int p_lastUpdated) { lastUpdated = p_lastUpdated; }
 	int getLastUpdated() const { return lastUpdated; }
@@ -40,68 +39,15 @@ public:
 	void setRegister(char reg, int value);
 	int getRegister(char reg) const;
 	int getDensity() const { return density; }
+	void setId(CellId p_id, int worldUpdate); 
 	CellId getId() const { return id; }
 
-	virtual Color getColor() const { return color; }
+	Color getColor() const;
 	//returns unique ptr so that no op can be returned, consider using std::optional
-	virtual std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y);
+	std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y);
 
 };
 
-class Air : public Entity {
-public:
-	Air(int p_lastUpdated)
-		:Entity(p_lastUpdated, CellId::Air, {0,0,0}) {
-	}
-};
-
-class Stone : public Entity {
-public:
-	Stone(int p_lastUpdated)
-		:Entity(p_lastUpdated, CellId::Stone, {200,200,200}) {
-	}
-};
-
-class Sand : public Entity {
-public:
-	Sand(int p_lastUpdated)
-		:Entity(p_lastUpdated, CellId::Sand, {245,200,70}) {
-	}
-
-	std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
-};
-
-class Water : public Entity {
-public:
-	Water(int p_lastUpdated)
-		:Entity(p_lastUpdated, CellId::Water, {0,0,255}) {
-	}
-	
-	std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
-};
-
-class Fire : public Entity {
-public:
-
-	Fire(int p_lastUpdated)
-		//fire color is determined by function
-		:Entity(p_lastUpdated, CellId::Fire, {255,255,0}) {
-	}
-
-	Color getColor() const override;
-
-	std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
-};
-
-class Smoke : public Entity {
-public:
-	Smoke(int p_lastUpdated)
-		:Entity(p_lastUpdated, CellId::Smoke, {70,70,70}) {
-	}
-
-	std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) override;
-
-};
 
 // *********************************************************************
 // Swap Logic
