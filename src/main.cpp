@@ -18,7 +18,7 @@ int main(int argc, char* args[]) {
     const int windowWidth = 1000;
     const int windowHeight = 1000;
     const int cellSize = 2;
-		const int partitionSizeInCells = 25;
+		const int partitionSizeInCells = 1;
 
 
 		std::cout << "Initializing World... " << std::endl;
