@@ -11,25 +11,25 @@ struct Color {
     Uint8 b;
 };
 
-enum class CellId {
+enum class CellId : uint8_t {
+		Null,
     Air,
     Stone,
     Sand,
     Water,
     Fire,
-    Smoke
+    Smoke,
+
 };
 
-class Entity {
-protected:
+struct Entity {
 	int lastUpdated;
 	int ra = 0;
 	int density;
 	CellId id;
-	Entity(int p_lastUpdated, CellId p_id)
-			: lastUpdated(p_lastUpdated), id(p_id) {}
+	Entity(int worldUpdate, CellId p_id)
+			: lastUpdated(worldUpdate), id(p_id) {}
 
-public:
 
 	~Entity() = default;
 
@@ -62,13 +62,13 @@ public:
 struct SwapOp {
   int x1, y1;
 	int x2, y2;
-	std::unique_ptr<Entity> newEntity;
+	CellId id;
 
 	SwapOp(int x1, int y1, int x2, int y2)
-			: x1(x1), y1(y1), x2(x2), y2(y2), newEntity(nullptr) {}
+			: x1(x1), y1(y1), x2(x2), y2(y2), id(CellId::Null) {}
 
-	SwapOp(int x1, int y1, int x2, int y2, std::unique_ptr<Entity> newEntity)
-			: x1(x1), y1(y1), x2(x2), y2(y2), newEntity(std::move(newEntity)) {}
+	SwapOp(int x1, int y1, int x2, int y2, CellId id)
+			: x1(x1), y1(y1), x2(x2), y2(y2), id(id) {}
 };
 
 //just functions to make update methods a bit more consistent and readable

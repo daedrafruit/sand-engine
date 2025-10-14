@@ -5,7 +5,7 @@
 #include <vector>
 #include <SDL3/SDL.h>
 #include <stdexcept>
-#include <thread>
+//#include <thread>
 
 #include "SandWorld.hpp"
 #include "Entity.hpp"
@@ -48,11 +48,11 @@ void SandWorld::initializeGrid() {
 
 	for (int x = 0; x < gridWidth; ++x) {
 		for (int y = 0; y < gridHeight; ++y) {
-			grid[x][y]->setId(CellId::Air, currWorldUpdate);
+			grid[x][y] = std::make_unique<Entity>(Entity(currWorldUpdate, CellId::Air));
 
 			//add barrier
 			if (x == 0 || x == gridWidth - 1 || y == 0 || y == gridHeight - 1) {
-				grid[x][y]->setId(CellId::Stone, currWorldUpdate);
+			grid[x][y] = std::make_unique<Entity>(Entity(currWorldUpdate, CellId::Stone));
 			}
 		}
 	}
@@ -136,6 +136,7 @@ void SandWorld::updatePartitionRange(int xi, int xf, int yi, int yf) {
 }
 
 void SandWorld::updateWorld() {
+	/*
 	// top-left
 	std::thread t1(&SandWorld::updatePartitionRange, this, 0                 , numPartitionsX / 2, 0                 , numPartitionsY / 2);
 	// top-right
@@ -148,6 +149,8 @@ void SandWorld::updateWorld() {
 	t2.join();
 	t3.join();
 	t4.join();
+	*/
+	SandWorld::updatePartitionRange(0, numPartitionsX, 0, numPartitionsY);
 	commitSwaps();
 }
 
@@ -193,9 +196,8 @@ void SandWorld::commitSwaps() {
 		std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
 
 		//if swap contains entity, it is a replace swap
-		if (swap.newEntity) {
-			cell1 = std::move(swap.newEntity);
-			cell1->setLastUpdated(currWorldUpdate);
+		if (swap.id != CellId::Null) {
+			cell1->setId(swap.id, currWorldUpdate);
 			continue;
 		}
 
@@ -233,7 +235,4 @@ void SandWorld::enablePartitionsAround(int x, int y) {
 		}
 	}
 }
-// *********************************************************************
-// Fun
-// *********************************************************************
 
