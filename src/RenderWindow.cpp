@@ -1,6 +1,5 @@
 #include <cstddef>
 #include <iostream>
-#include <memory>
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_rect.h>
@@ -106,8 +105,8 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 	for (int y = 0; y < world.getGridHeight(); ++y) {
 		for (int x = 0; x < world.getGridWidth(); ++x) {
 
-			const std::unique_ptr<Entity>& cell = world.getCellAt(x, y);
-			Color cellColor = cell->getColor();
+			const Entity& cell = world.getCellAt(x, y);
+			Color cellColor = cell.getColor();
 
 			Uint32 color = utils::mapRGBA(cellColor.r, cellColor.g, cellColor.b, 0xFF);
 			int pixelIndex = y * pixelPitch + x;

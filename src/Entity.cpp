@@ -1,4 +1,3 @@
-#include <memory>
 #include <algorithm>
 #include <vector>
 
@@ -47,7 +46,7 @@ Color Entity::getColor() const {
 	}
 }
 
-std::vector<SwapOp> Entity::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
+std::vector<SwapOp> Entity::update(const std::vector<std::vector<Entity>>& grid, int x, int y) {
 	SwapOp checkCells[3] = {
 			swaps::below(x, y),
 			swaps::downLeft(x, y),
@@ -58,10 +57,10 @@ std::vector<SwapOp> Entity::update(const std::vector<std::vector<std::unique_ptr
 	std::vector<SwapOp> outSwaps;
 
 	for (SwapOp& swap : checkCells) {
-		const std::unique_ptr<Entity>& cell1 = grid[swap.x1][swap.y1];
-		const std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
+		const Entity& cell1 = grid[swap.x1][swap.y1];
+		const Entity& cell2 = grid[swap.x2][swap.y2];
 
-		if (cell2->getId() == CellId::Air || cell2->getId() == CellId::Water) {
+		if (cell2.getId() == CellId::Air || cell2.getId() == CellId::Water) {
 			outSwaps.emplace_back(std::move(swap));
 			break;
 		}

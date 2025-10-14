@@ -1,6 +1,5 @@
 #pragma once
 #include <SDL3/SDL.h>
-#include <memory>
 #include <vector>
 
 #include "Entity.hpp"
@@ -62,7 +61,7 @@ public:
 	inline int getGridWidth() const { return gridWidth; }
 	inline int getGridHeight() const { return gridHeight; }
 
-	inline const std::unique_ptr<Entity>& getCellAt(int x, int y) const { return grid[x][y]; }
+	inline const Entity& getCellAt(int x, int y) const { return grid[x][y]; }
 
 	inline int getPartitionSizeInCells() const { return partitionSizeInCells; }
 	inline int getNumPartitionsX() const { return numPartitionsX; }
@@ -75,7 +74,7 @@ private:
 	int currWorldUpdate;
 	const int partitionSizeInCells, numPartitionsX, numPartitionsY;
 
-	std::vector<std::vector<std::unique_ptr<Entity>>> grid;
+	std::vector<std::vector<Entity>> grid;
 
 	void initializeGrid();
 	void updatePartitionRange(int xi, int xf, int yi, int yf); 

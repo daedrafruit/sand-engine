@@ -1,6 +1,5 @@
 #pragma once
 #include <SDL3/SDL.h>
-#include <memory>
 #include <vector>
 
 struct SwapOp;
@@ -33,6 +32,8 @@ class Entity {
 		Entity(int worldUpdate, CellId p_id)
 				: lastUpdated(worldUpdate), id(p_id) {}
 
+		Entity()
+				: lastUpdated(0), id(CellId::Air) {}
 
 		~Entity() = default;
 
@@ -47,7 +48,7 @@ class Entity {
 
 		Color getColor() const;
 		//returns unique ptr so that no op can be returned, consider using std::optional
-		std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y);
+		std::vector<SwapOp> update(const std::vector<std::vector<Entity>>& grid, int x, int y);
 
 };
 

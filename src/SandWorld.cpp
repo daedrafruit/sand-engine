@@ -1,7 +1,6 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_timer.h>
 #include <algorithm>
-#include <memory>
 #include <vector>
 #include <SDL3/SDL.h>
 #include <stdexcept>
@@ -48,11 +47,11 @@ void SandWorld::initializeGrid() {
 
 	for (int x = 0; x < gridWidth; ++x) {
 		for (int y = 0; y < gridHeight; ++y) {
-			grid[x][y] = std::make_unique<Entity>(Entity(currWorldUpdate, CellId::Air));
+			grid[x][y] = Entity(currWorldUpdate, CellId::Air);
 
 			//add barrier
 			if (x == 0 || x == gridWidth - 1 || y == 0 || y == gridHeight - 1) {
-			grid[x][y] = std::make_unique<Entity>(Entity(currWorldUpdate, CellId::Stone));
+				grid[x][y] = Entity(currWorldUpdate, CellId::Stone);
 			}
 		}
 	}
@@ -107,7 +106,7 @@ void SandWorld::drawCircle(CellId id, int x, int y, int radius) {
 
 			if (withinRadius && withinBounds) {
 				enablePartitionsAround(cellx, celly);
-				grid[cellx][celly]->setId(id, 0);
+				grid[cellx][celly].setId(id, 0);
 			}
 		}
 	}
@@ -165,19 +164,19 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 	for (int x = xi; x < xf; ++x) {
 		for (int y = yi; y < yf; ++y) {
 
-			std::unique_ptr<Entity>& currCell = grid[x][y];
-			if (currCell->getId() == CellId::Air) continue;
-			if (currCell->getId() == CellId::Stone) continue;
+			Entity& currCell = grid[x][y];
+			if (currCell.getId() == CellId::Air) continue;
+			if (currCell.getId() == CellId::Stone) continue;
 
 			bool atEdge = (x <= 0 || x >= gridWidth - 1) ||
 			              (y <= 0 || y >= gridHeight - 1);
 
-			if (atEdge && currCell->getId() > CellId::Stone) {
-				grid[x][y]->setId(CellId::Air, currWorldUpdate);
+			if (atEdge && currCell.getId() > CellId::Stone) {
+				grid[x][y].setId(CellId::Air, currWorldUpdate);
 				continue;
 			} 
 
-			std::vector<SwapOp> newSwaps = currCell->update(grid, x, y);
+			std::vector<SwapOp> newSwaps = currCell.update(grid, x, y);
 			if (!newSwaps.empty()) {
 				enablePartitionsAround(x, y);
 				for (SwapOp& swap : newSwaps) {
@@ -192,23 +191,23 @@ void SandWorld::commitSwaps() {
 	std::shuffle(swaps.begin(), swaps.end(), utils::getRandomEngine());
 	for (SwapOp& swap : swaps) {
 
-		std::unique_ptr<Entity>& cell1 = grid[swap.x1][swap.y1];
-		std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
+		Entity& cell1 = grid[swap.x1][swap.y1];
+		Entity& cell2 = grid[swap.x2][swap.y2];
 
 		//if swap contains entity, it is a replace swap
 		if (swap.id != CellId::Null) {
-			cell1->setId(swap.id, currWorldUpdate);
+			cell1.setId(swap.id, currWorldUpdate);
 			continue;
 		}
 
-		bool cellPrevUpdated = cell1->getLastUpdated() == currWorldUpdate || cell2->getLastUpdated() == currWorldUpdate;
+		bool cellPrevUpdated = cell1.getLastUpdated() == currWorldUpdate || cell2.getLastUpdated() == currWorldUpdate;
 
 		if (cellPrevUpdated) {
 			continue;
 		}
 
-		cell1->setLastUpdated(currWorldUpdate);
-		cell2->setLastUpdated(currWorldUpdate);
+		cell1.setLastUpdated(currWorldUpdate);
+		cell2.setLastUpdated(currWorldUpdate);
 
 		std::swap(cell1, cell2);
 	}
