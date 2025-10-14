@@ -22,29 +22,32 @@ enum class CellId : uint8_t {
 
 };
 
-struct Entity {
-	int lastUpdated;
-	int ra = 0;
-	int density;
-	CellId id;
-	Entity(int worldUpdate, CellId p_id)
-			: lastUpdated(worldUpdate), id(p_id) {}
+class Entity {
+	private:
+		CellId id;
+
+	public:
+		int lastUpdated;
+		int ra = 0;
+		int density;
+		Entity(int worldUpdate, CellId p_id)
+				: lastUpdated(worldUpdate), id(p_id) {}
 
 
-	~Entity() = default;
+		~Entity() = default;
 
-	void setLastUpdated(int p_lastUpdated) { lastUpdated = p_lastUpdated; }
-	int getLastUpdated() const { return lastUpdated; }
+		void setLastUpdated(int p_lastUpdated) { lastUpdated = p_lastUpdated; }
+		int getLastUpdated() const { return lastUpdated; }
 
-	void setRegister(char reg, int value);
-	int getRegister(char reg) const;
-	int getDensity() const { return density; }
-	void setId(CellId p_id, int worldUpdate); 
-	CellId getId() const { return id; }
+		void setRegister(char reg, int value);
+		int getRegister(char reg) const;
+		int getDensity() const { return density; }
+		void setId(CellId p_id, int worldUpdate); 
+		CellId getId() const { return id; }
 
-	Color getColor() const;
-	//returns unique ptr so that no op can be returned, consider using std::optional
-	std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y);
+		Color getColor() const;
+		//returns unique ptr so that no op can be returned, consider using std::optional
+		std::vector<SwapOp> update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y);
 
 };
 

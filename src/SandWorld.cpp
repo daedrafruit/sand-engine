@@ -107,7 +107,7 @@ void SandWorld::drawCircle(CellId id, int x, int y, int radius) {
 
 			if (withinRadius && withinBounds) {
 				enablePartitionsAround(cellx, celly);
-				grid[x][y]->setId(id, currWorldUpdate);
+				grid[cellx][celly]->setId(id, 0);
 			}
 		}
 	}
