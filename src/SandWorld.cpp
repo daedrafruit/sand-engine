@@ -1,10 +1,10 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_timer.h>
 #include <algorithm>
+#include <thread>
 #include <vector>
 #include <SDL3/SDL.h>
 #include <stdexcept>
-//#include <thread>
 
 #include "SandWorld.hpp"
 #include "Entity.hpp"
@@ -135,21 +135,37 @@ void SandWorld::updatePartitionRange(int xi, int xf, int yi, int yf) {
 }
 
 void SandWorld::updateWorld() {
-	/*
-	// top-left
-	std::thread t1(&SandWorld::updatePartitionRange, this, 0                 , numPartitionsX / 2, 0                 , numPartitionsY / 2);
-	// top-right
-	std::thread t3(&SandWorld::updatePartitionRange, this, numPartitionsX / 2, numPartitionsX    , 0                 , numPartitionsY / 2);
-	// bottom-left
-	std::thread t4(&SandWorld::updatePartitionRange, this, 0                 , numPartitionsX / 2, numPartitionsY / 2, numPartitionsY);
-	// bottom-right
-	std::thread t2(&SandWorld::updatePartitionRange, this, numPartitionsX / 2, numPartitionsX    , numPartitionsY / 2, numPartitionsY);
-	t1.join();
-	t2.join();
-	t3.join();
-	t4.join();
-	*/
-	SandWorld::updatePartitionRange(0, numPartitionsX, 0, numPartitionsY);
+	int num_threads = 4;
+	int size_x = numPartitionsX / num_threads;
+	int size_y = numPartitionsY / num_threads;
+
+	for (int iteration_y = 0; iteration_y < 2; ++iteration_y) {
+		for (int iteration_x = 0; iteration_x < 2; ++iteration_x) {
+
+			int interation_x_start = size_x * iteration_x;
+			int iteration_x_end = size_x * (iteration_x+1);
+
+			int iteration_y_start = size_y * iteration_y;
+			int iteration_y_end = size_y * (iteration_y+1);
+
+			std::vector<std::thread> threads;
+			for (int half_y = 0; half_y < 2; ++half_y) {
+				for (int half_x = 0; half_x < 2; ++half_x) {
+
+					int curr_x_start = interation_x_start + (numPartitionsX/2 * half_x);
+					int curr_x_end   = iteration_x_end    + (numPartitionsX/2 * half_x);
+
+					int curr_y_start = iteration_y_start  + (numPartitionsY/2 * half_y);
+					int curr_y_end   = iteration_y_end    + (numPartitionsY/2 * half_y);
+
+						threads.push_back(std::thread(&SandWorld::updatePartitionRange, this, curr_x_start, curr_x_end, curr_y_start, curr_y_end));
+				}
+			}
+			for (auto& t : threads) {
+				t.join();
+			}
+		}
+	}
 	commitSwaps();
 }
 

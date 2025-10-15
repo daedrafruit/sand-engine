@@ -3,12 +3,7 @@
 #include <vector>
 
 struct SwapOp;
-
-struct Color {
-    Uint8 r;
-    Uint8 g;
-    Uint8 b;
-};
+struct Color { Uint8 r; Uint8 g; Uint8 b; };
 
 enum class CellId : uint8_t {
 		Null,
@@ -29,6 +24,13 @@ class Entity {
 		int ra = 0;
 		int lastUpdated;
 
+		void setId(CellId p_id, int worldUpdate); 
+		CellId getId() const { return id; }
+
+		Color getColor() const;
+		std::vector<SwapOp> update(std::vector<std::vector<Entity>>& grid, int x, int y);
+
+
 		Entity(int worldUpdate, CellId p_id)
 				: lastUpdated(worldUpdate), id(p_id) {}
 
@@ -39,14 +41,6 @@ class Entity {
 				: lastUpdated(0), id(CellId::Air) {}
 
 		~Entity() = default;
-
-		void setId(CellId p_id, int worldUpdate); 
-		CellId getId() const { return id; }
-
-		Color getColor() const;
-		//returns unique ptr so that no op can be returned, consider using std::optional
-		std::vector<SwapOp> update(std::vector<std::vector<Entity>>& grid, int x, int y);
-
 };
 
 

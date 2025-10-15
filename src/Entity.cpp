@@ -160,25 +160,25 @@ namespace Smoke {
 	}
 }
 
-	std::vector<SwapOp> Entity::update(std::vector<std::vector<Entity>>& grid, int x, int y) {
-		const Entity& target = grid[x][y];
-		std::vector<SwapOp> outSwaps;
+std::vector<SwapOp> Entity::update(std::vector<std::vector<Entity>>& grid, int x, int y) {
+	const Entity& target = grid[x][y];
+	std::vector<SwapOp> outSwaps;
 
-		switch (target.getId()) {
-			case CellId::Air:
-				return outSwaps;
-			case CellId::Stone:
-				return outSwaps;
-			case CellId::Sand:
-				return Sand::update(grid, x, y);
-			case CellId::Water:
-				return Water::update(grid, x, y);
-			case CellId::Fire:
-				return Fire::update(grid, x, y);
-			case CellId::Smoke:
-				return Smoke::update(grid, x, y);
-			default:
-				return outSwaps;
-			}
-	}
+	switch (target.getId()) {
+		case CellId::Air:
+			return outSwaps;
+		case CellId::Stone:
+			return outSwaps;
+		case CellId::Sand:
+			return Sand::update(grid, x, y);
+		case CellId::Water:
+			return Water::update(grid, x, y);
+		case CellId::Fire:
+			return Fire::update(grid, x, y);
+		case CellId::Smoke:
+			return Smoke::update(grid, x, y);
+		default:
+			return outSwaps;
+		}
+}
 
