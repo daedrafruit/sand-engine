@@ -5,21 +5,6 @@
 #include "Entity.hpp"
 #include "Utils.hpp"
 
-void Entity::setRegister(char reg, int value) { 
-    switch(reg) {
-      case 'a':
-				ra = value;
-    }
-}
-
-int Entity::getRegister(char reg) const { 
-    switch(reg) {
-			case 'a':
-				return ra;
-    }
-    return 0;
-}
-
 void Entity::setId(CellId p_id, int worldUpdate) {
 	id = p_id;
 	lastUpdated = worldUpdate;
@@ -104,12 +89,12 @@ namespace Fire {
 
 		std::vector<SwapOp> outSwaps;
 		//timer to self destruct
-		if ((cell1.getRegister('a') >= 100)) {
-			cell1.setRegister('a', 0);
+		if ((cell1.ra >= 100)) {
+			cell1.ra = 0;
 			outSwaps.emplace_back(x, y, x, y, CellId::Smoke);
 			return outSwaps;
 		} else {
-			cell1.setRegister('a', cell1.getRegister('a') + 1);
+			cell1.ra++;
 		}
 
 		SwapOp checkCells[5] = {
@@ -145,12 +130,12 @@ namespace Smoke {
 
 		std::vector<SwapOp> outSwaps;
 		//timer to self destruct
-		if ((cell1.getRegister('a') >= 75)) {
-			cell1.setRegister('a', 0);
+		if ((cell1.ra >= 75)) {
+			cell1.ra = 0;
 			outSwaps.emplace_back(x, y, x, y, CellId::Air);
 			return outSwaps;
 		} else {
-			cell1.setRegister('a', cell1.getRegister('a') + 1);
+			cell1.ra++;
 		}
 
 		SwapOp checkCells[5] = {

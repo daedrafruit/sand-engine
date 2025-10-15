@@ -26,9 +26,9 @@ class Entity {
 		CellId id;
 
 	public:
-		int lastUpdated;
 		int ra = 0;
-		int density;
+		int lastUpdated;
+
 		Entity(int worldUpdate, CellId p_id)
 				: lastUpdated(worldUpdate), id(p_id) {}
 
@@ -40,12 +40,6 @@ class Entity {
 
 		~Entity() = default;
 
-		void setLastUpdated(int p_lastUpdated) { lastUpdated = p_lastUpdated; }
-		int getLastUpdated() const { return lastUpdated; }
-
-		void setRegister(char reg, int value);
-		int getRegister(char reg) const;
-		int getDensity() const { return density; }
 		void setId(CellId p_id, int worldUpdate); 
 		CellId getId() const { return id; }
 

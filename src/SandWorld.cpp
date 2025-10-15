@@ -200,14 +200,14 @@ void SandWorld::commitSwaps() {
 			continue;
 		}
 
-		bool cellPrevUpdated = cell1.getLastUpdated() == currWorldUpdate || cell2.getLastUpdated() == currWorldUpdate;
+		bool cellPrevUpdated = cell1.lastUpdated == currWorldUpdate || cell2.lastUpdated == currWorldUpdate;
 
 		if (cellPrevUpdated) {
 			continue;
 		}
 
-		cell1.setLastUpdated(currWorldUpdate);
-		cell2.setLastUpdated(currWorldUpdate);
+		cell1.lastUpdated = currWorldUpdate;
+		cell2.lastUpdated = currWorldUpdate;
 
 		std::swap(cell1, cell2);
 	}
