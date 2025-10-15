@@ -32,6 +32,9 @@ class Entity {
 		Entity(int worldUpdate, CellId p_id)
 				: lastUpdated(worldUpdate), id(p_id) {}
 
+		Entity(CellId p_id)
+				: lastUpdated(0), id(p_id) {}
+
 		Entity()
 				: lastUpdated(0), id(CellId::Air) {}
 
@@ -48,7 +51,7 @@ class Entity {
 
 		Color getColor() const;
 		//returns unique ptr so that no op can be returned, consider using std::optional
-		std::vector<SwapOp> update(const std::vector<std::vector<Entity>>& grid, int x, int y);
+		std::vector<SwapOp> update(std::vector<std::vector<Entity>>& grid, int x, int y);
 
 };
 

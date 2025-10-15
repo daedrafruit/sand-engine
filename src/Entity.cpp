@@ -96,99 +96,104 @@ namespace Water {
 		return outSwaps;
 	}
 }
-std::vector<SwapOp> Entity::update(const std::vector<std::vector<Entity>>& grid, int x, int y) {
-	const Entity& target = grid[x][y];
-	std::vector<SwapOp> outSwaps;
 
-	switch (target.getId()) {
-		case CellId::Air:
+namespace Fire {
+	std::vector<SwapOp> update(std::vector<std::vector<Entity>>& grid, int x, int y) {
+
+		Entity& cell1 = grid[x][y];
+
+		std::vector<SwapOp> outSwaps;
+		//timer to self destruct
+		if ((cell1.getRegister('a') >= 100)) {
+			cell1.setRegister('a', 0);
+			outSwaps.emplace_back(x, y, x, y, CellId::Smoke);
 			return outSwaps;
-		case CellId::Stone:
-			return outSwaps;
-		case CellId::Sand:
-			return Sand::update(grid, x, y);
-		case CellId::Water:
-			return Water::update(grid, x, y);
-		default:
-			return outSwaps;
+		} else {
+			cell1.setRegister('a', cell1.getRegister('a') + 1);
 		}
-}
-/*
 
-std::vector<SwapOp> Fire::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
+		SwapOp checkCells[5] = {
+				swaps::above(x, y),
+				swaps::upLeft(x, y),
+				swaps::upRight(x, y),
+				swaps::left(x, y),
+				swaps::right(x, y)
+		};
 
-	const std::unique_ptr<Entity>& cell1 = grid[x][y];
+		std::shuffle(checkCells, checkCells + 5, utils::getRandomEngine());
+		for (SwapOp& swap : checkCells) {
+			const Entity& cell2 = grid[swap.x2][swap.y2];
 
-	std::vector<SwapOp> outSwaps;
-	//timer to self destruct
-	if ((cell1->getRegister('a') >= 100)) {
-		cell1->setRegister('a', 0);
-		std::unique_ptr<Entity> smoke = std::make_unique<Smoke>(0);
-		outSwaps.emplace_back(x, y, x, y, std::move(smoke));
+			if (cell2.getId() == CellId::Air) {
+				outSwaps.emplace_back(std::move(swap));
+				break;
+			} 
+			if (cell2.getId() == CellId::Water) {
+				Entity air = Entity(CellId::Air);
+				outSwaps.emplace_back(x, y, x, y, CellId::Air);
+				break;
+			} 
+		}
+		//return self swap so that partition stays enabled and timer can continue
 		return outSwaps;
-	} else {
-		cell1->setRegister('a', cell1->getRegister('a') + 1);
 	}
-
-	SwapOp checkCells[5] = {
-			swaps::above(x, y),
-			swaps::upLeft(x, y),
-			swaps::upRight(x, y),
-			swaps::left(x, y),
-			swaps::right(x, y)
-	};
-
-	std::shuffle(checkCells, checkCells + 5, utils::getRandomEngine());
-	for (SwapOp& swap : checkCells) {
-		const std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
-
-		if (cell2->getId() == CellId::Air) {
-			outSwaps.emplace_back(std::move(swap));
-			break;
-		} 
-		if (cell2->getId() == CellId::Water) {
-			std::unique_ptr<Entity> air = std::make_unique<Air>(0);
-			outSwaps.emplace_back(x, y, x, y, std::move(air));
-			break;
-		} 
-	}
-	//return self swap so that partition stays enabled and timer can continue
-	return outSwaps;
 }
+namespace Smoke {
+	std::vector<SwapOp> update(std::vector<std::vector<Entity>>& grid, int x, int y) {
 
-std::vector<SwapOp> Smoke::update(const std::vector<std::vector<std::unique_ptr<Entity>>>& grid, int x, int y) {
+		Entity& cell1 = grid[x][y];
 
-	const std::unique_ptr<Entity>& cell1 = grid[x][y];
+		std::vector<SwapOp> outSwaps;
+		//timer to self destruct
+		if ((cell1.getRegister('a') >= 75)) {
+			cell1.setRegister('a', 0);
+			outSwaps.emplace_back(x, y, x, y, CellId::Air);
+			return outSwaps;
+		} else {
+			cell1.setRegister('a', cell1.getRegister('a') + 1);
+		}
 
-	std::vector<SwapOp> outSwaps;
-	//timer to self destruct
-	if ((cell1->getRegister('a') >= 75)) {
-		cell1->setRegister('a', 0);
-		std::unique_ptr<Entity> air = std::make_unique<Air>(0);
-		outSwaps.emplace_back(x, y, x, y, std::move(air));
+		SwapOp checkCells[5] = {
+				swaps::above(x, y),
+				swaps::upLeft(x, y),
+				swaps::upRight(x, y),
+				swaps::left(x, y),
+				swaps::right(x, y)
+		};
+
+		std::shuffle(checkCells, checkCells + 5, utils::getRandomEngine());
+		for (SwapOp& swap : checkCells) {
+			const Entity& cell2 = grid[swap.x2][swap.y2];
+
+			if (cell2.getId() == CellId::Air) {
+				outSwaps.emplace_back(std::move(swap));
+				break;
+			} 
+		}
+		//return self swap so that partition stays enabled and timer can continue
 		return outSwaps;
-	} else {
-		cell1->setRegister('a', cell1->getRegister('a') + 1);
 	}
-
-	SwapOp checkCells[5] = {
-			swaps::above(x, y),
-			swaps::upLeft(x, y),
-			swaps::upRight(x, y),
-			swaps::left(x, y),
-			swaps::right(x, y)
-	};
-
-	std::shuffle(checkCells, checkCells + 5, utils::getRandomEngine());
-	for (SwapOp& swap : checkCells) {
-		const std::unique_ptr<Entity>& cell2 = grid[swap.x2][swap.y2];
-
-		if (cell2->getId() == CellId::Air) {
-			outSwaps.emplace_back(std::move(swap));
-			break;
-		} 
-	}
-	//return self swap so that partition stays enabled and timer can continue
-	return outSwaps;
 }
-*/
+
+	std::vector<SwapOp> Entity::update(std::vector<std::vector<Entity>>& grid, int x, int y) {
+		const Entity& target = grid[x][y];
+		std::vector<SwapOp> outSwaps;
+
+		switch (target.getId()) {
+			case CellId::Air:
+				return outSwaps;
+			case CellId::Stone:
+				return outSwaps;
+			case CellId::Sand:
+				return Sand::update(grid, x, y);
+			case CellId::Water:
+				return Water::update(grid, x, y);
+			case CellId::Fire:
+				return Fire::update(grid, x, y);
+			case CellId::Smoke:
+				return Smoke::update(grid, x, y);
+			default:
+				return outSwaps;
+			}
+	}
+
