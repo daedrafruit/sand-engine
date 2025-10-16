@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL3/SDL.h>
+#include <mutex>
 #include <vector>
 
 #include "Entity.hpp"
@@ -82,6 +83,7 @@ private:
 	std::vector<std::vector<partition>> worldPartitions;
 
 	std::vector<SwapOp> swaps;
+	std::mutex mut;
 
 };
 

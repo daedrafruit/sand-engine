@@ -19,17 +19,6 @@ namespace utils {
 	}
 
 
-	inline void logicalOr2D(std::vector<std::vector<bool>>& array1, const std::vector<std::vector<bool>>& array2) {
-		int rows = array1.size();
-		int cols = array1[0].size(); // Assuming all rows have the same number of columns
-
-		for (int i = 0; i < rows; ++i) {
-			for (int j = 0; j < cols; ++j) {
-				array1[i][j] = array1[i][j] || array2[i][j];
-			}
-		}
-	}
-
 	inline Uint32 mapRGBA(int r, int g, int b, int a) {
 		return ((r << 24) | (g << 16) | (b << 8) | a);
 	}

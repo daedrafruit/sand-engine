@@ -15,9 +15,9 @@ int main(int argc, char* args[]) {
         return -1;
     }
 
-    const int windowWidth = 800;
+    const int windowWidth = 1200;
     const int windowHeight = 800;
-    const int cellSize = 1;
+    const int cellSize = 2;
 		const int partitionSizeInCells = 10;
 
 

@@ -45,8 +45,8 @@ void SandWorld::initializeGrid() {
 			grid[x].resize(gridHeight);
 	}
 
-	for (int x = 0; x < gridWidth; ++x) {
-		for (int y = 0; y < gridHeight; ++y) {
+	for (int y = 0; y < gridHeight; ++y) {
+		for (int x = 0; x < gridWidth; ++x) {
 			grid[x][y] = Entity(currWorldUpdate, CellId::Air);
 
 			//add barrier
@@ -56,8 +56,8 @@ void SandWorld::initializeGrid() {
 		}
 	}
 
-	for (int x = 0; x < numPartitionsX; ++x) {
-		for (int y = 0; y < numPartitionsY; ++y) {
+	for (int y = 0; y < numPartitionsY; ++y) {
+		for (int x = 0; x < numPartitionsX; ++x) {
 			worldPartitions[x][y].setStatus(true, currWorldUpdate);
 		}
 	}
@@ -177,8 +177,8 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 	int xf = (xi + partitionSizeInCells);
 	int yf = (yi + partitionSizeInCells);
 
-	for (int x = xi; x < xf; ++x) {
-		for (int y = yi; y < yf; ++y) {
+	for (int y = yi; y < yf; ++y) {
+		for (int x = xi; x < xf; ++x) {
 
 			Entity& currCell = grid[x][y];
 			if (currCell.getId() == CellId::Air) continue;
@@ -196,6 +196,7 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 			if (!newSwaps.empty()) {
 				enablePartitionsAround(x, y);
 				for (SwapOp& swap : newSwaps) {
+					std::lock_guard<std::mutex> guard(mut);
 					swaps.emplace_back(std::move(swap));
 				}
 			}
@@ -235,8 +236,8 @@ void SandWorld::enablePartitionsAround(int x, int y) {
 	int partitionY = y / partitionSizeInCells;
 	int radius = 1;
 
-	for (int dx = -radius; dx <= radius; ++dx) {
-		for (int dy = -radius; dy <= radius; ++dy) {
+	for (int dy = -radius; dy <= radius; ++dy) {
+		for (int dx = -radius; dx <= radius; ++dx) {
 			int newPartitionX = partitionX + dx;
 			int newPartitionY = partitionY + dy;
 
