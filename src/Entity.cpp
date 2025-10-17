@@ -32,7 +32,28 @@ Color Entity::getColor() const {
 	}
 }
 
-std::vector<SwapOp> sand::update(const std::vector<std::vector<Entity>>& grid, int x, int y) {
+void Entity::update(std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps) {
+	const Entity& target = grid[x][y];
+
+	switch (target.getId()) {
+		case CellId::Air:
+	//		return outSwaps;
+		case CellId::Stone:
+	//		return outSwaps;
+		case CellId::Sand:
+			sand::update(grid, x, y, outSwaps);
+		case CellId::Water:
+	//		return water::update(grid, x, y);
+		case CellId::Fire:
+	//		return fire::update(grid, x, y);
+		case CellId::Smoke:
+	//		return smoke::update(grid, x, y);
+		default:
+			std::cout;
+		}
+}
+
+void sand::update(const std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps) {
 
 	SwapOp checkCells[3] = {
 			swaps::below(x, y),
@@ -40,8 +61,6 @@ std::vector<SwapOp> sand::update(const std::vector<std::vector<Entity>>& grid, i
 			swaps::downRight(x, y)
 	};
 	std::shuffle(checkCells + 1, checkCells + 3, utils::getRandomEngine());
-
-	std::vector<SwapOp> outSwaps;
 
 	for (SwapOp& swap : checkCells) {
 		const Entity& cell1 = grid[swap.x1][swap.y1];
@@ -52,7 +71,6 @@ std::vector<SwapOp> sand::update(const std::vector<std::vector<Entity>>& grid, i
 			break;
 		}
 	}
-	return outSwaps;
 }
 
 std::vector<SwapOp> water::update(const std::vector<std::vector<Entity>>& grid, int x, int y) {
@@ -153,25 +171,4 @@ std::vector<SwapOp> smoke::update(std::vector<std::vector<Entity>>& grid, int x,
 	return outSwaps;
 }
 
-std::vector<SwapOp> Entity::update(std::vector<std::vector<Entity>>& grid, int x, int y) {
-	const Entity& target = grid[x][y];
-	std::vector<SwapOp> outSwaps;
-
-	switch (target.getId()) {
-		case CellId::Air:
-			return outSwaps;
-		case CellId::Stone:
-			return outSwaps;
-		case CellId::Sand:
-			return sand::update(grid, x, y);
-		case CellId::Water:
-			return water::update(grid, x, y);
-		case CellId::Fire:
-			return fire::update(grid, x, y);
-		case CellId::Smoke:
-			return smoke::update(grid, x, y);
-		default:
-			return outSwaps;
-		}
-}
 

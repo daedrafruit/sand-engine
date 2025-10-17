@@ -28,7 +28,7 @@ class Entity {
 		CellId getId() const { return id; }
 
 		Color getColor() const;
-		std::vector<SwapOp> update(std::vector<std::vector<Entity>>& grid, int x, int y);
+		void update(std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps);
 
 
 		Entity(int worldUpdate, CellId p_id)
@@ -44,7 +44,7 @@ class Entity {
 };
 
 namespace sand {
-	std::vector<SwapOp> update(const std::vector<std::vector<Entity>>& grid, int x, int y);
+	void update(const std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outswaps);
 }
 namespace water {
 	std::vector<SwapOp> update(const std::vector<std::vector<Entity>>& grid, int x, int y);

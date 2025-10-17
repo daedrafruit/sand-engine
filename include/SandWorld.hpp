@@ -45,8 +45,9 @@ public:
 	// Draws a filled circle of some id around the passed in coordinates
 	void drawCircle(CellId id, int x, int y, int radius);
 
+	std::vector<SwapOp> updatePartitionsInRange(int xi, int xf, int yi, int yf); 
 	//call resepctive update function for each cell in given partition
-	std::vector<SwapOp> updatePartition(int x, int y);
+	void updatePartition(int x, int y, std::vector<SwapOp>& swaps);
 
 	// Call update partition function on each partition in the world
 	void updateWorld();
@@ -78,7 +79,6 @@ private:
 	std::vector<std::vector<Entity>> grid;
 
 	void initializeGrid();
-	std::vector<SwapOp> updatePartitionsInRange(int xi, int xf, int yi, int yf); 
 	
 	std::vector<std::vector<partition>> worldPartitions;
 

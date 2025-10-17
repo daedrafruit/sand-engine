@@ -165,24 +165,20 @@ std::vector<SwapOp> SandWorld::updatePartitionsInRange(int xi, int xf, int yi, i
 			if (currPartition.getLastUpdated() != currWorldUpdate) {
 				currPartition.setStatus(false, currWorldUpdate);
 			}
-			for (SwapOp& s : updatePartition(x, y)) {
-				swaps.emplace_back(s);
-			}
+			updatePartition(x, y, swaps); 
 		}
 	}
 	return swaps;
 }
 
 
-std::vector<SwapOp> SandWorld::updatePartition(int p_x, int p_y) {
+void SandWorld::updatePartition(int p_x, int p_y, std::vector<SwapOp>& swaps) {
 
 	int xi = p_x * partitionSizeInCells;
 	int yi = p_y * partitionSizeInCells;
 
 	int xf = (xi + partitionSizeInCells);
 	int yf = (yi + partitionSizeInCells);
-
-	std::vector<SwapOp> swaps;
 
 	for (int y = yi; y < yf; ++y) {
 		for (int x = xi; x < xf; ++x) {
@@ -199,16 +195,14 @@ std::vector<SwapOp> SandWorld::updatePartition(int p_x, int p_y) {
 				continue;
 			} 
 
-			std::vector<SwapOp> newSwaps = currCell.update(grid, x, y);
-			if (!newSwaps.empty()) {
-				enablePartitionsAround(x, y);
-				for (SwapOp& swap : newSwaps) {
-					swaps.emplace_back(swap);
-				}
-			}
+			int oldLen = swaps.size();
+
+			currCell.update(grid, x, y, swaps);
+
+			bool areNewSwaps = swaps.size() > oldLen;
+			if (areNewSwaps) enablePartitionsAround(x, y);	
 		}
 	}
-	return swaps;
 }
 
 void SandWorld::commitSwaps() {
