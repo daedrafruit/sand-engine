@@ -1,28 +1,37 @@
-#include <SDL3/SDL_events.h>
-#include <SDL3/SDL_timer.h>
 #include <algorithm>
 #include <future>
 #include <vector>
-#include <SDL3/SDL.h>
 #include <stdexcept>
+
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_timer.h>
+#include <SDL3/SDL.h>
+
+#include "SDL_scancode.h"
+#include "SDL_timer.h"
 
 #include "SandWorld.hpp"
 #include "Entity.hpp"
-#include "SDL_scancode.h"
-#include "SDL_timer.h"
 #include "Utils.hpp"
 
 // *********************************************************************
 // Initialization
 // *********************************************************************
 
-SandWorld::SandWorld(const int windowHeight, const int windowWidth, const int p_cellSize, const int p_partitionSizeInCells)
-	:gridHeight(windowHeight / p_cellSize), gridWidth(windowWidth / p_cellSize), cellSize(p_cellSize), 
-	partitionSizeInCells(p_partitionSizeInCells),
-	numPartitionsX(gridWidth / partitionSizeInCells),
-	numPartitionsY(gridHeight / partitionSizeInCells),
-	worldPartitions(numPartitionsX, std::vector<partition>(numPartitionsY)),
-	currWorldUpdate(SDL_GetTicks()) {
+SandWorld::SandWorld(const int windowHeight, const int windowWidth, const int p_cellSize, const int p_partitionSizeInCells):
+		currWorldUpdate(SDL_GetTicks()),
+
+		gridHeight(windowHeight / p_cellSize), 
+		gridWidth(windowWidth / p_cellSize),
+		cellSize(p_cellSize), 
+
+		partitionSizeInCells(p_partitionSizeInCells),
+		numPartitionsX(gridWidth / partitionSizeInCells),
+		numPartitionsY(gridHeight / partitionSizeInCells),
+
+		worldPartitions(numPartitionsX, std::vector<partition>(numPartitionsY))
+
+{
 
     if (windowWidth % p_cellSize != 0 || windowHeight % p_cellSize != 0)
       throw std::invalid_argument("Window dimensions are not divisible by cell size.");
@@ -33,7 +42,6 @@ SandWorld::SandWorld(const int windowHeight, const int windowWidth, const int p_
 		int threads = 10;
 		if ((numPartitionsX + numPartitionsY) % threads != 0) 
       throw std::invalid_argument("Number of partitions is not divisible by thread count.");
-
 
 		initializeGrid();
 }

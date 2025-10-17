@@ -1,11 +1,6 @@
-
 #pragma once
 #include <SDL3/SDL.h>
-#include <memory>
 
-#include "Entity.hpp"
-#include "SDL_render.h"
-//#include "SDL3/SDL_ttf.h"
 #include "SandWorld.hpp"
 
 class RenderWindow {

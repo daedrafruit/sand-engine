@@ -1,7 +1,4 @@
 #pragma once
-#include <SDL3/SDL.h>
-#include <vector>
-
 #include "Entity.hpp"
 
 enum class Event {

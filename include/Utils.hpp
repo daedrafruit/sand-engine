@@ -1,9 +1,9 @@
 #pragma once
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_timer.h>
-#include <iostream>
 #include <random>
 #include <chrono>
+
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_timer.h>
 
 namespace utils {
 	inline float hireTimeInSeconds() {
@@ -47,8 +47,6 @@ namespace utils {
 				//std::cout << totalTime << std::endl;
 				*time = totalTime;
 			}
-
 	};
-
 }
 

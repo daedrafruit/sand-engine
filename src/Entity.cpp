@@ -1,4 +1,3 @@
-//#include <memory>
 #include <algorithm>
 #include <vector>
 
@@ -8,7 +7,6 @@
 void Entity::setId(CellId p_id, int worldUpdate) {
 	id = p_id;
 	lastUpdated = worldUpdate;
-
 }
 
 Color Entity::getColor() const {

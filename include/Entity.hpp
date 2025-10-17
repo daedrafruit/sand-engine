@@ -1,6 +1,8 @@
 #pragma once
-#include <SDL3/SDL.h>
+#include <cstdint>
 #include <vector>
+
+#include <SDL3/SDL.h>
 
 struct SwapOp;
 struct Color { Uint8 r; Uint8 g; Uint8 b; };
@@ -13,21 +15,23 @@ enum class CellId : uint8_t {
     Water,
     Fire,
     Smoke,
-
 };
 
 class Entity {
+	public:
+		int lastUpdated;
+		uint8_t ra = 0;
+
 	private:
 		CellId id;
 
 	public:
-		int ra = 0;
-		int lastUpdated;
-
 		void setId(CellId p_id, int worldUpdate); 
 		CellId getId() const { return id; }
 
 		Color getColor() const;
+
+
 		// Returns true if any swaps were generated, indicates that partition is active
 		bool update(std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps);
 
