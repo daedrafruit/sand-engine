@@ -82,7 +82,7 @@ private:
 	
 	std::vector<std::vector<partition>> worldPartitions;
 
-	std::vector<std::vector<SwapOp>> swapLists;
+	std::vector<SwapOp> worldSwaps;
 	std::mutex mut;
 
 };

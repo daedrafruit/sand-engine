@@ -147,7 +147,9 @@ void SandWorld::updateWorld() {
 				}
 			}
 			for (std::future<std::vector<SwapOp>>& f : futures) {
-				swapLists.emplace_back(f.get());
+				for (SwapOp& s : f.get()) {
+					worldSwaps.emplace_back(s);
+				}
 			}
 		}
 	}
@@ -206,34 +208,30 @@ void SandWorld::updatePartition(int p_x, int p_y, std::vector<SwapOp>& swaps) {
 }
 
 void SandWorld::commitSwaps() {
-	std::shuffle(swapLists.begin(), swapLists.end(), utils::getRandomEngine());
-	for (std::vector<SwapOp>& swaps : swapLists) {
-		std::shuffle(swaps.begin(), swaps.end(), utils::getRandomEngine());
-		for (SwapOp& swap : swaps) {
+	std::shuffle(worldSwaps.begin(), worldSwaps.end(), utils::getRandomEngine());
+	for (SwapOp& swap : worldSwaps) {
 
-			Entity& cell1 = grid[swap.x1][swap.y1];
-			Entity& cell2 = grid[swap.x2][swap.y2];
+		Entity& cell1 = grid[swap.x1][swap.y1];
+		Entity& cell2 = grid[swap.x2][swap.y2];
 
-			//if swap contains entity, it is a replace swap
-			if (swap.id != CellId::Null) {
-				cell1.setId(swap.id, currWorldUpdate);
-				continue;
-			}
-
-			bool cellPrevUpdated = cell1.lastUpdated == currWorldUpdate || cell2.lastUpdated == currWorldUpdate;
-
-			if (cellPrevUpdated) {
-				continue;
-			}
-
-			cell1.lastUpdated = currWorldUpdate;
-			cell2.lastUpdated = currWorldUpdate;
-
-			std::swap(cell1, cell2);
+		//if swap contains entity, it is a replace swap
+		if (swap.id != CellId::Null) {
+			cell1.setId(swap.id, currWorldUpdate);
+			continue;
 		}
-		swaps.clear();
+
+		bool cellPrevUpdated = cell1.lastUpdated == currWorldUpdate || cell2.lastUpdated == currWorldUpdate;
+
+		if (cellPrevUpdated) {
+			continue;
+		}
+
+		cell1.lastUpdated = currWorldUpdate;
+		cell2.lastUpdated = currWorldUpdate;
+
+		std::swap(cell1, cell2);
 	}
-	swapLists.clear();
+	worldSwaps.clear();
 }
 
 void SandWorld::enablePartitionsAround(int x, int y) {
