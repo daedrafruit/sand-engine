@@ -1,6 +1,7 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_timer.h>
 #include <algorithm>
+#include <future>
 #include <thread>
 #include <vector>
 #include <SDL3/SDL.h>
@@ -119,7 +120,45 @@ void SandWorld::setWorldUpdate() {
 	currWorldUpdate = (SDL_GetTicks());
 }
 
-void SandWorld::updatePartitionRange(int xi, int xf, int yi, int yf) {
+void SandWorld::updateWorld() {
+	int sizeX = numPartitionsX / 4;
+	int sizeY = numPartitionsY / 4;
+
+	for (int iterationY = 0; iterationY < 2; ++iterationY) {
+		for (int iterationX = 0; iterationX < 2; ++iterationX) {
+
+			int interationStartX = sizeX * iterationX;
+			int iterationEndX = sizeX * (iterationX+1);
+
+			int iterationStartY = sizeY * iterationY;
+			int iterationEndY = sizeY * (iterationY+1);
+
+			std::vector<std::future<std::vector<std::vector<SwapOp>>>> futures;
+			for (int halfY = 0; halfY < 2; ++halfY) {
+				for (int halfX = 0; halfX < 2; ++halfX) {
+
+					int currStartX = interationStartX + (numPartitionsX/2 * halfX);
+					int currEndX   = iterationEndX    + (numPartitionsX/2 * halfX);
+
+					int currStartY = iterationStartY  + (numPartitionsY/2 * halfY);
+					int currEndY   = iterationEndY    + (numPartitionsY/2 * halfY);
+
+					futures.emplace_back(std::async(std::launch::async, &SandWorld::updatePartitionsInRange, this, currStartX, currEndX, currStartY, currEndY));
+
+				}
+			}
+			for (std::future<std::vector<std::vector<SwapOp>>>& f : futures) {
+				for (std::vector<SwapOp>& s : f.get()) {
+					swapLists.emplace_back(s);
+				}
+			}
+		}
+	}
+	commitSwaps();
+}
+
+std::vector<std::vector<SwapOp>> SandWorld::updatePartitionsInRange(int xi, int xf, int yi, int yf) {
+	std::vector<std::vector<SwapOp>> swapsList;
 	for (int x = xi; x < xf; ++x) {
 		for (int y = yi; y < yf; ++y) {
 			if (!worldPartitions[x][y].isEnabled()) continue;
@@ -129,53 +168,22 @@ void SandWorld::updatePartitionRange(int xi, int xf, int yi, int yf) {
 			if (currPartition.getLastUpdated() != currWorldUpdate) {
 				currPartition.setStatus(false, currWorldUpdate);
 			}
-			updatePartition(x, y);
+			swapsList.emplace_back(updatePartition(x, y));
 		}
 	}
+	return swapsList;
 }
 
-void SandWorld::updateWorld() {
-	int num_threads = 4;
-	int size_x = numPartitionsX / num_threads;
-	int size_y = numPartitionsY / num_threads;
 
-	for (int iteration_y = 0; iteration_y < 2; ++iteration_y) {
-		for (int iteration_x = 0; iteration_x < 2; ++iteration_x) {
-
-			int interation_x_start = size_x * iteration_x;
-			int iteration_x_end = size_x * (iteration_x+1);
-
-			int iteration_y_start = size_y * iteration_y;
-			int iteration_y_end = size_y * (iteration_y+1);
-
-			std::vector<std::thread> threads;
-			for (int half_y = 0; half_y < 2; ++half_y) {
-				for (int half_x = 0; half_x < 2; ++half_x) {
-
-					int curr_x_start = interation_x_start + (numPartitionsX/2 * half_x);
-					int curr_x_end   = iteration_x_end    + (numPartitionsX/2 * half_x);
-
-					int curr_y_start = iteration_y_start  + (numPartitionsY/2 * half_y);
-					int curr_y_end   = iteration_y_end    + (numPartitionsY/2 * half_y);
-
-					threads.push_back(std::thread(&SandWorld::updatePartitionRange, this, curr_x_start, curr_x_end, curr_y_start, curr_y_end));
-				}
-			}
-			for (auto& t : threads) {
-				t.join();
-			}
-		}
-	}
-	commitSwaps();
-}
-
-void SandWorld::updatePartition(int p_x, int p_y) {
+std::vector<SwapOp> SandWorld::updatePartition(int p_x, int p_y) {
 
 	int xi = p_x * partitionSizeInCells;
 	int yi = p_y * partitionSizeInCells;
 
 	int xf = (xi + partitionSizeInCells);
 	int yf = (yi + partitionSizeInCells);
+
+	std::vector<SwapOp> swaps;
 
 	for (int y = yi; y < yf; ++y) {
 		for (int x = xi; x < xf; ++x) {
@@ -196,11 +204,12 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 			if (!newSwaps.empty()) {
 				enablePartitionsAround(x, y);
 				for (SwapOp& swap : newSwaps) {
-					swapLists.push_back(newSwaps);
+					swaps.emplace_back(swap);
 				}
 			}
 		}
 	}
+	return swaps;
 }
 
 void SandWorld::commitSwaps() {
