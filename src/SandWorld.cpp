@@ -67,7 +67,7 @@ void SandWorld::initializeGrid() {
 // Event Handling
 // *********************************************************************
 
-void SandWorld::handleEvent(const bool* currKeyStates, int p_x, int p_y) {
+void SandWorld::handleEvent(const bool* const currKeyStates, int p_x, int p_y) {
 	const int x = p_x / cellSize;
 	const int y = p_y / cellSize;
 
