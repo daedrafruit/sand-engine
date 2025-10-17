@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <future>
+#include <iostream>
 #include <vector>
 #include <stdexcept>
 
@@ -53,8 +54,8 @@ void SandWorld::initializeGrid() {
 			grid[x].resize(gridHeight);
 	}
 
-	for (int y = 0; y < gridHeight; ++y) {
-		for (int x = 0; x < gridWidth; ++x) {
+	for (int x = 0; x < gridWidth; ++x) {
+		for (int y = 0; y < gridHeight; ++y) {
 			grid[x][y] = Entity(currWorldUpdate, CellId::Air);
 
 			//add barrier
@@ -64,8 +65,8 @@ void SandWorld::initializeGrid() {
 		}
 	}
 
-	for (int y = 0; y < numPartitionsY; ++y) {
-		for (int x = 0; x < numPartitionsX; ++x) {
+	for (int x = 0; x < numPartitionsX; ++x) {
+		for (int y = 0; y < numPartitionsY; ++y) {
 			worldPartitions[x][y].setStatus(true, currWorldUpdate);
 		}
 	}
@@ -135,8 +136,8 @@ void SandWorld::updatePartition(int p_x, int p_y, std::vector<SwapOp>& swaps) {
 	int xf = (xi + partitionSizeInCells);
 	int yf = (yi + partitionSizeInCells);
 
-	for (int y = yi; y < yf; ++y) {
-		for (int x = xi; x < xf; ++x) {
+	for (int x = xi; x < xf; ++x) {
+		for (int y = yi; y < yf; ++y) {
 
 			Entity& currCell = grid[x][y];
 			if (currCell.getId() == CellId::Air) continue;
@@ -180,8 +181,8 @@ void SandWorld::updateWorld() {
 	int sizeX = numPartitionsX / 4;
 	int sizeY = numPartitionsY / 4;
 
-	for (int iterationY = 0; iterationY < 2; ++iterationY) {
-		for (int iterationX = 0; iterationX < 2; ++iterationX) {
+	for (int iterationX = 0; iterationX < 2; ++iterationX) {
+		for (int iterationY = 0; iterationY < 2; ++iterationY) {
 
 			int interationStartX = sizeX * iterationX;
 			int iterationEndX = sizeX * (iterationX+1);
@@ -190,8 +191,8 @@ void SandWorld::updateWorld() {
 			int iterationEndY = sizeY * (iterationY+1);
 
 			std::vector<std::future<std::vector<SwapOp>>> futures;
-			for (int halfY = 0; halfY < 2; ++halfY) {
-				for (int halfX = 0; halfX < 2; ++halfX) {
+			for (int halfX = 0; halfX < 2; ++halfX) {
+				for (int halfY = 0; halfY < 2; ++halfY) {
 
 					int currStartX = interationStartX + (numPartitionsX/2 * halfX);
 					int currEndX   = iterationEndX    + (numPartitionsX/2 * halfX);
@@ -245,8 +246,8 @@ void SandWorld::enablePartitionsAround(int x, int y) {
 	int partitionY = y / partitionSizeInCells;
 	int radius = 1;
 
-	for (int dy = -radius; dy <= radius; ++dy) {
-		for (int dx = -radius; dx <= radius; ++dx) {
+	for (int dx = -radius; dx <= radius; ++dx) {
+		for (int dy = -radius; dy <= radius; ++dy) {
 			int newPartitionX = partitionX + dx;
 			int newPartitionY = partitionY + dy;
 

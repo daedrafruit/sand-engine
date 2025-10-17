@@ -18,14 +18,14 @@ enum class CellId : uint8_t {
 };
 
 class Entity {
-	public:
-		int lastUpdated;
-		uint8_t ra = 0;
-
 	private:
 		CellId id;
 
 	public:
+		uint8_t ra = 0;
+		int lastUpdated;
+
+
 		void setId(CellId p_id, int worldUpdate); 
 		CellId getId() const { return id; }
 

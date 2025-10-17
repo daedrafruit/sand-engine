@@ -103,8 +103,8 @@ void RenderWindow::renderWorld(const SandWorld& world) {
 
 	int pixelPitch = pitch/sizeof(unsigned int);
 
-	for (int y = 0; y < world.getGridHeight(); ++y) {
-		for (int x = 0; x < world.getGridWidth(); ++x) {
+	for (int x = 0; x < world.getGridWidth(); ++x) {
+		for (int y = 0; y < world.getGridHeight(); ++y) {
 
 			const Entity& cell = world.getCellAt(x, y);
 			Color cellColor = cell.getColor();
