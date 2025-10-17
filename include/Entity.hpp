@@ -28,7 +28,8 @@ class Entity {
 		CellId getId() const { return id; }
 
 		Color getColor() const;
-		void update(std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps);
+		// Returns true if any swaps were generated, indicates that partition is active
+		bool update(std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps);
 
 
 		Entity(int worldUpdate, CellId p_id)
@@ -44,16 +45,16 @@ class Entity {
 };
 
 namespace sand {
-	void update(const std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outswaps);
+	bool update(const std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outswaps);
 }
 namespace water {
-	std::vector<SwapOp> update(const std::vector<std::vector<Entity>>& grid, int x, int y);
+	bool update(const std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps);
 }
 namespace fire {
-	std::vector<SwapOp> update(std::vector<std::vector<Entity>>& grid, int x, int y);
+	bool update(std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps);
 }
 namespace smoke {
-	std::vector<SwapOp> update(std::vector<std::vector<Entity>>& grid, int x, int y);
+	bool update(std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps);
 }
 
 
@@ -64,7 +65,7 @@ namespace smoke {
 /*
 		(x1, y1, x2, y2, optional replace entity)
 
-	 Swaps are usually very simple, just the coordinates of two cells to be swapped, however sometimes a cell needs to be replaced, such as with air if the cell is to be removed or fire -> smoke, in this case, we use the newEntity variable, when this entity is not null, sandworld will know it is a replace operation, in a replace operation x2 and y2 are not used 
+	 Swaps are usually very simple, just the coordinates of two cells to be swapped, however sometimes a cell needs to be replaced, such as with air if the cell is to be removed or fire -> smoke, in this case, we use the id variable, when this id is not Null, sandworld will know it is a replace operation. In a replace operation x2 and y2 are not used 
 */
 
 struct SwapOp {

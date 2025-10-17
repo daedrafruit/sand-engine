@@ -119,61 +119,6 @@ void SandWorld::setWorldUpdate() {
 	currWorldUpdate = (SDL_GetTicks());
 }
 
-void SandWorld::updateWorld() {
-	int sizeX = numPartitionsX / 4;
-	int sizeY = numPartitionsY / 4;
-
-	for (int iterationY = 0; iterationY < 2; ++iterationY) {
-		for (int iterationX = 0; iterationX < 2; ++iterationX) {
-
-			int interationStartX = sizeX * iterationX;
-			int iterationEndX = sizeX * (iterationX+1);
-
-			int iterationStartY = sizeY * iterationY;
-			int iterationEndY = sizeY * (iterationY+1);
-
-			std::vector<std::future<std::vector<SwapOp>>> futures;
-			for (int halfY = 0; halfY < 2; ++halfY) {
-				for (int halfX = 0; halfX < 2; ++halfX) {
-
-					int currStartX = interationStartX + (numPartitionsX/2 * halfX);
-					int currEndX   = iterationEndX    + (numPartitionsX/2 * halfX);
-
-					int currStartY = iterationStartY  + (numPartitionsY/2 * halfY);
-					int currEndY   = iterationEndY    + (numPartitionsY/2 * halfY);
-
-					futures.emplace_back(std::async(std::launch::async, &SandWorld::updatePartitionsInRange, this, currStartX, currEndX, currStartY, currEndY));
-
-				}
-			}
-			for (std::future<std::vector<SwapOp>>& f : futures) {
-				for (SwapOp& s : f.get()) {
-					worldSwaps.emplace_back(s);
-				}
-			}
-		}
-	}
-	commitSwaps();
-}
-
-std::vector<SwapOp> SandWorld::updatePartitionsInRange(int xi, int xf, int yi, int yf) {
-	std::vector<SwapOp> swaps;
-	for (int x = xi; x < xf; ++x) {
-		for (int y = yi; y < yf; ++y) {
-			if (!worldPartitions[x][y].isEnabled()) continue;
-
-			partition& currPartition = worldPartitions[x][y];
-
-			if (currPartition.getLastUpdated() != currWorldUpdate) {
-				currPartition.setStatus(false, currWorldUpdate);
-			}
-			updatePartition(x, y, swaps); 
-		}
-	}
-	return swaps;
-}
-
-
 void SandWorld::updatePartition(int p_x, int p_y, std::vector<SwapOp>& swaps) {
 
 	int xi = p_x * partitionSizeInCells;
@@ -199,12 +144,65 @@ void SandWorld::updatePartition(int p_x, int p_y, std::vector<SwapOp>& swaps) {
 
 			int oldLen = swaps.size();
 
-			currCell.update(grid, x, y, swaps);
+			if(currCell.update(grid, x, y, swaps))
+				enablePartitionsAround(x, y);
 
-			bool areNewSwaps = swaps.size() > oldLen;
-			if (areNewSwaps) enablePartitionsAround(x, y);	
 		}
 	}
+}
+
+std::vector<SwapOp> SandWorld::updatePartitionsInArea(int xi, int xf, int yi, int yf) {
+	std::vector<SwapOp> swaps;
+	for (int x = xi; x < xf; ++x) {
+		for (int y = yi; y < yf; ++y) {
+			if (!worldPartitions[x][y].isEnabled()) continue;
+
+			partition& currPartition = worldPartitions[x][y];
+
+			if (currPartition.getLastUpdated() != currWorldUpdate) {
+				currPartition.setStatus(false, currWorldUpdate);
+			}
+			updatePartition(x, y, swaps); 
+		}
+	}
+	return swaps;
+}
+
+void SandWorld::updateWorld() {
+	int sizeX = numPartitionsX / 4;
+	int sizeY = numPartitionsY / 4;
+
+	for (int iterationY = 0; iterationY < 2; ++iterationY) {
+		for (int iterationX = 0; iterationX < 2; ++iterationX) {
+
+			int interationStartX = sizeX * iterationX;
+			int iterationEndX = sizeX * (iterationX+1);
+
+			int iterationStartY = sizeY * iterationY;
+			int iterationEndY = sizeY * (iterationY+1);
+
+			std::vector<std::future<std::vector<SwapOp>>> futures;
+			for (int halfY = 0; halfY < 2; ++halfY) {
+				for (int halfX = 0; halfX < 2; ++halfX) {
+
+					int currStartX = interationStartX + (numPartitionsX/2 * halfX);
+					int currEndX   = iterationEndX    + (numPartitionsX/2 * halfX);
+
+					int currStartY = iterationStartY  + (numPartitionsY/2 * halfY);
+					int currEndY   = iterationEndY    + (numPartitionsY/2 * halfY);
+
+					futures.emplace_back(std::async(std::launch::async, &SandWorld::updatePartitionsInArea, this, currStartX, currEndX, currStartY, currEndY));
+
+				}
+			}
+			for (std::future<std::vector<SwapOp>>& f : futures) {
+				for (SwapOp& s : f.get()) {
+					worldSwaps.emplace_back(s);
+				}
+			}
+		}
+	}
+	commitSwaps();
 }
 
 void SandWorld::commitSwaps() {

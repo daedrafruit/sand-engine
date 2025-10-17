@@ -32,29 +32,31 @@ Color Entity::getColor() const {
 	}
 }
 
-void Entity::update(std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps) {
+bool Entity::update(std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps) {
 	const Entity& target = grid[x][y];
 
 	switch (target.getId()) {
-		case CellId::Air:
-	//		return outSwaps;
-		case CellId::Stone:
-	//		return outSwaps;
+		case CellId::Null: 
+		case CellId::Air: 
+		case CellId::Stone: 
+			return false;
+
 		case CellId::Sand:
-			sand::update(grid, x, y, outSwaps);
+			return sand::update(grid, x, y, outSwaps);
 		case CellId::Water:
-	//		return water::update(grid, x, y);
+			return water::update(grid, x, y, outSwaps);
 		case CellId::Fire:
-	//		return fire::update(grid, x, y);
+			return fire::update(grid, x, y, outSwaps);
 		case CellId::Smoke:
-	//		return smoke::update(grid, x, y);
+			return smoke::update(grid, x, y, outSwaps);
 		default:
-			std::cout;
-		}
+				return false;
+	}
 }
 
-void sand::update(const std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps) {
+bool sand::update(const std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps) {
 
+	bool updated = false;
 	SwapOp checkCells[3] = {
 			swaps::below(x, y),
 			swaps::downLeft(x, y),
@@ -68,12 +70,15 @@ void sand::update(const std::vector<std::vector<Entity>>& grid, int x, int y, st
 
 		if (cell2.getId() == CellId::Air || cell2.getId() == CellId::Water) {
 			outSwaps.emplace_back(std::move(swap));
+			updated = true;
 			break;
 		}
 	}
+	return updated;
 }
 
-std::vector<SwapOp> water::update(const std::vector<std::vector<Entity>>& grid, int x, int y) {
+bool water::update(const std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps) {
+	bool updated = false;
 	SwapOp checkCells[5] = {
 			swaps::below(x, y),
 			swaps::downLeft(x, y),
@@ -83,29 +88,28 @@ std::vector<SwapOp> water::update(const std::vector<std::vector<Entity>>& grid, 
 	};
 	std::shuffle(checkCells + 1, checkCells + 5, utils::getRandomEngine());
 
-	std::vector<SwapOp> outSwaps;
 	for (SwapOp& swap : checkCells) {
 		const Entity& cell1 = grid[swap.x1][swap.y1];
 		const Entity& cell2 = grid[swap.x2][swap.y2];
 
 		if (cell2.getId() == CellId::Air) {
 			outSwaps.emplace_back(std::move(swap));
+			updated = true;
 			break;
 		}
 	}
-	return outSwaps;
+	return updated;
 }
 
-std::vector<SwapOp> fire::update(std::vector<std::vector<Entity>>& grid, int x, int y) {
+bool fire::update(std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps) {
 
 	Entity& cell1 = grid[x][y];
 
-	std::vector<SwapOp> outSwaps;
 	//timer to self destruct
 	if ((cell1.ra >= 100)) {
 		cell1.ra = 0;
 		outSwaps.emplace_back(x, y, x, y, CellId::Smoke);
-		return outSwaps;
+		return true;
 	} else {
 		cell1.ra++;
 	}
@@ -127,25 +131,21 @@ std::vector<SwapOp> fire::update(std::vector<std::vector<Entity>>& grid, int x, 
 			break;
 		} 
 		if (cell2.getId() == CellId::Water) {
-			Entity air = Entity(CellId::Air);
 			outSwaps.emplace_back(x, y, x, y, CellId::Air);
 			break;
 		} 
 	}
-	//return self swap so that partition stays enabled and timer can continue
-	return outSwaps;
+	// always return true to keep partition (and counter) active
+	return true;
 }
 
-std::vector<SwapOp> smoke::update(std::vector<std::vector<Entity>>& grid, int x, int y) {
-
+bool smoke::update(std::vector<std::vector<Entity>>& grid, int x, int y, std::vector<SwapOp>& outSwaps) {
 	Entity& cell1 = grid[x][y];
 
-	std::vector<SwapOp> outSwaps;
 	//timer to self destruct
 	if ((cell1.ra >= 75)) {
 		cell1.ra = 0;
 		outSwaps.emplace_back(x, y, x, y, CellId::Air);
-		return outSwaps;
 	} else {
 		cell1.ra++;
 	}
@@ -167,8 +167,8 @@ std::vector<SwapOp> smoke::update(std::vector<std::vector<Entity>>& grid, int x,
 			break;
 		} 
 	}
-	//return self swap so that partition stays enabled and timer can continue
-	return outSwaps;
+	// always return true to keep partition (and counter) active
+	return true;
 }
 
 

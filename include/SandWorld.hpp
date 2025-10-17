@@ -66,8 +66,8 @@ private:
 
 	void initializeGrid();
 	
-	// Update partitions in a given range, used for parallel processing
-	std::vector<SwapOp> updatePartitionsInRange(int xi, int xf, int yi, int yf); 
+	// Get SwapOps from partitions in a given area (in unit partitions), used for parallel processing
+	std::vector<SwapOp> updatePartitionsInArea(int xi, int xf, int yi, int yf); 
 
 	// Call resepctive update function for each cell in given partition
 	void updatePartition(int x, int y, std::vector<SwapOp>& swaps);
