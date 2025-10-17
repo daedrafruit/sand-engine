@@ -32,132 +32,125 @@ Color Entity::getColor() const {
 	}
 }
 
-namespace Sand {
-	std::vector<SwapOp> update(const std::vector<std::vector<Entity>>& grid, int x, int y) {
+std::vector<SwapOp> sand::update(const std::vector<std::vector<Entity>>& grid, int x, int y) {
 
-		SwapOp checkCells[3] = {
-				swaps::below(x, y),
-				swaps::downLeft(x, y),
-				swaps::downRight(x, y)
-		};
-		std::shuffle(checkCells + 1, checkCells + 3, utils::getRandomEngine());
+	SwapOp checkCells[3] = {
+			swaps::below(x, y),
+			swaps::downLeft(x, y),
+			swaps::downRight(x, y)
+	};
+	std::shuffle(checkCells + 1, checkCells + 3, utils::getRandomEngine());
 
-		std::vector<SwapOp> outSwaps;
+	std::vector<SwapOp> outSwaps;
 
-		for (SwapOp& swap : checkCells) {
-			const Entity& cell1 = grid[swap.x1][swap.y1];
-			const Entity& cell2 = grid[swap.x2][swap.y2];
+	for (SwapOp& swap : checkCells) {
+		const Entity& cell1 = grid[swap.x1][swap.y1];
+		const Entity& cell2 = grid[swap.x2][swap.y2];
 
-			if (cell2.getId() == CellId::Air || cell2.getId() == CellId::Water) {
-				outSwaps.emplace_back(std::move(swap));
-				break;
-			}
+		if (cell2.getId() == CellId::Air || cell2.getId() == CellId::Water) {
+			outSwaps.emplace_back(std::move(swap));
+			break;
 		}
-		return outSwaps;
 	}
-}
-namespace Water {
-	std::vector<SwapOp> update(const std::vector<std::vector<Entity>>& grid, int x, int y) {
-
-		SwapOp checkCells[5] = {
-				swaps::below(x, y),
-				swaps::downLeft(x, y),
-				swaps::downRight(x, y),
-				swaps::left(x, y),
-				swaps::right(x, y)
-		};
-		std::shuffle(checkCells + 1, checkCells + 5, utils::getRandomEngine());
-
-		std::vector<SwapOp> outSwaps;
-		for (SwapOp& swap : checkCells) {
-			const Entity& cell1 = grid[swap.x1][swap.y1];
-			const Entity& cell2 = grid[swap.x2][swap.y2];
-
-			if (cell2.getId() == CellId::Air) {
-				outSwaps.emplace_back(std::move(swap));
-				break;
-			}
-		}
-		return outSwaps;
-	}
+	return outSwaps;
 }
 
-namespace Fire {
-	std::vector<SwapOp> update(std::vector<std::vector<Entity>>& grid, int x, int y) {
+std::vector<SwapOp> water::update(const std::vector<std::vector<Entity>>& grid, int x, int y) {
+	SwapOp checkCells[5] = {
+			swaps::below(x, y),
+			swaps::downLeft(x, y),
+			swaps::downRight(x, y),
+			swaps::left(x, y),
+			swaps::right(x, y)
+	};
+	std::shuffle(checkCells + 1, checkCells + 5, utils::getRandomEngine());
 
-		Entity& cell1 = grid[x][y];
+	std::vector<SwapOp> outSwaps;
+	for (SwapOp& swap : checkCells) {
+		const Entity& cell1 = grid[swap.x1][swap.y1];
+		const Entity& cell2 = grid[swap.x2][swap.y2];
 
-		std::vector<SwapOp> outSwaps;
-		//timer to self destruct
-		if ((cell1.ra >= 100)) {
-			cell1.ra = 0;
-			outSwaps.emplace_back(x, y, x, y, CellId::Smoke);
-			return outSwaps;
-		} else {
-			cell1.ra++;
+		if (cell2.getId() == CellId::Air) {
+			outSwaps.emplace_back(std::move(swap));
+			break;
 		}
-
-		SwapOp checkCells[5] = {
-				swaps::above(x, y),
-				swaps::upLeft(x, y),
-				swaps::upRight(x, y),
-				swaps::left(x, y),
-				swaps::right(x, y)
-		};
-
-		std::shuffle(checkCells, checkCells + 5, utils::getRandomEngine());
-		for (SwapOp& swap : checkCells) {
-			const Entity& cell2 = grid[swap.x2][swap.y2];
-
-			if (cell2.getId() == CellId::Air) {
-				outSwaps.emplace_back(std::move(swap));
-				break;
-			} 
-			if (cell2.getId() == CellId::Water) {
-				Entity air = Entity(CellId::Air);
-				outSwaps.emplace_back(x, y, x, y, CellId::Air);
-				break;
-			} 
-		}
-		//return self swap so that partition stays enabled and timer can continue
-		return outSwaps;
 	}
+	return outSwaps;
 }
-namespace Smoke {
-	std::vector<SwapOp> update(std::vector<std::vector<Entity>>& grid, int x, int y) {
 
-		Entity& cell1 = grid[x][y];
+std::vector<SwapOp> fire::update(std::vector<std::vector<Entity>>& grid, int x, int y) {
 
-		std::vector<SwapOp> outSwaps;
-		//timer to self destruct
-		if ((cell1.ra >= 75)) {
-			cell1.ra = 0;
+	Entity& cell1 = grid[x][y];
+
+	std::vector<SwapOp> outSwaps;
+	//timer to self destruct
+	if ((cell1.ra >= 100)) {
+		cell1.ra = 0;
+		outSwaps.emplace_back(x, y, x, y, CellId::Smoke);
+		return outSwaps;
+	} else {
+		cell1.ra++;
+	}
+
+	SwapOp checkCells[5] = {
+			swaps::above(x, y),
+			swaps::upLeft(x, y),
+			swaps::upRight(x, y),
+			swaps::left(x, y),
+			swaps::right(x, y)
+	};
+
+	std::shuffle(checkCells, checkCells + 5, utils::getRandomEngine());
+	for (SwapOp& swap : checkCells) {
+		const Entity& cell2 = grid[swap.x2][swap.y2];
+
+		if (cell2.getId() == CellId::Air) {
+			outSwaps.emplace_back(std::move(swap));
+			break;
+		} 
+		if (cell2.getId() == CellId::Water) {
+			Entity air = Entity(CellId::Air);
 			outSwaps.emplace_back(x, y, x, y, CellId::Air);
-			return outSwaps;
-		} else {
-			cell1.ra++;
-		}
-
-		SwapOp checkCells[5] = {
-				swaps::above(x, y),
-				swaps::upLeft(x, y),
-				swaps::upRight(x, y),
-				swaps::left(x, y),
-				swaps::right(x, y)
-		};
-
-		std::shuffle(checkCells, checkCells + 5, utils::getRandomEngine());
-		for (SwapOp& swap : checkCells) {
-			const Entity& cell2 = grid[swap.x2][swap.y2];
-
-			if (cell2.getId() == CellId::Air) {
-				outSwaps.emplace_back(std::move(swap));
-				break;
-			} 
-		}
-		//return self swap so that partition stays enabled and timer can continue
-		return outSwaps;
+			break;
+		} 
 	}
+	//return self swap so that partition stays enabled and timer can continue
+	return outSwaps;
+}
+
+std::vector<SwapOp> smoke::update(std::vector<std::vector<Entity>>& grid, int x, int y) {
+
+	Entity& cell1 = grid[x][y];
+
+	std::vector<SwapOp> outSwaps;
+	//timer to self destruct
+	if ((cell1.ra >= 75)) {
+		cell1.ra = 0;
+		outSwaps.emplace_back(x, y, x, y, CellId::Air);
+		return outSwaps;
+	} else {
+		cell1.ra++;
+	}
+
+	SwapOp checkCells[5] = {
+			swaps::above(x, y),
+			swaps::upLeft(x, y),
+			swaps::upRight(x, y),
+			swaps::left(x, y),
+			swaps::right(x, y)
+	};
+
+	std::shuffle(checkCells, checkCells + 5, utils::getRandomEngine());
+	for (SwapOp& swap : checkCells) {
+		const Entity& cell2 = grid[swap.x2][swap.y2];
+
+		if (cell2.getId() == CellId::Air) {
+			outSwaps.emplace_back(std::move(swap));
+			break;
+		} 
+	}
+	//return self swap so that partition stays enabled and timer can continue
+	return outSwaps;
 }
 
 std::vector<SwapOp> Entity::update(std::vector<std::vector<Entity>>& grid, int x, int y) {
@@ -170,13 +163,13 @@ std::vector<SwapOp> Entity::update(std::vector<std::vector<Entity>>& grid, int x
 		case CellId::Stone:
 			return outSwaps;
 		case CellId::Sand:
-			return Sand::update(grid, x, y);
+			return sand::update(grid, x, y);
 		case CellId::Water:
-			return Water::update(grid, x, y);
+			return water::update(grid, x, y);
 		case CellId::Fire:
-			return Fire::update(grid, x, y);
+			return fire::update(grid, x, y);
 		case CellId::Smoke:
-			return Smoke::update(grid, x, y);
+			return smoke::update(grid, x, y);
 		default:
 			return outSwaps;
 		}

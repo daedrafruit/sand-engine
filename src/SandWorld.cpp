@@ -2,7 +2,6 @@
 #include <SDL3/SDL_timer.h>
 #include <algorithm>
 #include <future>
-#include <thread>
 #include <vector>
 #include <SDL3/SDL.h>
 #include <stdexcept>
@@ -133,7 +132,7 @@ void SandWorld::updateWorld() {
 			int iterationStartY = sizeY * iterationY;
 			int iterationEndY = sizeY * (iterationY+1);
 
-			std::vector<std::future<std::vector<std::vector<SwapOp>>>> futures;
+			std::vector<std::future<std::vector<SwapOp>>> futures;
 			for (int halfY = 0; halfY < 2; ++halfY) {
 				for (int halfX = 0; halfX < 2; ++halfX) {
 
@@ -147,18 +146,16 @@ void SandWorld::updateWorld() {
 
 				}
 			}
-			for (std::future<std::vector<std::vector<SwapOp>>>& f : futures) {
-				for (std::vector<SwapOp>& s : f.get()) {
-					swapLists.emplace_back(s);
-				}
+			for (std::future<std::vector<SwapOp>>& f : futures) {
+				swapLists.emplace_back(f.get());
 			}
 		}
 	}
 	commitSwaps();
 }
 
-std::vector<std::vector<SwapOp>> SandWorld::updatePartitionsInRange(int xi, int xf, int yi, int yf) {
-	std::vector<std::vector<SwapOp>> swapsList;
+std::vector<SwapOp> SandWorld::updatePartitionsInRange(int xi, int xf, int yi, int yf) {
+	std::vector<SwapOp> swaps;
 	for (int x = xi; x < xf; ++x) {
 		for (int y = yi; y < yf; ++y) {
 			if (!worldPartitions[x][y].isEnabled()) continue;
@@ -168,10 +165,12 @@ std::vector<std::vector<SwapOp>> SandWorld::updatePartitionsInRange(int xi, int 
 			if (currPartition.getLastUpdated() != currWorldUpdate) {
 				currPartition.setStatus(false, currWorldUpdate);
 			}
-			swapsList.emplace_back(updatePartition(x, y));
+			for (SwapOp& s : updatePartition(x, y)) {
+				swaps.emplace_back(s);
+			}
 		}
 	}
-	return swapsList;
+	return swaps;
 }
 
 

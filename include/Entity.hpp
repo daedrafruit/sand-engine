@@ -43,6 +43,19 @@ class Entity {
 		~Entity() = default;
 };
 
+namespace sand {
+	std::vector<SwapOp> update(const std::vector<std::vector<Entity>>& grid, int x, int y);
+}
+namespace water {
+	std::vector<SwapOp> update(const std::vector<std::vector<Entity>>& grid, int x, int y);
+}
+namespace fire {
+	std::vector<SwapOp> update(std::vector<std::vector<Entity>>& grid, int x, int y);
+}
+namespace smoke {
+	std::vector<SwapOp> update(std::vector<std::vector<Entity>>& grid, int x, int y);
+}
+
 
 // *********************************************************************
 // Swap Logic

@@ -78,7 +78,7 @@ private:
 	std::vector<std::vector<Entity>> grid;
 
 	void initializeGrid();
-	std::vector<std::vector<SwapOp>> updatePartitionsInRange(int xi, int xf, int yi, int yf); 
+	std::vector<SwapOp> updatePartitionsInRange(int xi, int xf, int yi, int yf); 
 	
 	std::vector<std::vector<partition>> worldPartitions;
 
