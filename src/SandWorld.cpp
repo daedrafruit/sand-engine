@@ -158,7 +158,7 @@ void SandWorld::updateWorld() {
 					int curr_y_start = iteration_y_start  + (numPartitionsY/2 * half_y);
 					int curr_y_end   = iteration_y_end    + (numPartitionsY/2 * half_y);
 
-						threads.push_back(std::thread(&SandWorld::updatePartitionRange, this, curr_x_start, curr_x_end, curr_y_start, curr_y_end));
+					threads.push_back(std::thread(&SandWorld::updatePartitionRange, this, curr_x_start, curr_x_end, curr_y_start, curr_y_end));
 				}
 			}
 			for (auto& t : threads) {
@@ -196,8 +196,7 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 			if (!newSwaps.empty()) {
 				enablePartitionsAround(x, y);
 				for (SwapOp& swap : newSwaps) {
-					std::lock_guard<std::mutex> guard(mut);
-					swaps.emplace_back(std::move(swap));
+					swapLists.push_back(newSwaps);
 				}
 			}
 		}
@@ -205,30 +204,34 @@ void SandWorld::updatePartition(int p_x, int p_y) {
 }
 
 void SandWorld::commitSwaps() {
-	std::shuffle(swaps.begin(), swaps.end(), utils::getRandomEngine());
-	for (SwapOp& swap : swaps) {
+	std::shuffle(swapLists.begin(), swapLists.end(), utils::getRandomEngine());
+	for (std::vector<SwapOp>& swaps : swapLists) {
+		std::shuffle(swaps.begin(), swaps.end(), utils::getRandomEngine());
+		for (SwapOp& swap : swaps) {
 
-		Entity& cell1 = grid[swap.x1][swap.y1];
-		Entity& cell2 = grid[swap.x2][swap.y2];
+			Entity& cell1 = grid[swap.x1][swap.y1];
+			Entity& cell2 = grid[swap.x2][swap.y2];
 
-		//if swap contains entity, it is a replace swap
-		if (swap.id != CellId::Null) {
-			cell1.setId(swap.id, currWorldUpdate);
-			continue;
+			//if swap contains entity, it is a replace swap
+			if (swap.id != CellId::Null) {
+				cell1.setId(swap.id, currWorldUpdate);
+				continue;
+			}
+
+			bool cellPrevUpdated = cell1.lastUpdated == currWorldUpdate || cell2.lastUpdated == currWorldUpdate;
+
+			if (cellPrevUpdated) {
+				continue;
+			}
+
+			cell1.lastUpdated = currWorldUpdate;
+			cell2.lastUpdated = currWorldUpdate;
+
+			std::swap(cell1, cell2);
 		}
-
-		bool cellPrevUpdated = cell1.lastUpdated == currWorldUpdate || cell2.lastUpdated == currWorldUpdate;
-
-		if (cellPrevUpdated) {
-			continue;
-		}
-
-		cell1.lastUpdated = currWorldUpdate;
-		cell2.lastUpdated = currWorldUpdate;
-
-		std::swap(cell1, cell2);
+		swaps.clear();
 	}
-	swaps.clear();
+	swapLists.clear();
 }
 
 void SandWorld::enablePartitionsAround(int x, int y) {
